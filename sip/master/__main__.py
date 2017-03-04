@@ -23,6 +23,7 @@ import threading
 import subprocess
 import os
 import time
+from rediscluster import StrictRedisCluster
 from rpyc.utils.server import ThreadedServer
 
 # Export environment variable SIP_HOSTNAME
@@ -41,6 +42,14 @@ __author__ = 'David Terrett + Brian McIlwrath'
 sip_root = os.path.join(os.path.dirname(__file__), '..')
 config_file = os.path.join(sip_root, 'etc', 'slave_map.json')
 resources_file = os.path.join(sip_root, 'etc', 'resources.json')
+
+# Start redis cluster
+print("Starting Redis Cluster...")
+subprocess.Popen([os.path.join(sip_root, 'redis-cluster', 'create-cluster'), 'start'], shell=False)
+
+# # Starting redis server
+# print("Starting redis serer...")
+# subprocess.Popen('/home/njthykkathu/redis-3.2.6/src/redis-server', stdout=subprocess.PIPE)
 
 # Create the resource manager
 with open(resources_file) as f:

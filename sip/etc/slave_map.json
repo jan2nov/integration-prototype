@@ -13,6 +13,17 @@
             "#tcp_port"
             ]
         },
+    "local_telescope_state": {
+        "online": 1,
+        "timeout": 10,
+        "launch_policy": "ssh",
+        "task_control_module": {
+            "name": "TaskControlProcessPoller"
+        },
+        "task": [
+            "#{sip_root}/tasks/redis_nodes.py"
+            ]
+        },
     "QA": {
         "online": 1,
         "timeout": 10,
@@ -52,7 +63,7 @@
             ]
         },
     "pulsar_search": {
-        "online": 0,
+        "online": 1,
         "timeout": 10,
         "launch_policy": "ssh",
         "task_control_module": {

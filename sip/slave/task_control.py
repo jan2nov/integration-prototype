@@ -246,3 +246,37 @@ class TaskControlExample(TaskControl):
             if len(tokens) < 4:
                 tokens = [' ', ' ', ' ', '', ' ', ' ']
             return tokens[3]
+
+
+# Task for Telescope State Service
+
+# class TaskControlLTS(TaskControl):
+#     """Task controller which works with the example tasks.
+#
+#     - Example tasks: tasks/task.py, exec_eng.py
+#     - Uses subproccess.Popen() to start the task.
+#     - Checks for states (state1, state2, busy and finished) from the task and
+#       updates the slave state (global) based on these to idle or busy.
+#     """
+#     def __init__(self):
+#         TaskControl.__init__(self)
+#         self._poller = None
+#         self.name = ''
+#         self._subproc = None
+#
+#     def start(self, task, settings):
+#         """load the task
+#
+#         Some sort of task monitoring process should also be started. For
+#         'internal' tasks this means checking that the task is sending
+#         heartbeat messages.
+#
+#         Args:
+#             task (string list): Path to the task and its command line arguments.
+#             settings (dict): Settings dictionary for the task control object.
+#         """
+#
+#
+#         # Start redis cluster
+#         print("Starting Redis Cluster...")
+#         subprocess.Popen([os.path.join('/home/njthykkathu/integration-prototype/sip/redis-cluster/create-cluster'), 'start'], shell=False)

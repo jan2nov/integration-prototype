@@ -7,6 +7,7 @@ import os
 import signal
 import threading
 import time
+import subprocess
 
 from sip.common.logging_api import log
 
@@ -33,6 +34,16 @@ class Shutdown(threading.Thread):
         log.info('Terminating logserver, pid ', config.logserver.pid)
         config.logserver.send_signal(signal.SIGINT)
         # os.kill(config.logserver.pid, signal.SIGTERM)
+
+        # # Stopping redis-server with redis-cli (instead of just killing it)
+        # print("Stopping redis-server... ")
+        # command = '/home/njthykkathu/redis-3.2.6/src/redis-cli -p 6379 shutdown'
+        # subprocess.Popen(command.split(), shell=False)
+
+        # Stopping redis cluster (instead of just killing it)
+        print("Stopping redis cluster... ")
+        command = '/home/njthykkathu/cluster-test/create-cluster stop'
+        subprocess.Popen(command.split(), shell=False)
 
         print('Shutdown complete. Goodbye!')
 
