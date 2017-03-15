@@ -1,4 +1,4 @@
-Docker Redis Cluster
+# Docker Redis Cluster
 
 Docker image with redis built and installed from source. The main usage
 for this container is to test redis cluster code. The cluster is 6 redis
@@ -37,6 +37,18 @@ And to run the container use:
 To connect to your cluster you can use the redis-cli tool:
 
     redis-cli -c -p 7000
+    execute commands such as
+    SET mykey HELLO
+    SET foo bar
+    GET mykey
+    GET foo
+    keys *
 
+    You should be able to see that redis cluster nodes are able to redirect a client
+    to the right node.
 
-For testing
+    or
+
+    execute python3 -m sample_data.py
+
+    This will set and get data from redis using redis python client.

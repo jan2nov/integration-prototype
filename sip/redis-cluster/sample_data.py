@@ -19,7 +19,7 @@ def main():
     # Note: decode_responses must be set to True when used with python3
     rc = StrictRedisCluster(startup_nodes=startup_nodes, decode_responses=True)
 
-    # Sets Data in Redis Database
+    # Sets Data in Redis Database - Random Data
     rc.set("telescope_model:sdp:pulsar_search:1:n_sub_integrations", "1000")
     rc.set("telescope_model:sdp:pulsar_search:1:n_channels", "1001")
     rc.set("telescope_model:sdp:pulsar_search:2:n_sub_integrations", "2000")
@@ -33,10 +33,14 @@ def main():
     rc.set("telescope_model:csp:pulsar_search:2:n_data", "600")
 
     # Querying data from the database
-    print(rc.get("telescope_model:sdp:pulsar_search:2:n_sub_integrations"))
+    sub_int = rc.get("telescope_model:sdp:pulsar_search:2:n_sub_integrations")
+    print("telescope_model:sdp:pulsar_search:2:n_sub_integrations - " + sub_int)
+    n_data = rc.get("telescope_model:csp:pulsar_search:1:n_data")
+    print("telescope_model:csp:pulsar_search:1:n_data - " + n_data)
 
     # Querying keys from the database
-    print(rc.keys("telescope_model:csp:*"))
+    keys = rc.keys("telescope_model:csp:*")
+    print("telescope_model:csp:* - " + str(keys))
 
 if __name__ == '__main__':
     main()
