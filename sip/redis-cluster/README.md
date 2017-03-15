@@ -26,18 +26,20 @@ To build your own image run:
 
     make build
 
-And to run the container use:
+To run the container use:
 
     make run
 
-    # and top stop the container run
+To stop the container run
 
     make stop
 
 To connect to your cluster you can use the redis-cli tool:
 
     redis-cli -c -p 7000
+
     execute commands such as
+
     SET mykey HELLO
     SET foo bar
     GET mykey
