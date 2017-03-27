@@ -1,0 +1,6 @@
+[manager]
+sip01
+
+[worker]
+sip02
+sip03

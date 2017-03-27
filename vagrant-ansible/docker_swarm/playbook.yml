@@ -1,0 +1,32 @@
+---
+# ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts playbook.yml
+
+# Install Docker on all nodes
+- name: Install docker
+  hosts: all
+  remote_user: vagrant
+  become_method: sudo
+  roles:
+    - role: angstwad.docker_ubuntu
+      docker_apt_cache_valid_time: 3600
+      install_docker_py_on_1604: true
+      update_docker_package: true
+      docker_group_members: [ vagrant ]
+      become: true
+
+# Configure the docker swarm
+- include: swarm_plays.yml
+  vars:
+    docker_user: vagrant
+    swarm_iface: enp0s8
+
+# Install SIP code.
+- name: Install SIP
+  hosts:
+    - sip01
+  remote_user: vagrant
+  become_method: sudo
+  vars:
+    - sip_branch: paas_prototype
+  roles:
+    - role: ska.sip

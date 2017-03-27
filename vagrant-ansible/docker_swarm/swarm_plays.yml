@@ -1,0 +1,155 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2016 This End Out, LLC
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+--- # Playbook to set up docker swarm mode
+# https://thisendout.com/2016/09/13/deploying-docker-swarm-with-ansible/
+# https://github.com/nextrevision/ansible-swarm-playbook
+
+
+# Determine the status of each manager node and break them into groups
+# - swarm_manager_operational (swarm is running and active)
+# - swarm_manager_bootstrap (host needs to be joined to the cluster)
+- name: Get swarm manager status
+  hosts: manager
+  remote_user: "{{ docker_user }}"
+  tasks:
+    - name: determine swarm status
+      shell: >
+        docker info | egrep '^Swarm: ' | cut -d ' ' -f2
+      register: swarm_status
+
+    - name: create swarm_manager_operational group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_manager_operational
+      with_items: "{{ play_hosts }}"
+      when: "'active' in swarm_status.stdout_lines"
+      run_once: true
+
+    - name: create swarm_manager_bootstrap group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_manager_bootstrap
+      with_items: "{{ play_hosts }}"
+      when: "'active' not in swarm_status.stdout_lines"
+      run_once: true
+
+
+# determine the status of each work node and break them into two groups:
+# - swarm_worker_operational (host is joined to the swarm cluster)
+# - swarm_worker_bootstrap (host needs to be joined to the cluster)
+- name: configure swarm workers
+  hosts: worker
+  remote_user: "{{ docker_user }}"
+  tasks:
+    - name: determine swarm status
+      shell: >
+        docker info | egrep '^Swarm: ' | cut -d ' ' -f2
+      register: swarm_status
+
+    - name: create swarm_worker_operational group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_worker_operational
+      with_items: "{{ play_hosts }}"
+      when: "'active' in swarm_status.stdout_lines"
+      run_once: true
+
+    - name: create swarm_worker_bootstrap group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_worker_bootstrap
+      with_items: "{{ play_hosts }}"
+      when: "'active' not in swarm_status.stdout_lines"
+      run_once: true
+
+
+# When the sawrm_manager_operation_group is empty (no hosts running the swarm)
+# we need to initalize one of the hosts and add it to the
+# swarm_manager_operational group
+- name: bootstrap manager
+  hosts: swarm_manager_bootstrap[0]
+  remote_user: "{{ docker_user }}"
+  tasks:
+    - name: initialize swarm cluster
+      shell: >
+        docker swarm init
+        --advertise-addr={{ swarm_iface | default('eth0') }}:2377
+      when: "'swarm_manager_operational' not in groups"
+      register: bootstrap_first_node
+
+    - name: add initialized host to swarm_manager_operational group
+      add_host:
+        hostname: "{{ item }}"
+        groups: swarm_manager_operational
+      with_items: "{{ ansible_play_hosts | default(play_hosts) }}"
+      when: bootstrap_first_node | changed
+
+# Retrieve the swarm tokens and populate a list of ips listenening on the swarm
+# port 2377
+- name: Populate list of manager IPs.
+  hosts: swarm_manager_operational[0]
+  remote_user: "{{ docker_user }}"
+  vars:
+    - iface: "{{ swarm_iface | default('eth0') }}"
+  tasks:
+    - name: retrieve swarm manager token
+      shell: docker swarm join-token -q manager
+      register: swarm_manager_token
+
+    - name: retrieve swarm worker token
+      shell: docker swarm join-token -q worker
+      register: swarm_worker_token
+
+    - name: populate list of manager ips
+      add_host:
+        hostname: "{{ hostvars[item]['ansible_' + iface]['ipv4']['address'] }}"
+        groups: swarm_manager_ips
+      with_items: "{{ ansible_play_hosts | default(play_hosts) }}"
+
+# Join the manager hosts not yet initilaised into the swarm cluster
+- name: Join manager hosts not yet initilaized
+  hosts: swarm_manager_bootstrap:!swarm_manager_operational
+  remote_user: "{{ docker_user }}"
+  vars:
+    token: "{{ hostvars[groups['swarm_manager_operational'][0]]['swarm_manager_token']['stdout'] }}"
+  tasks:
+    - name: join manager nodes to cluster
+      shell: >
+        docker swarm join
+        --advertise-addr={{ swarm_iface | default('eth0') }}:2377
+        --token={{ token }}
+        {{ groups['swarm_manager_ips'][0] }}:2377
+
+# join the worker hosts not yet initialized to the swarm cluster
+- name: Join worked nodes not yet initialized
+  hosts: swarm_worker_bootstrap
+  remote_user: "{{ docker_user }}"
+  vars:
+    token: "{{ hostvars[groups['swarm_manager_operational'][0]]['swarm_worker_token']['stdout'] }}"
+  tasks:
+    - name: join worker nodes to cluster
+      shell: >
+        docker swarm join
+        --advertise-addr={{ swarm_iface | default('eth0') }}:2377
+        --token={{ token }}
+        {{ groups['swarm_manager_ips'][0] }}:2377
