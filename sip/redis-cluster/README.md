@@ -17,6 +17,7 @@ Install Redis
 Redis for Python
 
     sudo pip3 install redis
+    sudo pip3 install redis-py-cluster
 
 Build Docker
 
