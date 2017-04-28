@@ -1,0 +1,10 @@
+---
+- name: Create docker SIP network
+  hosts:
+    - sip01
+  remote_user: vagrant
+  tasks:
+    - name: Create Docker network overlay for SIP
+      docker_network:
+        name: sip
+        driver: overlay

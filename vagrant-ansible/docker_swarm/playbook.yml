@@ -1,8 +1,9 @@
 ---
-# ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts playbook.yml
+# Run with: ansible-playbook -i hosts playbook.yml
 
 # Install Docker on all nodes
-- name: Install docker
+# https://galaxy.ansible.com/angstwad/docker_ubuntu/
+- name: Install docker and reboot
   hosts: all
   remote_user: vagrant
   become_method: sudo
@@ -14,11 +15,32 @@
       docker_group_members: [ vagrant ]
       become: true
 
+# Reboot machines after intalling docker.
+- name: Reboot
+  hosts: all
+  remote_user: vagrant
+  become_method: sudo
+  become: yes
+  roles:
+    - role: GROG.reboot
+      reboot_message: 'Rebooting...'
+
 # Configure the docker swarm
 - include: swarm_plays.yml
   vars:
     docker_user: vagrant
     swarm_iface: enp0s8
+
+# Create docker SIP network overlay
+- name: Create docker SIP network
+  hosts:
+    - sip01
+  remote_user: vagrant
+  tasks:
+    - name: Create Docker network overlay for SIP
+      docker_network:
+        name: sip
+        driver: overlay
 
 # Install SIP code.
 - name: Install SIP

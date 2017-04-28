@@ -22,7 +22,7 @@ In order to create the SIP VMs, from the `vagant-ansible` folder type the follow
 
 This will create a number Ubuntu 16.04 VMs in VirtualBox.
 
-Once they are created, the command 
+Once they are created, the command
 
 ```vagrant status```
 
@@ -38,7 +38,7 @@ To clean up and destroy the VMs use the command
 
 ## Provisioning VMs with Ansible
 
-The scripts depend on an Ansible Galaxy (https://galaxy.ansible.com) role to 
+The scripts depend on an Ansible Galaxy (https://galaxy.ansible.com) role to
 install Docker on the nodes This can be obtained with the following command:
 
 ```ansible-galaxy install angstwad.docker_ubuntu```
@@ -55,3 +55,27 @@ takes a long time on VMs with very modest CPU and RAM allocation.
 If this happens re-running the ```ansible-playbook``` command above
 often allows the script to proceed to the end.*
 
+
+### Ansible 2.3.0.0 on macOS
+
+
+Had to modify /ansible/modules/cloud/docker/docker_network.py to change
+functions disconnect_missing and container_names_in_network to catch
+the case where network['Containers'] is None.
+
+```Python
+def container_names_in_network(network):
+    if network['Containers'] is None:
+        return []
+    return [c['Name'] for c in network['Containers'].values()]
+```
+
+```Python
+def disconnect_missing(self):
+    if self.existing_network['Containers'] is None:
+        return
+    for c in self.existing_network['Containers'].values():
+        name = c['Name']
+        if name not in self.parameters.connected:
+            self.disconnect_container(name)
+```
