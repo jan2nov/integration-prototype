@@ -50,6 +50,6 @@
   remote_user: ubuntu
   become_method: sudo
   vars:
-    - sip_branch: paas_prototype
+    - sip_branch: vagrant-ansible
   roles:
     - role: ska.sip
