@@ -1,41 +1,42 @@
 ---
 # Run with: ansible-playbook -i hosts playbook.yml
 
+# Install python 2
+- hosts: all
+  gather_facts: false
+  remote_user: ubuntu
+  become_method: sudo
+  become: true
+  tasks:
+    - name: install python 2
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+
 # Install Docker on all nodes
 # https://galaxy.ansible.com/angstwad/docker_ubuntu/
 - name: Install docker and reboot
   hosts: all
-  remote_user: vagrant
+  remote_user: ubuntu
   become_method: sudo
+  become: true
   roles:
     - role: angstwad.docker_ubuntu
       docker_apt_cache_valid_time: 3600
       install_docker_py_on_1604: true
       update_docker_package: true
-      docker_group_members: [ vagrant ]
-      become: true
-
-# Reboot machines after intalling docker.
-- name: Reboot
-  hosts: all
-  remote_user: vagrant
-  become_method: sudo
-  become: yes
-  roles:
+      docker_group_members: [ ubuntu ]
     - role: GROG.reboot
-      reboot_message: 'Rebooting...'
 
 # Configure the docker swarm
 - include: swarm_plays.yml
   vars:
-    docker_user: vagrant
+    docker_user: ubuntu
     swarm_iface: enp0s8
 
 # Create docker SIP network overlay
 - name: Create docker SIP network
   hosts:
-    - sip01
-  remote_user: vagrant
+    - sip-swarm-01
+  remote_user: ubuntu
   tasks:
     - name: Create Docker network overlay for SIP
       docker_network:
@@ -45,8 +46,8 @@
 # Install SIP code.
 - name: Install SIP
   hosts:
-    - sip01
-  remote_user: vagrant
+    - sip-swarm-01
+  remote_user: ubuntu
   become_method: sudo
   vars:
     - sip_branch: paas_prototype

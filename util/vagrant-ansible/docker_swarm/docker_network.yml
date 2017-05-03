@@ -2,7 +2,7 @@
 - name: Create docker SIP network
   hosts:
     - sip01
-  remote_user: vagrant
+  remote_user: ubuntu
   tasks:
     - name: Create Docker network overlay for SIP
       docker_network:

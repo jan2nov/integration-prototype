@@ -13,7 +13,7 @@
 - name: Get the lastest release of SIP
   git:
     repo: https://github.com/SKA-ScienceDataProcessor/integration-prototype.git
-    dest: /home/vagrant/integration-prototype.git
+    dest: /home/ubuntu/integration-prototype.git
     update: yes
     version: "{{ sip_branch }}"
 
@@ -58,13 +58,13 @@
 - name: Install SIP Python deps
   pip:
     executable: pip3
-    requirements: /home/vagrant/integration-prototype.git/requirements.txt
+    requirements: /home/ubuntu/integration-prototype.git/requirements.txt
   become: True
 
 - name: Install SIP Python package
   pip:
     executable: pip3
-    name: file:///home/vagrant/integration-prototype.git
+    name: file:///home/ubuntu/integration-prototype.git
   become: True
 
 # http://docs.ansible.com/ansible/docker_image_module.html
