@@ -4,30 +4,21 @@
 __author__ = 'David Terrett'
 
 import logging
-import netifaces
 import os
 import socket
 import sys
 
-from docker import APIClient as Client
-from plumbum import SshMachine
-from pyroute2 import IPRoute
-
 from sip.common.logging_api import log
+from sip.common.paas import TaskStatus
 from sip.common.docker_paas import DockerPaas as Paas
 from sip.master import config
 from sip.master import task_control
+from sip.master import slave_states
 from sip.master.slave_states import SlaveControllerSM
 
-def _find_route_to_logger(host):
-    """Figures out what the IP address of the logger is on 'host'."""
-    addr = socket.gethostbyname(host)
-    ip = IPRoute()
-    r = ip.get_routes(dst=addr, family=socket.AF_INET)
-    for x in r[0]['attrs']:
-        if x[0] == 'RTA_PREFSRC':
-            return x[1]
-
+# This is the port used by the slave for its RPC interface. It is mapped to
+# some ephemeral port on the local host by Docker.
+rpc_port_ = 6666
 
 def start(name, type):
     """Starts a slave controller."""
@@ -47,8 +38,7 @@ def start(name, type):
                 'type': type,
                 'task_controller': task_controller,
                 'state': SlaveControllerSM(name, type, task_controller),
-                'descriptor': None,
-                'timeout counter': 0}
+                'descriptor': None}
 
     # Check that the slave isn't already running
     slave_status = config.slave_status[name]  # Shallow copy (i.e. reference)
@@ -66,8 +56,6 @@ def start(name, type):
         # Start the slave
         if slave_config['launch_policy'] == 'docker':
             _start_docker_slave(name, type, slave_config, slave_status)
-        elif slave_config['launch_policy'] == 'ssh':
-            _start_ssh_slave(name, type, slave_config, slave_status)
         else:
             raise RuntimeError(
                     'Error starting "{}": {} is not a known slave launch '
@@ -97,81 +85,24 @@ def _start_docker_slave(name, type, cfg, status):
     # we can use any ports we like in the container and they will get
     # mapped to free ports on the host.
     image = cfg['docker_image']
-    rpc_port = 6666
     task_control_module = cfg['task_control_module']['name']
     _cmd = ['python3', '-m', 'sip.slave',
             name,
-            str(rpc_port),
-            '0',
+            str(rpc_port_),
             task_control_module,
             ]
 
     # Start it
     paas = Paas()
-    descriptor = paas.run_service(name, 'sip', [rpc_port], _cmd)
+    descriptor = paas.run_service(name, 'sip', [rpc_port_], _cmd)
 
-    # Fill in the docker specific entries in the status dictionary
-    status['descriptor'] = descriptor
-    status['address'] = descriptor.hostname
-    status['container_id'] = descriptor.ident
-
-    # Fill in the generic entries
+    # Fill in the generic entries in the status dictionary
     (host, ports) = descriptor.location()
-    status['rpc_port'] = ports[rpc_port]
+    status['rpc_port'] = ports[rpc_port_]
     status['sip_root'] = '/home/sdp/integration-prototype'
+    status['descriptor'] = descriptor
+
     log.info('"{}" (type {}) started'.format(name, type))
-
-
-def _start_ssh_slave(name, type, cfg, status):
-    """Starts a slave controller that is a SSH client."""
-    # FIXME(BM) need to look into how capture plumbum messages.
-    pb_log = logging.getLogger('plumbum')
-    pb_log.setLevel(logging.INFO)
-    pb_log.addHandler(logging.StreamHandler(sys.stdout))
-
-    log.info('Starting SSH slave (name={}, type={})'.format(name, type))
-
-    # Find a host that supports ssh
-    host = config.resource.allocate_host(name, {'launch_protocol': 'ssh'}, {})
-
-    # Get the root of the SIP installation on that host
-    sip_root = config.resource.sip_root(host)
-    sip_root = os.path.normpath(os.path.join(sip_root, '..'))
-    log.debug('SSH SIP root: {}'.format(sip_root))
-
-    # Allocate ports for the RPC interface
-    rpc_port = config.resource.allocate_resource(name, "tcp_port")
-
-    # Get the task control module to use for this task
-    task_control_module = cfg['task_control_module']['name']
-
-    # Get the address of the logger (as seen from the remote host)
-    logger_address = _find_route_to_logger(host)
-
-    log.debug('Getting SSH slave interface.')
-    ssh_host = SshMachine(host)
-    try:
-        py3 = ssh_host['python3']
-    except:
-        log.fatal('Python3 not available on machine {}'.format(ssh_host))
-
-    log.info('Python3 is available on {} at {}'.format(ssh_host,
-                                                       py3.executable))
-
-    # Construct the command line to start the slave
-    home_dir = os.path.expanduser('~')
-    output_file = os.path.join(home_dir, '{}_sip.output'.format(name))
-    cmd = py3['-m']['sip.slave'] \
-          [name][heartbeat_port][rpc_port][logger_address][task_control_module]
-    log.debug('SSH command = {}'.format(cmd))
-    ssh_host.daemonic_popen(cmd, cwd=sip_root, stdout=output_file)
-
-    # Fill in the status dictionary
-    status['address'] = host
-    status['rpc_port'] = rpc_port
-    status['heartbeat_port'] = heartbeat_port
-    status['sip_root'] = sip_root
-    log.info('{} (type {}) started on {}'.format(name, type, host))
 
 
 def stop(name, status):
@@ -188,4 +119,49 @@ def _stop_docker_slave(name, status):
     paas = Paas()
     descriptor = paas.find_task(name)
     descriptor.delete()
+
+def reconnect(name, descriptor):
+    """ Reconnects to an existing slave service
+
+    This rebuild the internal data structure in order to re-establish
+    the connection to a slave that is already running. This makes it
+    possible to to restart the master controller.
+    """
+    config.slave_status[name] = {'type': name}
+
+    # Get a descriptor for the service
+    config.slave_status[name]['descriptor'] = descriptor
+
+    # Create and connect a task controller for it
+    task_controller = task_control.SlaveTaskControllerRPyC()
+    config.slave_status[name]['task_controller'] = task_controller
+    (hostname, ports) = descriptor.location()
+    task_controller.connect(hostname, ports[rpc_port_])
+
+    # Probe the state of the slave controller and if it is "idle"
+    # send it a command to start the slave task
+    if task_controller.status() == 'idle':
+        task_controller.start(name, config.slave_config[name],
+                                    config.slave_status[name])
+
+    # Create a state machine for it with an intial state corresponding to
+    # the state of the slave.
+    service_state = config.slave_status[name]['descriptor'].status()
+    if service_state == TaskStatus.RUNNING:
+        sm = SlaveControllerSM(name, name, task_controller,
+                init=slave_states.Running)
+    elif service_state == TaskStatus.EXITED:
+        sm = SlaveControllerSM(name, name, task_controller,
+                init=slave_states.Exited)
+    elif service_state == TaskStatus.ERROR:
+        sm = SlaveControllerSM(name, name, task_controller,
+                init=slave_states.Error)
+    elif service_state == TaskStatus.UNKNOWN:
+        sm = SlaveControllerSM(name, name, task_controller,
+                init=slave_states.Unknown)
+    elif service_state == TaskStatus.STARTING:
+        sm = SlaveControllerSM(name, name, task_controller,
+                init=slave_states.Starting)
+
+    config.slave_status[name]['state'] = sm
 
