@@ -1,0 +1,16 @@
+# Configure the docker swarm
+- include: swarm_plays.yml
+  vars:
+    docker_user: ubuntu
+    swarm_iface: enp0s8
+
+# Create docker SIP network overlay
+- name: Create docker SIP network
+  hosts:
+    - sip-swarm-01
+  remote_user: ubuntu
+  tasks:
+    - name: Create Docker network overlay for SIP
+      docker_network:
+        name: sip
+        driver: overlay
