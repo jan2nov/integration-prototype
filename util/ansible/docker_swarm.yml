@@ -1,0 +1,29 @@
+---
+# Run with: ansible-playbook -i hosts docker_swarm.yml
+
+- name: Gather information on docker swarm status
+  hosts: all
+  roles:
+    - role: docker_swarm.info
+
+- name: Initialise the swarm
+  gather_facts: false
+  hosts: swarm_leader
+  roles:
+    - role: docker_swarm.init
+
+- name: Join manager nodes to the swarm
+  gather_facts: false
+  hosts: swarm_managers
+  roles:
+    - role: docker_swarm.join
+      leader_ip: "{{ hostvars[groups['swarm_leader'][0]]['swarm_leader_ip'] }}"
+      token: "{{ hostvars[groups['swarm_leader'][0]]['swarm_manager_token'].stdout }}"
+
+- name: Join worker nodes to the swarm
+  gather_facts: false
+  hosts: swarm_workers
+  roles:
+    - role: docker_swarm.join
+      leader_ip: "{{ hostvars[groups['swarm_leader'][0]]['swarm_leader_ip'] }}"
+      token: "{{ hostvars[groups['swarm_leader'][0]]['swarm_worker_token'].stdout }}"

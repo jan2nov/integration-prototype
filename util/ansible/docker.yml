@@ -1,0 +1,16 @@
+---
+# Run with: ansible-playbook -i hosts docker.yml
+
+# Install Docker on all nodes
+# https://galaxy.ansible.com/angstwad/docker_ubuntu/
+- name: Install docker and reboot
+  hosts: all
+  become_method: sudo
+  become: true
+  roles:
+    - role: angstwad.docker_ubuntu
+      docker_apt_cache_valid_time: 3600
+      install_docker_py_on_1604: true
+      update_docker_package: true
+      docker_group_members: [ "{{ remote_user }}" ]
+    - role: GROG.reboot

@@ -1,6 +1,0 @@
-[manager]
-sip-swarm-01
-
-[worker]
-sip-swarm-02
-sip-swarm-03

@@ -100,6 +100,7 @@ for m in modules:
     extensions.append(Extension(
         'sip.ext.' + m[0], sources=[os.path.join('sip', 'ext', 'src', m[1])],
         language='c'))
+# FIXME(BM) Rename to avoid problems with pypi.python.org/pypi/SIP/4.19.2 ?
 setup(
     name='sip',
     version=get_sip_version(),

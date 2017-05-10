@@ -1,0 +1,5 @@
+---
+# file: group_vars/all
+
+remote_user: ubuntu
+become_method: sudo

@@ -1,0 +1,10 @@
+# file: hosts
+
+[swarm_leader]
+sip-01 ansible_host=192.168.101.101
+
+[swarm_managers]
+sip-01 ansible_host=192.168.101.101
+
+[swarm_workers]
+sip-02 ansible_host=192.168.101.102

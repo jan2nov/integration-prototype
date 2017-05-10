@@ -1,25 +1,26 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
 # This script uses the following vagrant plugins:
-#   vagrant plugin install vagrant-hostmanager
+# vagrant plugin install vagrant-hostmanager
 
 VAGRANTFILE_API_VERSION = '2'
 
 # List of VMs to create.
 NODES = [
-  { name: 'sip-simple', ip: '192.168.102.101', cpus: 2, mem: 2048},
+  { name: 'sip-01', ip: '192.168.101.101', cpus: 1, mem: 1024 },
+  { name: 'sip-02', ip: '192.168.101.102', cpus: 1, mem: 1024 },
+  # { name: 'sip-03', ip: '192.168.101.103', cpus: 1, mem: 1024 }
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Hostmanager config
-  config.vm.provision :hostmanager
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.manage_guest = true
-  config.hostmanager.ignore_private_ip = false
-  config.hostmanager.include_offline = true
+  # config.vm.provision :hostmanager
+  # config.hostmanager.enabled = true
+  # config.hostmanager.manage_host = true
+  # config.hostmanager.manage_guest = true
+  # config.hostmanager.ignore_private_ip = false
+  # config.hostmanager.include_offline = true
 
   # Loop over set of defined nodes and set up VMs
   NODES.each do |node|
@@ -41,6 +42,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.name = node[:name].to_s
         vb.customize ['modifyvm', :id, '--cpus', node[:cpus]]
         vb.customize ['modifyvm', :id, '--memory', node[:mem]]
+        # Needed for mac os?
         vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
       end
 

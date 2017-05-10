@@ -1,4 +1,8 @@
---- # Git checkout of the SIP code
+---
+# file: sip/tasks/main.yml
+
+# Tasks for obtaining and installing core SIP functionality.
+
 # ansible-playbook -i hosts -v --private-key=/Users/bmort/.vagrant.d/insecure_private_key playbook.yml
 # https://github.com/geerlingguy/ansible-role-git
 - name: Ensure Git is installed (Debian)
@@ -9,11 +13,15 @@
     cache_valid_time: 86400
   become: True
 
+- name: The SIP branch being used.
+  debug:
+    var: sip_branch
+
 # http://docs.ansible.com/ansible/git_module.html
 - name: Get the lastest release of SIP
   git:
     repo: https://github.com/SKA-ScienceDataProcessor/integration-prototype.git
-    dest: /home/ubuntu/integration-prototype.git
+    dest: "{{ ansible_user_dir }}/integration-prototype.git"
     update: yes
     version: "{{ sip_branch }}"
 
@@ -25,29 +33,30 @@
     cache_valid_time: 3600
   become: True
 
-- name: Install boost python
-  apt:
-    name: libboost-python-dev
-    state: latest
-    update_cache: yes
-    cache_valid_time: 3600
-  become: True
 
-- name: Install boost program options
-  apt:
-    name: libboost-program-options-dev
-    state: latest
-    update_cache: yes
-    cache_valid_time: 3600
-  become: True
-
-- name: Install boost  system
-  apt:
-    name: libboost-system-dev
-    state: latest
-    update_cache: yes
-    cache_valid_time: 3600
-  become: True
+#- name: Install boost python
+#  apt:
+#    name: libboost-python-dev
+#    state: latest
+#    update_cache: yes
+#    cache_valid_time: 3600
+#  become: True
+#
+#- name: Install boost program options
+#  apt:
+#    name: libboost-program-options-dev
+#    state: latest
+#    update_cache: yes
+#    cache_valid_time: 3600
+#  become: True
+#
+#- name: Install boost system
+#  apt:
+#    name: libboost-system-dev
+#    state: latest
+#    update_cache: yes
+#    cache_valid_time: 3600
+#  become: True
 
 - name: Update pip
   pip:
@@ -58,13 +67,13 @@
 - name: Install SIP Python deps
   pip:
     executable: pip3
-    requirements: /home/ubuntu/integration-prototype.git/requirements.txt
+    requirements: "{{ ansible_user_dir }}/integration-prototype.git/requirements.txt"
   become: True
 
 - name: Install SIP Python package
   pip:
     executable: pip3
-    name: file:///home/ubuntu/integration-prototype.git
+    name: "file://{{ ansible_user_dir }}/integration-prototype.git"
   become: True
 
 # http://docs.ansible.com/ansible/docker_image_module.html

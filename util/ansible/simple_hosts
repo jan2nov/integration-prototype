@@ -1,0 +1,6 @@
+# file: simple_hosts
+
+sip-01 ansible_host=192.168.101.101
+
+[swarm_leader]
+sip-01

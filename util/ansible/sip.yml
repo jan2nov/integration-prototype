@@ -1,0 +1,10 @@
+---
+# Run with: ansible-playbook -i hosts sip.yml
+
+# Download and install SIP code.
+- name: Download and install SIP
+  hosts: all
+  become_method: sudo
+  roles:
+    - role: ska.sip
+      sip_branch: vagrant-ansible
