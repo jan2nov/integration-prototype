@@ -15,12 +15,12 @@ NODES = [
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Hostmanager config
-  # config.vm.provision :hostmanager
-  # config.hostmanager.enabled = true
-  # config.hostmanager.manage_host = true
-  # config.hostmanager.manage_guest = true
-  # config.hostmanager.ignore_private_ip = false
-  # config.hostmanager.include_offline = true
+  config.vm.provision :hostmanager
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
 
   # Loop over set of defined nodes and set up VMs
   NODES.each do |node|
