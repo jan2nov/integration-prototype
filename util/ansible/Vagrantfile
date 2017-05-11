@@ -9,18 +9,17 @@ VAGRANTFILE_API_VERSION = '2'
 NODES = [
   { name: 'sip-01', ip: '192.168.101.101', cpus: 1, mem: 1024 },
   { name: 'sip-02', ip: '192.168.101.102', cpus: 1, mem: 1024 },
-  # { name: 'sip-03', ip: '192.168.101.103', cpus: 1, mem: 1024 }
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Hostmanager config
-  config.vm.provision :hostmanager
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.manage_guest = true
-  config.hostmanager.ignore_private_ip = false
-  config.hostmanager.include_offline = true
+  # config.vm.provision :hostmanager
+  # config.hostmanager.enabled = true
+  # config.hostmanager.manage_host = true
+  # config.hostmanager.manage_guest = true
+  # config.hostmanager.ignore_private_ip = false
+  # config.hostmanager.include_offline = true
 
   # Loop over set of defined nodes and set up VMs
   NODES.each do |node|
