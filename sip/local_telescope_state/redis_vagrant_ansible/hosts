@@ -1,0 +1,12 @@
+[redis-master]
+redismaster
+
+[redis-slave]
+redisslave01
+redisslave02
+redisslave03
+
+[redis-sentinel]
+redissentinel01 redis_sentinel=True
+redissentinel02 redis_sentinel=True
+redissentinel03 redis_sentinel=True
