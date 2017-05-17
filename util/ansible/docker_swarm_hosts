@@ -1,4 +1,4 @@
-# file: hosts
+# file: docker_swarm_hosts
 
 [swarm_leader]
 sip-01 ansible_host=192.168.101.101

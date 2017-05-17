@@ -77,7 +77,16 @@
   become: True
 
 # http://docs.ansible.com/ansible/docker_image_module.html
-#- name: Build SIP slave docker image.
-#  docker_image:
-#    name: slave_controller
-#    path:
+- name: Build SIP slave docker image.
+  docker_image:
+    state: present
+    name: slave_controller
+    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/sip/slave/Dockerfile"
+    path: "{{ ansible_user_dir }}/integration-prototype.git"
+
+# - name: Update authorized keys to allow passwordless ssh into localhost.
+#   authorized_key:
+#     user:
+#     state: present
+#     key:
+      
