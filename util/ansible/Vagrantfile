@@ -51,6 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.provision :file, source: "keys/public", destination: "~/.ssh/authorized_keys"
       config.vm.provision :file, source: "keys/public", destination: "~/.ssh/id_rsa.pub"
       config.vm.provision :file, source: "keys/private", destination: "~/.ssh/id_rsa"
+      config.vm.provision :shell, :inline => "chmod 600 /home/ubuntu/.ssh/id_rsa"
 
       # Virtualbox configuration
       config.vm.provider :virtualbox do |vb|
