@@ -1,3 +1,5 @@
 .vagrant/
 *.retry
 *.log
+keys/sip
+keys/sip.pub

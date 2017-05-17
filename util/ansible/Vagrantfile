@@ -24,6 +24,10 @@ NODES.each do |node|
 end
 puts ""
 
+# Create insecure SSH key pair (if required)
+rtn = system('echo -e "n" | ssh-keygen -t rsa -b 4096 -f keys/sip -q -N "" 1>/dev/null')
+exit
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Loop over set of defined nodes and set up VMs
@@ -35,12 +39,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       # Provision network interface
       config.vm.network :private_network, ip: node[:ip]
-      # http://ermaker.github.io/blog/2015/11/18/change-insecure-key-to-my-own-key-on-vagrant.html
-      config.ssh.private_key_path = ['keys/private', '~/.vagrant.d/insecure_private_key']
+
+      # Configure ssh keys
+      # TODO(BM) create own private key here..?
+      config.ssh.private_key_path = 'keys/sip'
       config.ssh.insert_key = false
-      config.vm.provision :file, source: "keys/public", destination: "~/.ssh/authorized_keys"
-      config.vm.provision :file, source: "keys/public", destination: "~/.ssh/id_rsa.pub"
-      config.vm.provision :file, source: "keys/private", destination: "~/.ssh/id_rsa"
+      config.vm.provision :file, source: "keys/sip.pub", destination: "~/.ssh/authorized_keys"
+      config.vm.provision :file, source: "keys/sip.pub", destination: "~/.ssh/id_rsa.pub"
+      config.vm.provision :file, source: "keys/sip", destination: "~/.ssh/id_rsa"
       config.vm.provision :shell, :inline => "chmod 600 /home/ubuntu/.ssh/id_rsa"
 
       # Virtualbox configuration
@@ -48,7 +54,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.name = node[:name].to_s
         vb.customize ['modifyvm', :id, '--cpus', node[:cpus]]
         vb.customize ['modifyvm', :id, '--memory', node[:mem]]
-        # Needed for mac os?
         vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
       end
 

@@ -15,7 +15,7 @@ vagrant up
 SSH into the VM's created by Vagrant using the command:
 
 ```bash
-ssh ubuntu@<ip> -i keys/private
+ssh ubuntu@<ip> -i keys/sip
 ```
 
 where the <ip> address is that of the VM one wishes to connect to. This
