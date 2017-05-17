@@ -47,5 +47,5 @@ to provision a basic SIP configuration on the SIP test VM's created using
 Vagrant use the following command:
 
 ```bash
-ansible-playbook -i default_hosts default.yml
+ansible-playbook -i default_hosts --private-key=keys/sip default.yml
 ```
