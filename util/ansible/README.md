@@ -19,7 +19,7 @@ ssh ubuntu@<ip> -i keys/private
 ```
 
 where the <ip> address is that of the VM one wishes to connect to. This
-is defined in the Vagrantfile and by default will be 192.168.101.[101-1xx]
+is defined in the Vagrantfile and by default will be 192.168.111.[101-1xx]
 for sip-[01-xx].
 
 
