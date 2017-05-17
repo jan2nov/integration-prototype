@@ -1,0 +1,8 @@
+---
+# file: default.yml
+
+# Playbook that defines the entire infrastructure. Includes other playbooks.
+- include: python.yml
+- include: sip.yml
+- include: docker.yml
+

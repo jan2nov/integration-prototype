@@ -7,4 +7,4 @@
   become_method: sudo
   roles:
     - role: ska.sip
-      sip_branch: vagrant-ansible
+      sip_branch: spark_imager_test

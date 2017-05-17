@@ -5,13 +5,26 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-# List of VMs to create.
-NODES = [
-  { name: 'sip-01', ip: '192.168.101.101', cpus: 1, mem: 1024
-    # expose_ports: [ { id: 'docker-swarm', guest: 2377, host: 2377}, ]
-  },
-  { name: 'sip-02', ip: '192.168.101.102', cpus: 1, mem: 1024 },
-]
+mode = "default"
+
+if mode == "default"
+    # Default (SIP master branch) nodes
+    NODES = [{ name: 'sip-01', ip: '192.168.101.101', cpus: 2, mem: 2048 }]
+elsif mode == "docker_swarm"
+    # Docker Swarm (paas_prototype) nodes
+    NODES = [
+      { name: 'sip-01', ip: '192.168.101.101', cpus: 1, mem: 1024
+        # expose_ports: [ { id: 'docker-swarm', guest: 2377, host: 2377}, ]
+      },
+      { name: 'sip-02', ip: '192.168.101.102', cpus: 1, mem: 1024 }
+    ]
+end
+
+puts "Nodes (#{mode}):"
+NODES.each do |node|
+    print("#{node}\n")
+end
+puts ""
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 

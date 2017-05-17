@@ -1,6 +1,10 @@
 ---
 # Run with: ansible-playbook -i hosts docker_swarm.yml
 
+- include: python.yml
+- include: sip.yml
+- include: docker.yml
+
 - name: Gather information on docker swarm status
   hosts: all
   roles:
