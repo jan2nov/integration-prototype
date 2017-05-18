@@ -7,14 +7,14 @@ mode = "default"
 
 if mode == "default"
     # Default (SIP master branch) nodes
-    NODES = [{ name: 'sip-01', ip: '192.168.111.101', cpus: 2, mem: 2048 }]
+    NODES = [{ name: 'sip-default', ip: '192.168.111.101', cpus: 2, mem: 2048 }]
 elsif mode == "docker_swarm"
     # Docker Swarm (paas_prototype) nodes
     mem = 2048
     cpus = 2
     NODES = [
-      { name: 'sip-01', ip: '192.168.111.101', cpus: cpus, mem: mem },
-      { name: 'sip-02', ip: '192.168.111.102', cpus: cpus, mem: mem }
+      { name: 'sip-swarm-01', ip: '192.168.112.101', cpus: cpus, mem: mem },
+      { name: 'sip-swarm-02', ip: '192.168.112.102', cpus: cpus, mem: mem }
     ]
 end
 

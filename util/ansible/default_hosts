@@ -1,2 +1,2 @@
 # file: default_hosts
-sip-01 ansible_host=192.168.111.101 ansible_user=ubuntu
+sip-default ansible_host=192.168.111.101 ansible_user=ubuntu

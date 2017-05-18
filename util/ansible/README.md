@@ -39,7 +39,7 @@ ssh ubuntu@<ip> -i keys/sip
 
 where `<ip>` is the address of the VM. This is defined in the `Vagrantfile`
 `HOSTS` description. The current value of this IP address is `192.169.111.101`
-for host `sip-01` and `192.169.111.102` for host `sip-01`.
+for host `sip-default`.
 
 ***Note*** *It may be necessary to remove existing hosts from
 your ~/.ssh/known_hosts file before being able to SSH into the VMs. This
