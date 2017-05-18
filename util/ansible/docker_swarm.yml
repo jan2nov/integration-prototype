@@ -4,6 +4,7 @@
 - include: python.yml
 - include: docker.yml
 
+# Download and install SIP
 # TODO(BM) replace with common include after merge of paas branch into master
 - name: Download and install SIP
   hosts: all
@@ -12,19 +13,18 @@
     - role: ska.sip-new
       sip_branch: vagrant-ansible
 
+# Confiture Docker swarm
 - name: Gather information on docker swarm status
   hosts: all
   roles:
     - role: docker_swarm.info
 
 - name: Initialise the swarm
-  gather_facts: false
   hosts: swarm_leader
   roles:
     - role: docker_swarm.init
 
 - name: Join manager nodes to the swarm
-  gather_facts: false
   hosts: swarm_managers
   roles:
     - role: docker_swarm.join
@@ -32,7 +32,6 @@
       token: "{{ hostvars[groups['swarm_leader'][0]]['swarm_manager_token'].stdout }}"
 
 - name: Join worker nodes to the swarm
-  gather_facts: false
   hosts: swarm_workers
   roles:
     - role: docker_swarm.join
@@ -42,7 +41,6 @@
 # Make this a sip role?
 - name: Create docker network for SIP
   hosts: swarm_leader
-  gather_facts: false
   become: true
   tasks:
     # - name: Create SIP overlay network

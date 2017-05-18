@@ -1,5 +1,5 @@
 ---
-# Run with: ansible-playbook -i hosts sip.yml
+# Run with: ansible-playbook -i hosts --private-key=keys/sip sip.yml
 
 # Download and install SIP code.
 - name: Download and install SIP

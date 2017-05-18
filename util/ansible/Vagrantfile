@@ -1,5 +1,5 @@
 # -*- mode: ruby -*-
-# vi: set ft=ruby :
+# vi: set ft=ruby
 
 VAGRANTFILE_API_VERSION = '2'
 
@@ -18,11 +18,11 @@ elsif mode == "docker_swarm"
     ]
 end
 
-puts "Nodes (#{mode}):"
-NODES.each do |node|
-    print("#{node}\n")
-end
-puts ""
+# puts "Nodes (#{mode}):"
+# NODES.each do |node|
+#     print("#{node}\n")
+# end
+# puts ""
 
 # Create insecure SSH key pair (if required)
 rtn = system('echo -e "n" | ssh-keygen -t rsa -b 4096 -f keys/sip -q -N "" 1>/dev/null')
