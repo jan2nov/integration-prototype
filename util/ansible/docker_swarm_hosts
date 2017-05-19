@@ -1,7 +1,7 @@
 # file: docker_swarm_hosts
 
 [swarm_leader]
-sip--swarm-01 ansible_host=192.168.112.101 ansible_user=ubuntu
+sip-swarm-01 ansible_host=192.168.112.101 ansible_user=ubuntu
 
 [swarm_workers]
-sip--swarm-02 ansible_host=192.168.112.102 ansible_user=ubuntu
+sip-swarm-02 ansible_host=192.168.112.102 ansible_user=ubuntu
