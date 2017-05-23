@@ -92,6 +92,17 @@ Once these roles have been installed, the following command will set up the
 default SIP configuration on the hosts specified in the `default_hosts`
 inventory file.
 
+Note roles can be installed locally using the option `-p ROLES_PATH` or `--roles-path=ROLES_PATH`. For example to install the roles into the local
+roles directory used in the SIP `utils/ansible` folder use the following
+command:
+
+```bash
+ansible-galaxy install -p roles angstwad.docker_ubuntu
+ansible-galaxy install -p roles GROG.reboot
+```
+
+
+
 ```bash
 ansible-playbook -i default_hosts --private-key=keys/sip default.yml
 ```
