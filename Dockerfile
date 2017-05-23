@@ -3,7 +3,7 @@ MAINTAINER David Terrett
 USER root
 
 # Install Python 3 and pip
-RUN apt-get -y update 
+RUN apt-get -y update --fix-missing 
 RUN apt-get -y install docker
 RUN apt-get -y install python3 python3-pip
 RUN apt-get -y install libboost-program-options-dev
