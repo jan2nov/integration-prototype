@@ -5,3 +5,16 @@ sip-swarm-01 ansible_host=192.168.112.101 ansible_user=ubuntu
 
 [swarm_workers]
 sip-swarm-02 ansible_host=192.168.112.102 ansible_user=ubuntu
+
+[redis-master]
+redismaster ansible_host=192.168.112.103 ansible_user=ubuntu
+
+[redis-slave]
+redisslave01 ansible_host=192.168.112.104 ansible_user=ubuntu
+redisslave02 ansible_host=192.168.112.105 ansible_user=ubuntu
+redisslave03 ansible_host=192.168.112.106 ansible_user=ubuntu
+
+[redis-sentinel]
+redissentinel01 ansible_host=192.168.112.107 ansible_user=ubuntu redis_sentinel=True
+redissentinel02 ansible_host=192.168.112.108 ansible_user=ubunturedis_sentinel=True
+redissentinel03 ansible_host=192.168.112.109 ansible_user=ubunturedis_sentinel=True

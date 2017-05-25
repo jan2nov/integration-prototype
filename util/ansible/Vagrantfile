@@ -3,18 +3,33 @@
 
 VAGRANTFILE_API_VERSION = '2'
 
-mode = "default"
+mode = "swarm_redis"
 
 if mode == "default"
     # Default (SIP master branch) nodes
     NODES = [{ name: 'sip-default', ip: '192.168.111.101', cpus: 2, mem: 2048 }]
 elsif mode == "docker_swarm"
     # Docker Swarm (paas_prototype) nodes
-    mem = 2048
+    mem = 512
     cpus = 2
     NODES = [
       { name: 'sip-swarm-01', ip: '192.168.112.101', cpus: cpus, mem: mem },
       { name: 'sip-swarm-02', ip: '192.168.112.102', cpus: cpus, mem: mem }
+    ]
+elsif mode == "swarm_redis"
+    # Docker Swarm (paas_prototype) nodes
+    mem = 2048
+    cpus = 2
+    NODES = [
+      { name: 'sip-swarm-01', ip: '192.168.112.101', cpus: cpus, mem: mem },
+      { name: 'sip-swarm-02', ip: '192.168.112.102', cpus: cpus, mem: mem },
+      { name: 'redismaster', ip: '192.168.112.103', cpus: cpus, mem: mem },
+      { name: 'redisslave01', ip: '192.168.112.104', cpus: cpus, mem: mem },
+      { name: 'redisslave02', ip: '192.168.112.105', cpus: cpus, mem: mem },
+      { name: 'redisslave03', ip: '192.168.112.106', cpus: cpus, mem: mem },
+      { name: 'redissentinel01', ip: '192.168.112.107', cpus: cpus, mem: mem },
+      { name: 'redissentinel02', ip: '192.168.112.108', cpus: cpus, mem: mem },
+      { name: 'redissentinel03', ip: '192.168.112.109', cpus: cpus, mem: mem }
     ]
 end
 
@@ -72,3 +87,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
 end
+

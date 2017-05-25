@@ -8,4 +8,3 @@ sip-swarm-test-1 ansible_host=10.60.253.25 ansible_user=ubuntu
 [swarm_workers]
 sip-swarm-test-2 ansible_host=10.60.253.20 ansible_user=ubuntu
 sip-swarm-test-3 ansible_host=10.60.253.39 ansible_user=ubuntu
-

@@ -8,37 +8,4 @@
   tasks:
     - name: install python 2
       raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
-    - name: Install python pip
-      raw: apt-get install -y python-pip
-    - name: Update pip2
-      pip:
-        executable: pip2
-        name: pip
-        state: latest
-    - name: Update pip3
-      pip:
-        executable: pip3
-        name: pip
-        state: latest
-    - name: Install setuptools (python2)
-      pip:
-        executable: pip2
-        name: setuptools
-        state: latest
-    - name: Install setuptools (python3)
-      pip:
-        executable: pip3
-        name: setuptools
-        state: latest
-    - name: Install wheel (python3)
-      pip: 
-        executable: pip3
-        name: wheel
-        state: latest
-    - name: Install Python headers
-      apt:
-        name: python3-dev
-        state: latest
-        update_cache: yes
-        cache_valid_time: 3600
 

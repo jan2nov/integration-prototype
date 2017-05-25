@@ -2,12 +2,13 @@
 # Run with: ansible-playbook -i hosts docker_swarm.yml
 
 - include: python.yml
+- include: ansible-redis.yml
 - include: docker.yml
 
 # Download and install SIP
 # TODO(BM) replace with common include after merge of paas branch into master
 - name: Download and install SIP
-  hosts: all
+  hosts: swarm_leader:swarm_workers
   become_method: sudo
   roles:
     - role: ska.sip-new
@@ -15,7 +16,7 @@
 
 # Confiture Docker swarm
 - name: Gather information on docker swarm status
-  hosts: all
+  hosts: swarm_leader:swarm_workers
   roles:
     - role: docker_swarm.info
 
