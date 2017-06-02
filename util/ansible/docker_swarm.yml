@@ -2,7 +2,7 @@
 # Run with: ansible-playbook -i hosts docker_swarm.yml
 
 - include: python.yml
-- include: ansible-redis.yml
+#- include: ansible-redis.yml
 - include: docker.yml
 
 # Download and install SIP

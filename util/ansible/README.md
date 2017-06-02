@@ -124,4 +124,14 @@ ansible-playbook -i default_hosts --private-key=keys/sip default.yml
 
   ```bash
   ansible-playbook -i docker_swarm_hosts --private-key=keys/sip docker_swarm.yml
+  ansible-playbook -i docker_swarm_hosts_redis --private-key=keys/sip docker_swarm_redis.yml
+  ansible-playbook -i docker_swarm_hosts_redis --private-key=/home/skaprocess/.vagrant.d   insecure_private_key docker_swarm_redis.yml
+
+  Change the mode to swarm_redis to provision both docker swarm and redis. Also input appropriate cpu and mem value
+  ansible-playbook -i docker_swarm_hosts --private-key=/home/skaprocess/.vagrant.d/insecure_private_key docker_swarm.yml
+
   ```
+
+
+
+
