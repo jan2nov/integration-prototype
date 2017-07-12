@@ -137,3 +137,6 @@ keys:
 2. [SPEAD format](https://casper.berkeley.edu/astrobaki/images/9/93/SPEADsignedRelease.pdf)
 3. [SPEAD2 library](https://github.com/ska-sa/spead2)
 
+
+Note. When the capability is executed. Copy the published_port assigned for the port 8001 from the master controller
+      and update the port in vis_sender_config.json
