@@ -85,7 +85,7 @@ def _start_docker_slave(name, type, cfg, status):
 
     # Start it
     paas = Paas()
-    descriptor = paas.run_service(name, 'sip', [rpc_port_], _cmd)
+    descriptor = paas.run_service(name, 'sip', [rpc_port_, 8001], _cmd)
 
     # Attempt to connect the controller
     try:

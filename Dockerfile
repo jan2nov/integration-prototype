@@ -3,6 +3,7 @@ MAINTAINER David Terrett
 USER root
 
 # Install Python 3 and pip
+RUN apt-get clean
 RUN apt-get -y update 
 RUN apt-get -y install docker
 RUN apt-get -y install python3 python3-pip

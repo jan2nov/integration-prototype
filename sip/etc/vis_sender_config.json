@@ -21,7 +21,7 @@
     "start_channel": 0,
     "streams": [
       {
-        "port": 8001,
+        "port": 48577,
         "host": "127.0.0.1",
         "threads": 1
       }
