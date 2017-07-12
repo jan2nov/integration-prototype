@@ -68,6 +68,7 @@ class DockerPaas(Paas):
             # There is (I think) a bug in docker=py which means that
             # we can't get docker to do the port allocation for us.
             endpoints = {}
+
             for target_port in ports:
  
                 # Bind to a free port
@@ -77,15 +78,30 @@ class DockerPaas(Paas):
                 # Get the allocated port name
                 published_port = s.getsockname()[1]
 
-                # Release the port (there is now a race if any other
-                # processes are binding to ports but it will do for now)
-                s.close()
+                if target_port == 8001:
 
-            	# Add the port to the dictionary of ports
-                endpoints[published_port] = target_port
+                    # Release the port (there is now a race if any other
+                    # processes are binding to ports but it will do for now)
+                    s.close()
+
+                    # Add the port to the dictionary of ports
+                    endpoints[published_port] = target_port, "UDP"
+
+                    print("ENDPOINT", endpoints)
+                else:
+
+                    # Release the port (there is now a race if any other
+                    # processes are binding to ports but it will do for now)
+                    s.close()
+
+                    # Add the port to the dictionary of ports
+                    endpoints[published_port] = target_port
+
 
             # Add the port to the endpoint spec
-            endpoint_spec = docker.types.EndpointSpec(ports=endpoints)
+            endpoint_spec = docker.types.EndpointSpec(ports=endpoints,)
+
+            print(endpoint_spec)
 
             # Create the service
             service = self._client.services.create(image=task, 

@@ -21,6 +21,8 @@ from sip.master.slave_states import SlaveControllerSM
 # This is the port used by the slave for its RPC interface. It is mapped to
 # some ephemeral port on the local host by Docker.
 rpc_port_ = 6666
+vis_port_ = 8001
+port_ = [rpc_port_, vis_port_]
 
 def start(name, type):
     """Starts a slave controller."""
@@ -85,7 +87,7 @@ def _start_docker_slave(name, type, cfg, status):
 
     # Start it
     paas = Paas()
-    descriptor = paas.run_service(name, 'sip', [rpc_port_], _cmd)
+    descriptor = paas.run_service(name, 'sip', port_, _cmd)
 
     # Attempt to connect the controller
     try:

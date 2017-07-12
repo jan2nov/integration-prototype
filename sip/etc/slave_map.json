@@ -46,14 +46,15 @@
         "online": 0,
         "timeout": 10,
         "launch_policy": "docker",
+        "engine_url": "unix:///var/run/docker.sock",
         "task_control_module": {
             "name": "TaskControlProcessPoller",
-            "timeout": 30.0
+            "timeout": 60.0
         },
         "docker_image": "sip",
         "task": [
-            "#{sip_root}/tasks/vis_receiver_task.py",
-            "#{sip_root}/etc/vis_receiver_config.json"
+            "sip/tasks/vis_receiver_task.py",
+            "sip/etc/vis_receiver_config.json"
             ]
         },
     "pulsar_search": {

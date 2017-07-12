@@ -248,13 +248,108 @@ class HeapStreamer:
         """Return the heap descriptor dictionary."""
         heap_descriptor = [
             # Per SPEAD heap_descriptor
-            {
-                "id": 0x0045,
-                "name": "timestamp_utc",
-                "description": "SDP_REQ_INT-45.",
-                "format": [('u', 32), ('u', 32)],
-                "shape": (1,)
-            },
+            # {
+            #     "id": 0x8000,
+            #     "name": "visibility_timestamp_count",
+            #     "description": "SDP_REQ_INT-45.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8001,
+            #     "name": "visibility_timestamp_fraction",
+            #     "description": "SDP_REQ_INT-45.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8002,
+            #     "name": "visibility_channel_id",
+            #     "description": "",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8003,
+            #     "name": "visibility_channel_count",
+            #     "description": "SDP_REQ_INT-47.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8004,
+            #     "name": "visibility_baseline_polarisation_id",
+            #     "description": "SDP_REQ_INT-46.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8005,
+            #     "name": "visibility_baseline_count",
+            #     "description": "SDP_REQ_INT-47.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8006,
+            #     "name": "phase_bin_id",
+            #     "description": "",
+            #     "format": [('u', 16)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8007,
+            #     "name": "phase_bin_count",
+            #     "description": "",
+            #     "format": [('u', 16)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8008,
+            #     "name": "schedule_block_id",
+            #     "description": "SDP_REQ_INT-48.",
+            #     "format": [('u', 48)],  # SPEAD.ADDRSIZE??? not sure about 48
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x8009,
+            #     "name": "visbility_hardware_id",
+            #     "description": "SDP_REQ_INT-49.",
+            #     "format": [('u', 32)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x800A,
+            #     "name": "visibility_time_centroid",
+            #     "description": "SDP_REQ_INT-50.",
+            #     "format": [('i', 8)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x800B,
+            #     "name": "visibility_flagging_fraction",
+            #     "description": "SDP_REQ_INT-52.",
+            #     "format": [('u', 8)],
+            #     "shape": (1,)
+            # },
+            # {
+            #     "id": 0x800C,
+            #     "name": "complex_visibility",
+            #     "description": "SDP_REQ_INT-51.",
+            #     "format": [('f', 32), ('f', 32)],
+            #     "shape": self._frame_shape # check this
+            # },#Does not support 0 format code
+            #
+            #
+            # {
+            #     "id": 0x800D,
+            #     "name": "correlator_output_data",
+            #     "description": "SDP_REQ_INT-51.",
+            #     "format": [('f', 32), ('f', 32)],
+            #     "shape": (1,)
+            # }
+
+            # Old heap descriptor
             {
                 "id": 0x0046,
                 "name": "channel_baseline_id",
