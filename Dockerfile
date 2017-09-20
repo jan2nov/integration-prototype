@@ -4,7 +4,7 @@ MAINTAINER Arjen Tamerus
 COPY requirements.txt .
 RUN apk add --update --no-cache gcc g++ python3 python3-dev py3-pip \
 		py3-zmq py3-simplejson py3-requests \
-		&& python3 -m pip install --no-cache-dir -r requirements.txt \
+		&& python3 -m pip install --no-cache-dir -r requirements.txt 
 
 # Copy the SIP
 COPY sip/ sip/
