@@ -1,26 +1,10 @@
-FROM ubuntu
-MAINTAINER David Terrett
-USER root
-
-RUN adduser --disabled-password -gecos 'unprivileged user' sdp
-
-# Install dependencies, and clear cache
-RUN apt-get -y update \
- && apt-get -y install docker \
- python3 \
- python3-pip \
- libboost-program-options-dev \
- libboost-system-dev \
- libboost-python-dev \
- python-numpy-dev \
- dnsutils \
- && rm -rf /var/lib/apt/lists/*
+FROM alpine:3.6
+MAINTAINER Arjen Tamerus
 
 COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt
-
-# Set working directory
-WORKDIR /home/sdp
+RUN apk add --update --no-cache gcc g++ python3 python3-dev py3-pip \
+		py3-zmq py3-simplejson py3-requests \
+		&& python3 -m pip install --no-cache-dir -r requirements.txt \
 
 # Copy the SIP
 COPY sip/ sip/
