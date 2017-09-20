@@ -14,11 +14,7 @@ pipeline {
 
 				// Set up fresh Python virtual environment
 				sh '''
-					# Need to rm old virtualenv dir or else PIP will try to
-					# to install a hybrid old/new version. I don't get it
-					# either. NEEDS FIX.
-					#rm -r _build || true
-					virtualenv -p `which python3` _build
+					virtualenv -p `which python3` --system-site-packages _build
 				'''
 
 				// Install requirements

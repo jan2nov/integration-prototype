@@ -1,4 +1,5 @@
 docker>=2.5.0
+pyzmq>=16.0.0
 rpyc>=3.3.0
 numpy>=1.11.2
 pyftpdlib>=1.4.0
