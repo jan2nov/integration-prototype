@@ -1,14 +1,17 @@
-# Transffering data through UDP and mount docker volume in docker swarm
+# Transferring data using UDP in Docker Swarm and uses docker volume
 
-This is a quick test/ demo of very simple docker image thats writes a file and transfer
-a file through UDP in Docker Swarm. It uses docker volume mount. It is started using 
+This is a quick test/ demo of very simple docker image that writes a file and transfer
+a file through UDP in Docker Swarm. It uses docker volume mount. It is started using
 'docker stack deploy'.
 
-The script is very trivial, it creates a file first and then transfers a file using the 
-UDP. 
+The script is very trivial, it creates a file first (just for test purpose) and then
+transfers a file using the UDP. Currently only uses one node (local machine). Next plan is to expand
+into 2 nodes (2 VMS) and test it.
 
 Files are written to the `./output` directory with the name `testing_data` and 'transfer_data.txt'.
 A cleanup script (`cleanup.sh`) is provided to remove hanging images and clean out output files.
+
+The output file could be found in var/lib/docker/volumes/<volume_name>/_data
 
 ## 1. Set up virtualenv
 
@@ -51,4 +54,8 @@ docker stack deploy -c docker-sender.yml sender
 ```shell
 docker service rm <service id>
 ```
+
+## 7. Interact with the service 
+
+docker exec -it <servicename> ash
 
