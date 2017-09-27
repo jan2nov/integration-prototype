@@ -11,7 +11,7 @@ VAGRANT_COMMAND = ARGV[0]
 # Settings
 # =============================================================================
 cpus = 2       # Number of CPUs allocated to each VM
-memory = 2048  # Memory in MiB allocated to each VM
+memory = 1024  # Memory in MiB allocated to each VM
 # A host can be in the following groups:
 #     swarm_leader, swarm_manager, or swarm_worker
 # One swarm_leader host (box) has to be defined.
@@ -27,6 +27,13 @@ boxes = [
         :name => 'sip-02',
         :groups => :swarm_worker,
         :ip => '192.168.120.102',
+        :cpus => cpus,
+        :memory => memory,
+    },
+    {
+        :name => 'sip-03',
+        :groups => :swarm_worker,
+        :ip => '192.168.120.103',
         :cpus => cpus,
         :memory => memory,
     },

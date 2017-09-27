@@ -24,6 +24,9 @@ WORKDIR /home/sdp
 
 # Copy the SIP
 COPY sip/ sip/
+COPY util/ util/
+
+ENTRYPOINT ["python3"]
 
 # Create an empty file that the Paas can use to detect being inside a swarm
 COPY not_docker_swarm docker_swarm

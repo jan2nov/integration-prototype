@@ -1,4 +1,4 @@
-docker>=2.1.0
+docker>=2.5.1
 numpy>=1.11.2
 pyzmq>=16.0.0
 rpyc==3.3.0
