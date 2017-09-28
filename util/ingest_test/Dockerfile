@@ -22,4 +22,4 @@ COPY mytext.txt /app/mytext.txt
 #COPY test_file.py /app/test_file.py
 ENTRYPOINT ["python3"]
 #CMD ["test_file.py"]
-CMD ["udp_recv.py"]
+#CMD ["udp_recv.py"]

@@ -2,8 +2,8 @@ from socket import *
 import sys
 
 s = socket(AF_INET,SOCK_DGRAM)
-host = 'test_file_writer'
-port = 9999
+host = 'localhost'
+port = 6060
 buf = 1024
 addr = (host,port)
 

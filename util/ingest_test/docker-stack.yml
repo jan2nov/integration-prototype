@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  file_writer:
+  udp_recv01:
     image: ingest_test
     volumes:
       - type: volume
@@ -13,6 +13,9 @@ services:
       - "6060:9999/udp"
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == sip-03
       resources:
         limits:
           cpus: '0.1'
@@ -22,7 +25,33 @@ services:
           memory: 20M
       restart_policy:
         condition: none
+
+services:
+  udp_recv02:
+    image: ingest_test
+    volumes:
+      - type: volume
+        source: my-test
+        target: /app/output
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    networks:
+      - test_default
+    ports:
+      - "7070:1111/udp"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == sip-05
+      restart_policy:
+        condition: none
 volumes:
     my-test:
         external: True
+
+networks:
+  test_default:
+      external: true
 
