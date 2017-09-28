@@ -19,8 +19,6 @@ RUN apt-get -y update \
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
-RUN pip install requests ntplib
-
 # Set working directory
 WORKDIR /home/sdp
 
