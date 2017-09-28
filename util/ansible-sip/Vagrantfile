@@ -37,6 +37,20 @@ boxes = [
         :cpus => cpus,
         :memory => memory,
     },
+    {
+        :name => 'sip-04',
+        :groups => :swarm_worker,
+        :ip => '192.168.120.104',
+        :cpus => cpus,
+        :memory => memory,
+    },
+    {
+        :name => 'sip-05',
+        :groups => :swarm_worker,
+        :ip => '192.168.120.105',
+        :cpus => cpus,
+        :memory => memory,
+    },
 ]
 box_name = "ubuntu/xenial64"  # Vagrant box file
 box_user = "ubuntu"  # User name of the vagrant box being used.
