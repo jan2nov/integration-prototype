@@ -52,9 +52,17 @@
   become: True
 
 # http://docs.ansible.com/ansible/docker_image_module.html
-- name: Build SIP docker image (This takes quite a long time...)
+#- name: Build SIP docker image (This takes quite a long time...)
+#  docker_image:
+#    state: present
+#    name: sip
+#    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/Dockerfile"
+#    path: "{{ ansible_user_dir }}/integration-prototype.git"
+
+# http://docs.ansible.com/ansible/docker_image_module.html
+- name: Build ingest_test docker image (This takes quite a long time...)
   docker_image:
     state: present
-    name: sip
-    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/Dockerfile"
-    path: "{{ ansible_user_dir }}/integration-prototype.git"
+    name: ingest_test
+    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/util/ingest_test/Dockerfile"
+    path: "{{ ansible_user_dir }}/integration-prototype.git/util/ingest_test"

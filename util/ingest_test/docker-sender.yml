@@ -1,19 +1,19 @@
 version: "3.3"
 services:
   ingest_sender:
-    image: sip
-    command: /home/util/ingest_test/udp_sender.py
+    image: ingest_test
+    command: udp_sender.py
     volumes:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
     networks:
-      - sip
+      - test_default
     deploy:
       replicas: 1
       restart_policy:
         condition: none
 
 networks:
-  sip:
+  test_default:
       external: true
