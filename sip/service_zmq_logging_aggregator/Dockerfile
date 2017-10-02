@@ -5,7 +5,7 @@
 #   docker run --rm -it --entrypoint=/bin/sh sip/zla
 #
 # Run and show logging:
-#   docker run --rm -t --name zla sip/zla
+#   docker run --rm -t -p 5555:5555 -p 9020:9020 --name zla sip/zla
 #
 
 FROM python:3.6-alpine3.6
@@ -24,7 +24,10 @@ RUN apk add --no-cache --virtual build-dependencies g++ musl-dev && \
     rm -r /root/.cache && \
     apk del build-dependencies
 
+# Flask server port
 EXPOSE 5555
+# Python logging.handlers.DEFAULT_TCP_LOGGING_PORT
+EXPOSE 9020
 
 WORKDIR /app
 
