@@ -1,3 +1,4 @@
+# coding: utf-8
 """ Test Spark as a Service
 
 .. moduleauthor:: Arjen Tamerus <at748@cam.ac.uk>
