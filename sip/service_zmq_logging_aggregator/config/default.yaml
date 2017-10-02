@@ -1,0 +1,18 @@
+version: 1
+disable_existing_loggers: false
+
+loggers:
+  aggregator:
+    level: DEBUG
+    handlers: [console]
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: format1
+    stream: ext://sys.stdout
+
+formatters:
+  format1:
+    format: "> %(name)-20s | '%(origin)-38s' | %(message)s"

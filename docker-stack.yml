@@ -1,0 +1,24 @@
+version: 3.3
+
+services:
+
+  zmq_logging_aggregator:
+    image: sip/zla:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager
+
+  zmq_logging_publisher:
+    image: sip/zla:latest
+    command:
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - node.role == manager

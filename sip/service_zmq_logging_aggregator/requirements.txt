@@ -1,0 +1,4 @@
+PyYaml>=3.12
+pyzmq>=16.0.2
+simplejson>=3.10.0
+flask>=0.12.2

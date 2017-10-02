@@ -1,0 +1,21 @@
+#
+# Usage:
+#   docker-compose build [service name]
+#
+
+version: '3.3'
+
+services:
+
+  sip:
+    image: sip
+    build:
+      context: .
+      dockerfile: ./sip/Dockerfile
+
+  # ZeroMQ logging aggregator
+  zla:
+    image: sip/zla
+    build:
+      context: .
+      dockerfile: ./sip/service_zmq_logging_aggregator/Dockerfile
