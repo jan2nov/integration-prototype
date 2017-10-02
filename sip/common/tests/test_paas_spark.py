@@ -31,7 +31,6 @@ class TestSparkPaaS(unittest.TestCase):
                                         '@[{}], Skipping tests.'.
                                         format(master_url))
         except requests.exceptions.RequestException:
-            print('Exception thrown..')
             raise unittest.SkipTest("Cannot connect to Spark Master @ [{}]. "
                                     "Skipping tests.". format(master_url))
         cls.paas = paas
