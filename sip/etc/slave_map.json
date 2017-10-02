@@ -60,11 +60,6 @@
         },
         "docker_image": "sip",
         "host": "sip-03",
-        "volumes": {
-            "/var/tmp": {
-                "bind": "/tmp",
-                "mode": "rw"
-            }
         },
         "task": [
             "sip/tasks/vis_receiver_task.py",
