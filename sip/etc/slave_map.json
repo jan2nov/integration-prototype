@@ -60,7 +60,6 @@
         },
         "docker_image": "sip",
         "host": "sip-03",
-        },
         "task": [
             "sip/tasks/vis_receiver_task.py",
             "sip/etc/vis_receiver_config.json"

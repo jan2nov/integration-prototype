@@ -59,7 +59,7 @@ class DockerPaas(Paas):
 
             # Adding volume mount
             # Create a volume first called my-vol
-            mount = ['/var/run/docker.sock:/var/run/docker.sock:rw,my-vol:/home/sdp:rw']
+            mount = ['/var/run/docker.sock:/var/run/docker.sock:rw','my-vol:/home/sdp:rw']
 
             # Define the restart policy
             if restart:
