@@ -4,18 +4,48 @@
 
 # SDP Integration Prototype
 
-This is an experimental Docker Swarm version. See confluence pages for more
-information.
+## Introduction
+TODO(BM) Get description from Confluence.
 
-Apache Spark jobs are supported if spark-submit is installed.
+## The SIP code
+
+SIP consists of two main categories of components:
+
+1. A set of services which for control, monitoring and other persistent
+   services required to be running to support a functional SDP.
+2. A number of capability tasks which are started using the control
+   service(s) and perform various tasks mocking SDP processing or data ingest 
+   tasks.
+
+Currently all SIP code resides in the `/sip` folder which is a single python
+project with sub-module for the Master Controller, Slave controller,
+Processor software, tasks, and common utility functions. This folder structure
+is under active review and is likely to change in the short term (~weeks).
+
 
 ## Requirements
-* Docker
-* Python 3.4 or later
-* DockerPy 2.1 or later
-* rpyc
-* zmq
-* pyftpdlib
-* Apache Spark (for spark-submit)
-*
+
+The SIP code required Python 3.5+ and has a number of dependencies which are
+listed in the `requirements.txt` file in the top level of the build tree.
+
+In addition to these Python requirements, in order to run the SIP code,
+Docker must be installed and configured in Swarm mode.
+
+Instructions for this can be found in the source documentation at
+TODO(BM) Link to readthedocs (needs updating...)
+
+Please also refer to the SIP confluence pages for more information.
+
+A test apache spark pipeline can also be started by the SIP code if a local
+spark cluster is installed with a HTTP endpoint on the node which is running 
+the Master Controller.
+
+## Running SIP
+
+TODO(BM) Create a branch to update this doc. Brief doc here with additional 
+details in the sphinx? 
+
+
+
+
 

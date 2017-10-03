@@ -5,6 +5,33 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+
+## [0.3.0] - 2017-10-xx
+### Added
+- Standalone ZeroMQ logging service. This can be run as a binary or as a docker
+  container.
+### Changed
+- Updated modules throughout SIP to make use of standard Python Logging. 
+  Removed use of a global Python logging object defined in 
+  `sip/common/logging_api.py`. 
+### Removed
+- Logging code in the `sip.common` module which is now deprecated:
+  - `sip/common/logging_aggregator.py`
+  - `sip/common/logging_api.py`
+  - `sip/common/logging_handlers.py`
+  - `sip/common/logging_server.py`
+### Fixed
+- Updated top level README.md file. This is still out of date and will be 
+  updated as part of a future documentation update activity.
+- Various PEP8 and PyLint issues.
+
 
 ## [0.2.2] - 2017-10-02
 ### Changed
