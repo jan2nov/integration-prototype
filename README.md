@@ -5,7 +5,15 @@
 # SDP Integration Prototype
 
 ## Introduction
-TODO(BM) Get description from Confluence.
+
+The SDP Integration prototype is a project to develop a lightweight prototype 
+of the major components of the SDP system. The focus of this prototype is to:
+
+- provide verification, testing and analysis of the SDP architecture,
+- test external (to other SKA components) and internal (to other SDP 
+  components) software interfaces,
+- provide limited tests of horizontal scaling on representative SDP hardware 
+  prototype (AlaSKA performance prototype platform (P3))
 
 ## The SIP code
 
