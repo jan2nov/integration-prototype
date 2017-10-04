@@ -33,6 +33,30 @@
     cache_valid_time: 3600
   become: True
 
+- name: Install boost python
+  apt:
+    name: libboost-python-dev
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  become: True
+
+- name: Install boost program options
+  apt:
+    name: libboost-program-options-dev
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  become: True
+
+- name: Install boost system
+  apt:
+    name: libboost-system-dev
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  become: True
+
 - name: Update pip
   pip:
     executable: pip3

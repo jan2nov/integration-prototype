@@ -22,7 +22,7 @@
     "streams": [
       {
         "port": 8001,
-        "host": "sip-03",
+        "host": "ska2",
         "threads": 1
       }
     ]
