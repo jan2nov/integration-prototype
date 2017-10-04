@@ -36,7 +36,7 @@
             "name": "TaskControlIngest"
         },
         "docker_image": "sip",
-        "host": "sip-02",
+        "host": "ska1",
         "volumes": {
             "/var/tmp": {
                 "bind": "/mnt/tmp",
