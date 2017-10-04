@@ -24,22 +24,15 @@ boxes = [
         :memory => memory,
     },
     {
-<<<<<<< HEAD
+
         :name => 'ska1',
-=======
-        :name => 'sip-02',
->>>>>>> 5c726f5db4a7f7afae5b1cec3e2d1777b793d120
         :groups => :swarm_worker,
         :ip => '192.168.120.102',
         :cpus => cpus,
         :memory => memory,
     },
     {
-<<<<<<< HEAD
         :name => 'ska2',
-=======
-        :name => 'sip-03',
->>>>>>> 5c726f5db4a7f7afae5b1cec3e2d1777b793d120
         :groups => :swarm_worker,
         :ip => '192.168.120.103',
         :cpus => cpus,
