@@ -36,7 +36,7 @@
             "name": "TaskControlIngest"
         },
         "docker_image": "sip",
-        "host": "ska1",
+        "host": "sip-02",
         "volumes": {
             "/var/tmp": {
                 "bind": "/mnt/tmp",
@@ -59,6 +59,7 @@
             "timeout": 120.0
         },
         "docker_image": "sip",
+<<<<<<< HEAD
         "host": "ska2",
         "volumes": {
             "my-vol": {
@@ -66,6 +67,9 @@
                 "mode": "rw"
             }
         },
+=======
+        "host": "sip-03",
+>>>>>>> 5c726f5db4a7f7afae5b1cec3e2d1777b793d120
         "task": [
             "sip/tasks/vis_receiver_task.py",
             "sip/etc/vis_receiver_config.json"
