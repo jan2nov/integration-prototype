@@ -55,20 +55,20 @@
         "engine_url": "unix:///var/run/docker.sock",
         "launch_policy": "docker",
         "task_control_module": {
-            "name": "TaskControlIngest",
-            "timeout": 120.0
+            "name": "TaskControlIngest"
         },
         "docker_image": "sip",
         "host": "ska2",
         "volumes": {
-            "my-vol": {
+            "/var/tmp": {
                 "bind": "/mnt/tmp",
                 "mode": "rw"
             }
         },
         "task": [
-            "sip/tasks/vis_receiver_task.py",
-            "sip/etc/vis_receiver_config.json"
+            "sip/tasks/ingest_demo.py",
+            "6000",
+            "30"
             ]
         },
     "pulsar_search": {
