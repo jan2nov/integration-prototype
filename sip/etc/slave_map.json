@@ -49,6 +49,28 @@
             "30"
             ]
         },
+    "vis_demo": {
+        "online": 0,
+        "timeout": 10,
+        "engine_url": "unix:///var/run/docker.sock",
+        "launch_policy": "docker",
+        "task_control_module": {
+            "name": "TaskControlIngest"
+        },
+        "docker_image": "sip",
+        "host": "ska1",
+        "volumes": {
+            "/var/tmp": {
+                "bind": "/mnt/tmp",
+                "mode": "rw"
+            }
+        },
+        "task": [
+            "sip/tasks/vis_demo.py",
+            "6001",
+            "30"
+            ]
+        },
     "vis_receive": {
         "online": 0,
         "timeout": 10,

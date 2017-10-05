@@ -77,6 +77,10 @@ def _start_docker_slave(name, type, cfg, status, service):
     # mapped to free ports on the host.
     image = cfg['docker_image']
     task_control_module = cfg['task_control_module']['name']
+
+    # Adding tmp comments
+    log.info("TASK CONTROL MODULE - ", task_control_module)
+
     _cmd = ['python3', '-m', 'sip.slave',
             name,
             str(rpc_port_),
@@ -86,13 +90,25 @@ def _start_docker_slave(name, type, cfg, status, service):
     # Start it
     paas = Paas()
     if service:
+
+        # Adding tmp comments
+        log.info("Going to run service......")
+
         descriptor = paas.run_service(name, 'sip', [rpc_port_], _cmd)
     else:
+
+        # Adding tmp comments
+        log.info("GOING TO STARK RUN TASK")
+
 
         # Look for a host in the config dictionary
         host = None
         if 'host' in cfg:
             host = cfg['host']
+
+            # Adding tmp comments
+            log.info("HOST-", host
+                     )
         descriptor = paas.run_task(name, 'sip', [rpc_port_], _cmd, host=host)
 
     # Attempt to connect the controller

@@ -273,6 +273,9 @@ class TaskControlIngest(TaskControl):
         self.name = os.path.normpath(task[0])
         log.info('[TaskControlIngest] Starting task {}'.format(self.name))
         command = list(task)
+
+        # Adding tmp commands
+        log.indo("COMMAND - ", command)
         s = json.loads(settings)
         self._container = self._client.containers.run(image='sip', 
                 command=command, detach=True, network_mode='host',
@@ -313,6 +316,11 @@ class TaskControlIngest(TaskControl):
                 # Get the status of the container
                 self._task_controller._container.reload()
                 status = self._task_controller._container.status
+
+                # Adding tmp comments
+                log.info("STATUS - ", status)
+
+
                 if status == 'created' or status == 'restarting' or (
                        status == 'running' or status == 'paused'):
                     self._task_controller.set_slave_state_busy()
