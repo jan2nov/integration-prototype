@@ -9,7 +9,7 @@ import os
 import sys
 import socket
 
-# import signal
+import signal
 # import simplejson as json
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -24,8 +24,8 @@ def _sig_handler(signum, frame):
 
 def main():
     # """Task run method."""
-    # # Install handler to respond to SIGTERM
-    # signal.signal(signal.SIGTERM, _sig_handler)
+    # Install handler to respond to SIGTERM
+    signal.signal(signal.SIGTERM, _sig_handler)
     #
     # # FIXME(FD) Get configuration data - it should not happen like this.
     # with open(sys.argv[1]) as f:
