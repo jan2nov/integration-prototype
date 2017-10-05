@@ -79,7 +79,8 @@ def _start_docker_slave(name, type, cfg, status, service):
     task_control_module = cfg['task_control_module']['name']
 
     # Adding tmp comments
-    log.info("TASK CONTROL MODULE - ", task_control_module)
+    log.info("TASK CONTROL MODULE")
+    log.info(task_control_module)
 
     _cmd = ['python3', '-m', 'sip.slave',
             name,
@@ -107,8 +108,8 @@ def _start_docker_slave(name, type, cfg, status, service):
             host = cfg['host']
 
             # Adding tmp comments
-            log.info("HOST-", host
-                     )
+            log.info("HOST-")
+            log.info(host)
         descriptor = paas.run_task(name, 'sip', [rpc_port_], _cmd, host=host)
 
     # Attempt to connect the controller

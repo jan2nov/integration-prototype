@@ -319,6 +319,7 @@ class TaskControlIngest(TaskControl):
 
                 # Adding tmp comments
                 log.info("STATUS - ", status)
+                log.info(status)
 
 
                 if status == 'created' or status == 'restarting' or (
