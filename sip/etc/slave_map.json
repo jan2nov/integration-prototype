@@ -66,8 +66,9 @@
             }
         },
         "task": [
-            "sip/tasks/vis_receiver_task.py",
-            "6001"
+            "sip/tasks/vis_demo.py",
+            "6001",
+            "30"
             ]
         },
     "vis_receive": {
@@ -81,13 +82,13 @@
         "docker_image": "sip",
         "host": "ska2",
         "volumes": {
-            "my-vol": {
+            "/var/tmp": {
                 "bind": "/mnt/tmp",
                 "mode": "rw"
             }
         },
         "task": [
-            "sip/tasks/vis_receiver_task.py",
+            "sip/processor_software/vis_receiver.py",
             "sip/etc/vis_receiver_config.json"
             ]
         },
