@@ -82,15 +82,14 @@
         "docker_image": "sip",
         "host": "ska2",
         "volumes": {
-            "/var/tmp": {
+            "my-vol": {
                 "bind": "/mnt/tmp",
                 "mode": "rw"
             }
         },
         "task": [
             "sip/tasks/vis_receiver_task.py",
-            "6000",
-            "30"
+            "sip/etc/vis_receiver_config.json"
             ]
         },
     "pulsar_search": {
