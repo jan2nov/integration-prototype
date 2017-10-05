@@ -7,7 +7,6 @@ Implements C.1.2.1.4 from the product tree.
 
 import os
 import sys
-import socket
 
 import signal
 import simplejson as json
@@ -15,7 +14,7 @@ import simplejson as json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from sip.processor_software.vis_receiver import VisReceiver
-#from sip.common.logging_api import log
+from sip.common.logging_api import log
 
 
 def _sig_handler(signum, frame):
@@ -23,8 +22,6 @@ def _sig_handler(signum, frame):
 
 
 def main():
-
-    #log.info("INSIDE VIS RECEIVER")
     """Task run method."""
     # Install handler to respond to SIGTERM
     signal.signal(signal.SIGTERM, _sig_handler)
@@ -35,8 +32,9 @@ def main():
 
     # Create streams and receive SPEAD data.
     os.chdir(os.path.expanduser('~'))
-    receiver = VisReceiver(config)
+    receiver = VisReceiver(config, log)
     receiver.run()
+
 
 if __name__ == '__main__':
     main()

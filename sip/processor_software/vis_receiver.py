@@ -8,20 +8,11 @@ import pickle
 import spead2
 import spead2.recv
 
-import os
-import sys
-
-import signal
-import simplejson as json
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 class VisReceiver:
     """Receives visibility data using SPEAD."""
 
-    def __init__(self, config):
-
-        #log.info("INSIDE VIS RECEIVER")
+    def __init__(self, config, log):
         """Constructor.
 
         Creates SPEAD stream objects.
@@ -36,7 +27,7 @@ class VisReceiver:
         """
         # Initialise class variables.
         self._config = config
-        #self._log = log
+        self._log = log
         self._streams = []
 
         # Construct streams.
@@ -46,9 +37,9 @@ class VisReceiver:
         upper = config['memory_pool']['upper']
         max_free = config['memory_pool']['max_free']
         initial = config['memory_pool']['initial']
-        #log.info('Creating streams...')
+        log.info('Creating streams...')
         for stream in config['streams']:
-            #log.debug('Creating stream on port {}'.format(stream['port']))
+            log.debug('Creating stream on port {}'.format(stream['port']))
             s = spead2.recv.Stream(spead2.ThreadPool(), bug_compat)
             pool = spead2.MemoryPool(lower, upper, max_free, initial)
             s.set_memory_allocator(pool)
@@ -61,13 +52,13 @@ class VisReceiver:
         Reads SPEAD heaps and writes them to pickle files.
         """
         # ms = {}
-        #self._log.info('Waiting to receive...')
+        self._log.info('Waiting to receive...')
         for stream in self._streams:
             item_group = spead2.ItemGroup()
 
             # Loop over all heaps in the stream.
             for heap in stream:
-                #self._log.info("Received heap {}".format(heap.cnt))
+                self._log.info("Received heap {}".format(heap.cnt))
 
                 # Extract data from the heap into a dictionary.
                 data = {}
@@ -112,27 +103,3 @@ class VisReceiver:
 
             # Stop the stream when there are no more heaps.
             stream.stop()
-
-
-def _sig_handler(signum, frame):
-    sys.exit(0)
-
-
-def main():
-
-    #log.info("INSIDE VIS RECEIVER")
-    """Task run method."""
-    # Install handler to respond to SIGTERM
-    signal.signal(signal.SIGTERM, _sig_handler)
-
-    # FIXME(FD) Get configuration data - it should not happen like this.
-    with open(sys.argv[1]) as f:
-        config = json.load(f)
-
-    # Create streams and receive SPEAD data.
-    #os.chdir(os.path.expanduser('~'))
-    receiver = VisReceiver(config)
-    receiver.run()
-
-if __name__ == '__main__':
-    main()
