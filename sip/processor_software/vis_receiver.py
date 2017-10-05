@@ -13,6 +13,8 @@ class VisReceiver:
     """Receives visibility data using SPEAD."""
 
     def __init__(self, config, log):
+
+        log.info("INSIDE VIS RECEIVER")
         """Constructor.
 
         Creates SPEAD stream objects.

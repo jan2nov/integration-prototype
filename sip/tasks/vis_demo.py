@@ -10,12 +10,16 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
+from sip.common.logging_api import log
+
 
 def _sig_handler(signum, frame):
     sys.exit(0)
 
 
 def run():
+
+    log.info("INSIDE VIS DEMO")
     # Write to the host file system
     f = open('/mnt/tmp/hello_test', 'w')
     f.close()

@@ -66,9 +66,8 @@
             }
         },
         "task": [
-            "sip/tasks/vis_demo.py",
-            "6001",
-            "30"
+            "sip/tasks/vis_receiver_task.py",
+            "6001"
             ]
         },
     "vis_receive": {
@@ -89,7 +88,7 @@
         },
         "task": [
             "sip/tasks/vis_receiver_task.py",
-            "6000"
+            "sip/etc/vis_receiver_config.json"
             ]
         },
     "pulsar_search": {
