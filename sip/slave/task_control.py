@@ -276,6 +276,7 @@ class TaskControlIngest(TaskControl):
 
         # Adding tmp commands
         log.info("COMMAND - ", command)
+        log.info(command)
         s = json.loads(settings)
         self._container = self._client.containers.run(image='sip', 
                 command=command, detach=True, network_mode='host',
