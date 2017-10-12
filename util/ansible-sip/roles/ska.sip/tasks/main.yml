@@ -55,6 +55,6 @@
 - name: Build SIP docker image (This takes quite a long time...)
   docker_image:
     state: present
-    name: vis_ingest
-    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/sip/tasks/Dockerfile"
+    name: sip
+    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/Dockerfile"
     path: "{{ ansible_user_dir }}/integration-prototype.git"
