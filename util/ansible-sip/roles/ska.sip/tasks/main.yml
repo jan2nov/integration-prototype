@@ -56,5 +56,5 @@
   docker_image:
     state: present
     name: sip
-    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/Dockerfile"
+    dockerfile: "{{ ansible_user_dir }}/integration-prototype.git/sip/tasks/Dockerfile"
     path: "{{ ansible_user_dir }}/integration-prototype.git"

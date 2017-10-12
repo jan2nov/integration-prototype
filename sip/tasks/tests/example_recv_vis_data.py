@@ -139,7 +139,7 @@ def _receive_heaps(config, streams, log):
             data['time_index'] = time_index
 
             # Write visibility data.
-            _pickle_write(base_name + '.p', data)
+            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
 
             # Write to Measurement Set if required.
             ms_name = base_name + '.ms'

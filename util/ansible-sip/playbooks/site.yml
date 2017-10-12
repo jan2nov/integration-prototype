@@ -81,4 +81,4 @@
   become_method: sudo
   roles:
     - role: ska.sip
-      sip_branch: master
+      sip_branch: vis_ingest_multi
