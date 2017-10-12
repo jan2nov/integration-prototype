@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
   vis_ingest1:
-    image: vis_test
+    image: vis_ingest
     volumes:
       - type: volume
         source: vis-vol1
@@ -19,7 +19,7 @@ services:
         com.dn.description: "Host networking"
 
   vis_ingest2:
-    image: vis_test
+    image: vis_ingest
     volumes:
       - type: volume
         source: vis-vol2
@@ -35,7 +35,7 @@ services:
         com.dn.description: "Host networking"
 
   vis_ingest3:
-    image: vis_test
+    image: vis_ingest
     volumes:
       - type: volume
         source: vis-vol3
