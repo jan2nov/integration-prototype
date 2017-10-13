@@ -66,5 +66,5 @@ volumes:
         external: True
     vis-vol2:
         external: True
-    vis-vol3s:
+    vis-vol3:
         external: True
