@@ -1,0 +1,19 @@
+{
+  "output":
+  {
+    "max_times_per_file": 4
+  },
+  "streams":
+  [
+    {
+      "port": 8003
+    }
+  ],
+  "memory_pool":
+  {
+    "lower": 16384,
+    "upper": 26214400,
+    "max_free": 12,
+    "initial": 8
+  }
+}

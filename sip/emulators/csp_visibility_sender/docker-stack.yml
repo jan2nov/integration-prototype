@@ -16,6 +16,34 @@ services:
       labels:
         com.dn.description: "Host networking"
 
+  vis_ingest2:
+    image: sip
+    entrypoint: python3 -m
+    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config1.json
+    networks:
+      - outside
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == ska2
+      labels:
+        com.dn.description: "Host networking"
+
+  vis_ingest3:
+    image: sip
+    entrypoint: python3 -m
+    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config2.json
+    networks:
+      - outside
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == ska2
+      labels:
+        com.dn.description: "Host networking"
+
 networks:
   outside:
     external:

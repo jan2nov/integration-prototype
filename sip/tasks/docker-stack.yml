@@ -20,7 +20,41 @@ services:
       labels:
         com.dn.description: "Host networking"
 
+  vis_ingest2:
+    image: sip
+    entrypoint: python3
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config1.json
+    volumes:
+      - type: volume
+        source: vis-vol2
+        target: /home/sdp/output
+    networks:
+      - outside
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == ska1
+      labels:
+        com.dn.description: "Host networking"
 
+  vis_ingest3:
+    image: sip
+    entrypoint: python3
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config2.json
+    volumes:
+      - type: volume
+        source: vis-vol3
+        target: /home/sdp/output
+    networks:
+      - outside
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.hostname == ska1
+      labels:
+        com.dn.description: "Host networking"
 
 networks:
   outside:
@@ -29,4 +63,8 @@ networks:
 
 volumes:
     vis-vol1:
+        external: True
+    vis-vol2:
+        external: True
+    vis-vol3s:
         external: True
