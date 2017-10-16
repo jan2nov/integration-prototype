@@ -12,7 +12,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ni-lhgvtlmc67p-0-bvm6lxm34iel-swarm_node-5fi3csf5yss2
+          - node.hostname == ni-schbgmfhovl-0-l7ghanbp6acz-swarm_node-pnrgfvic42mz
       labels:
         com.dn.description: "Host networking"
 
