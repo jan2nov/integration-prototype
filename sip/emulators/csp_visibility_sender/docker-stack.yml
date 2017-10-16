@@ -12,7 +12,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == vi-mtw2vgyar6w-1-e2xptifyu5xr-swarm-node-x4mkh3vvddco.novalocal
+          - node.ID == kr3ep47gzukzhvxpniw2f7frd
       labels:
         com.dn.description: "Host networking"
 
