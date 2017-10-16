@@ -16,7 +16,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ska1
+          - node.hostname == ni-lhgvtlmc67p-1-kka2ye3ixccx-swarm_node-r67xxmietcgm
       labels:
         com.dn.description: "Host networking"
 
