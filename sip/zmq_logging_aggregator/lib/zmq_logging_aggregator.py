@@ -7,6 +7,7 @@ This class implements a ZMQ SUB socket.
 """
 import threading
 import logging
+import logging.handlers
 import json
 
 import zmq
@@ -87,7 +88,7 @@ class ZmqLoggingAggregator(threading.Thread):
         # Exponential relaxation of the timeout in the event loop.
         fail_count = 0
         fail_count_limit = 50
-        timeout = [10**exp for exp in self._linspace(-4, 0, fail_count_limit)]
+        timeout = [10**exp for exp in self._linspace(-4, -1, fail_count_limit)]
 
         while not self._stop_requested.is_set():
 
@@ -97,6 +98,7 @@ class ZmqLoggingAggregator(threading.Thread):
                 str_values = values.decode('utf-8')
                 try:
                     dict_values = json.loads(str_values)
+                    dict_values['args'] = tuple(dict_values['args'])
                     record = logging.makeLogRecord(dict_values)
                     log.handle(record)
                     fail_count = 0
@@ -115,8 +117,10 @@ class ZmqLoggingAggregator(threading.Thread):
             else:
                 _timeout = timeout[-1]
 
-            if fail_count % 5 == 0:
-                log.debug('Polling for log messages (fails = %-5i, '
-                          'timeout = %.4f s)', fail_count, _timeout)
+            # TODO(BM) have a different log for messages from the aggregator
+            # vs those received. (eg. log vs log_local)
+            # if fail_count % 5 == 0:
+            #     log_local.debug('Polling for log messages (fails = %-5i, '
+            #                     'timeout = %.4f s)', fail_count, _timeout)
 
             self._stop_requested.wait(_timeout)

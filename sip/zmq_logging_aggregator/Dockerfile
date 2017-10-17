@@ -1,17 +1,17 @@
 #
-# docker build -t sip/zla -f sip/service_zmq_logging_aggregator/Dockerfile .
+# docker build -t sip/zla sip/zmq_logging_aggregator
 #
-# Test with:
+# Test interactively with:
 #   docker run --rm -it --entrypoint=/bin/sh sip/zla
 #
 # Run and show logging:
-#   docker run --rm -t -p 5555:5555 -p 9020:9020 --name zla sip/zla
+#   docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9999:9999 --name zla sip/zla
 #
 
 FROM python:3.6-alpine3.6
 LABEL maintainer="Benjamin Mort <ben.mort@gmail.com>"
 
-COPY sip/service_zmq_logging_aggregator/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 
 # Note
 # - libstdc++ is installed as a separate step as this is needed for
@@ -26,15 +26,19 @@ RUN apk add --no-cache --virtual build-dependencies g++ musl-dev && \
 
 # Flask server port
 EXPOSE 5555
+
 # Python logging.handlers.DEFAULT_TCP_LOGGING_PORT
 EXPOSE 9020
+
+# Python logging configuration server
+EXPOSE 9999
 
 WORKDIR /app
 
 HEALTHCHECK --interval=5s --timeout=2s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:5555/health || exit 1
 
-COPY sip/service_zmq_logging_aggregator /app/zla
+COPY . /app/zla/
 
 ENTRYPOINT ["python3"]
 CMD ["-m", "zla"]

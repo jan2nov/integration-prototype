@@ -17,10 +17,16 @@ def main():
         data_to_send = file.read()
     host = 'localhost'
     port = 9999
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
-    sock.send(struct.pack('>L', len(data_to_send)))
-    sock.send(data_to_send)
+    sock.setblocking(True)
+    try:
+        sock.connect((host, port))
+    except socket.timeout:
+        print('Socket failed to connect ...')
+    print('Socket connected to address:', sock.getpeername())
+    sock.sendall(struct.pack('>L', len(data_to_send)))
+    sock.sendall(data_to_send)
     sock.close()
 
 

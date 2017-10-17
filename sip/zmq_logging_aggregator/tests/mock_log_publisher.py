@@ -6,19 +6,12 @@ Spams log messages with a ZMQ handler.
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
 import logging
+import logging.handlers
 import time
-import simplejson as json
+# import simplejson as json
+import json
 
 import zmq
-
-
-class ZmqFormatter(logging.Formatter):
-    """ Formats log messages."""
-
-    def format(self, record):
-        """ Returns a formatted log message
-        """
-        return json.dumps(record.json, sort_keys=True)
 
 
 class ZmqHandler(logging.Handler):
@@ -38,6 +31,9 @@ class ZmqHandler(logging.Handler):
             port (int, string): Port on to publish messages to.
             level (int, string): Logging level.
         """
+        # TODO(BM) check if we can connect to the aggregator by querying the
+        # health-check endpoint.
+        #   $ curl http://[host]:[port]/health
         logging.Handler.__init__(self, level)
         context = zmq.Context()
         publisher = context.socket(zmq.PUB)
@@ -46,16 +42,15 @@ class ZmqHandler(logging.Handler):
         time.sleep(0.1)
         self.channel = channel
         self.zmq_publisher = publisher
-        self.formatter = ZmqFormatter()
 
     def emit(self, record):
         """ Write a logging record.
         """
-        log_channel = self._to_bytes(self.channel)
-        log_level = self._to_bytes(record.levelname)
-        log_channel = b':'.join(log_level, log_channel)
-        log_message = self._to_bytes(self.format(record))
-        self.zmq_publisher.send_multipart([log_channel, log_message])
+        b_chan = self._to_bytes(self.channel)
+        b_level = self._to_bytes(record.levelname)
+        b_chan = b':'.join([b_level, b_chan])
+        b_msg = self._to_bytes(json.dumps(record.__dict__.copy()))
+        self.zmq_publisher.send_multipart([b_chan, b_msg])
 
     @staticmethod
     def _to_bytes(string):
@@ -72,18 +67,24 @@ class ZmqHandler(logging.Handler):
 def main():
     """ Main
     """
-    log = logging.getLogger(__name__)
-    log.info('HELLO')
+    log = logging.getLogger('mock_log_publisher.py')
+    for i in range(10):
+        log.info('HELLO %i', i)
+        log.debug('HELLO AGAIN %i', i)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
     # Attach a stream handler to the log
     LOG = logging.getLogger()
-    LOG.addHandler(logging.StreamHandler())
+    FORMAT = logging.Formatter("= %(name).40s | %(levelname)s | %(message)s")
+    HANDLER = logging.StreamHandler()
+    HANDLER.setFormatter(FORMAT)
+    LOG.addHandler(HANDLER)
     LOG.setLevel(logging.DEBUG)
 
     # need to get hostname of log aggregator
     # -- This will be different if this publisher is run from inside the same
     #    overlay network as the subscriber or not.
-    # LOG.addHandler(ZmqLogHandler())
+    LOG.addHandler(ZmqHandler())
     main()

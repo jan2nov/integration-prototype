@@ -20,7 +20,7 @@
 
   "formatters": {
     "format1": {
-     "format": "> %(name).40s | %(message)s"
+     "format": "> %(name).40s | %(levelname).6s | %(message)s"
     }
   }
 }

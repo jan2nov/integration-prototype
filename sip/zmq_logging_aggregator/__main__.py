@@ -1,5 +1,5 @@
 # coding: utf-8
-""" Logging aggregator service main
+""" Logging aggregator for ZeroMQ Python Logging messages.
 
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """

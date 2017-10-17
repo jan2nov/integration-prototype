@@ -1,10 +1,11 @@
 # coding: utf-8
-""" Logging aggregator service application
+""" ZeroMQ logging aggregator service application
 
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
 import signal
 import logging
+import logging.config
 import sys
 import os
 import time
@@ -41,6 +42,14 @@ def health_check():
             'hostname {} for {:.1f} s' .format(socket.gethostname(), elapsed))
 
 
+def verify_config(config):
+    """ Function to verity that the Logging Config sent to the logging
+        configuration server is valid.
+    """
+    print(config)
+    return config
+
+
 def main():
     """ SIP ZMQ Logging aggregator service main.
     """
@@ -53,16 +62,17 @@ def main():
                                'config', 'default.json')
     log.debug('Config file = %s', config_file)
 
-    # Start a logging configuration server.
-    config_server = logging.config.listen(port=9999)
-    config_server.daemon = True
-    config_server.start()
-
     # Start logging aggregator thread.
     log.debug('Starting ZMQ logging aggregator')
     aggregator = ZmqLoggingAggregator(config_file)
     aggregator.daemon = True
     aggregator.start()
+
+    # Start a logging configuration server.
+    # https://docs.python.org/3.6/library/logging.config.html#logging.config.listen
+    config_server = logging.config.listen(port=9999, verify=verify_config)
+    config_server.daemon = True
+    config_server.start()
 
     # Start the HTTP health check endpoint using the Flask development server.
     # FIXME(BM) this is not the correct way to deploy a web service endpoint
