@@ -1,4 +1,6 @@
 PyYAML>=3.12
 pyzmq>=16.0.2
 simplejson>=3.11.1
-Flask>=0.12.2
+bottle>=0.12.13
+requests>=2.18.4
+bjoern>=2.0.1

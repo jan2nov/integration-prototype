@@ -10,7 +10,7 @@ from . import app
 
 # Define a logging formatter and handler.
 # FORMAT = NameTruncatingFormatter("> %(name)-30s | %(message)s")
-FORMAT = logging.Formatter("= %(name).40s | %(message)s")
+FORMAT = logging.Formatter("> %(name)s : %(message)s")
 HANDLER = logging.StreamHandler()
 HANDLER.setFormatter(FORMAT)
 
@@ -22,7 +22,7 @@ SIP.setLevel(logging.DEBUG)
 # Set the default Flask logging handler and level
 FLASK_LOG = logging.getLogger('werkzeug')
 FLASK_LOG.addHandler(HANDLER)
-FLASK_LOG.setLevel(logging.ERROR)
+FLASK_LOG.setLevel(logging.WARNING)
 
 
 # Start the app

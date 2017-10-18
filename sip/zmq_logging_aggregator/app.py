@@ -3,19 +3,20 @@
 
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
-import signal
 import logging
 import logging.config
-import sys
 import os
-import time
+import signal
 import socket
+import sys
+import time
 
-from flask import Flask
+import bjoern
+from bottle import Bottle, request, template
 
 from .lib.zmq_logging_aggregator import ZmqLoggingAggregator
 
-APP = Flask(__name__)
+APP = Bottle()
 START_TIME = time.time()
 
 
@@ -38,8 +39,17 @@ def health_check():
     """ Health check HTTP endpoint
     """
     elapsed = time.time() - START_TIME
-    return ('The SIP ZMQ Logging aggregator (zla) has been running on '
-            'hostname {} for {:.1f} s' .format(socket.gethostname(), elapsed))
+    return dict(module='zmq_logging_aggregator',
+                hostname=socket.gethostname(),
+                uptime=elapsed)
+
+
+@APP.route('/my_ip')
+def show_ip():
+    """ Show IP address
+    """
+    ip = request.environ.get('REMOTE_ADDR')
+    return template("Your IP is: {{ip}}", ip=ip)
 
 
 def verify_config(config):
@@ -74,9 +84,8 @@ def main():
     config_server.daemon = True
     config_server.start()
 
-    # Start the HTTP health check endpoint using the Flask development server.
-    # FIXME(BM) this is not the correct way to deploy a web service endpoint
-    APP.run(host='0.0.0.0', port=5555)
+    # Start the HTTP health check endpoint using bjoern
+    bjoern.run(APP, host='0.0.0.0', port=5555)
 
     # Wait until the logging aggregator thread terminates.
     log.debug('Terminating logging aggregator service.')

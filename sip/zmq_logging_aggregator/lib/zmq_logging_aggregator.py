@@ -9,6 +9,7 @@ import threading
 import logging
 import logging.handlers
 import json
+import time
 
 import zmq
 
@@ -89,6 +90,9 @@ class ZmqLoggingAggregator(threading.Thread):
         fail_count = 0
         fail_count_limit = 50
         timeout = [10**exp for exp in self._linspace(-4, -1, fail_count_limit)]
+        message_count = 0
+        time_of_first_message = time.time()
+        time_of_last_message = time.time()
 
         while not self._stop_requested.is_set():
 
@@ -100,8 +104,13 @@ class ZmqLoggingAggregator(threading.Thread):
                     dict_values = json.loads(str_values)
                     dict_values['args'] = tuple(dict_values['args'])
                     record = logging.makeLogRecord(dict_values)
-                    log.handle(record)
                     fail_count = 0
+                    if message_count == 0:
+                        time_of_first_message = time.time()
+                        print('Message timer reset!')
+                    message_count += 1
+                    time_of_last_message = time.time()
+                    log.handle(record)
                 except json.decoder.JSONDecodeError:
                     log.error('Unable to decode JSON log record.')
                     raise
@@ -116,6 +125,13 @@ class ZmqLoggingAggregator(threading.Thread):
                 _timeout = timeout[fail_count]
             else:
                 _timeout = timeout[-1]
+
+            if fail_count == fail_count_limit:
+                print('Reached timeout limit of {:.2f}s, '
+                      '({} messages received in {:.2f}s)'
+                      .format(_timeout, message_count,
+                              (time_of_last_message - time_of_first_message)))
+                message_count = 0
 
             # TODO(BM) have a different log for messages from the aggregator
             # vs those received. (eg. log vs log_local)

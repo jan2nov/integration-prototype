@@ -5,15 +5,24 @@
 Service which aggregates Python logging messages which have been sent using
 ZeroMQ pub/sub sockets. Aggregated logs are written to stdout in the container.
 
-The service also exposes a REST HTTP endpoint using Flask to provide a
-health check API. This can be used to check that the service is up and running
-before trying to connect to it.
+The service also exposes a REST HTTP endpoint using
+[Bottle](https://bottlepy.org/docs/dev/) and
+[Bjoern](https://github.com/jonashaag/bjoern) to provide a health check API.
+This can be used to check that the service is up and running before trying to
+connect to it.
 
-Currently this is using a Flask development server and can be queried using:
+This can be queried using:
 
 ```bash
 curl http://localhost:5555/health
 ```
+
+and will return a JSON object with the fields:
+ 
+- `module`, a string with value `zmq_logging_aggregator`
+- `hostname`, the hostname which the logging aggregator is running
+- `uptime` the length of time the logging aggregator has been running, in 
+  seconds 
 
 The service also exposes a Python Logging configuration server which allows
 logging configuration files to be sent to the server to update the logging 
@@ -22,7 +31,7 @@ can be found in `test/example_send_config.py`.
 
 ## Building the service as a docker image
 
-The service is built by the Jenkins CI / CD service as **TODO(BM)**. It can
+The SIP Jenkins server builds this service as **TODO(BM)**. It can
 also be built manually either using the docker build command or the provided
 docker-compose file (`docker-compose.yml`) at the top of the SIP source tree.
 
@@ -52,7 +61,7 @@ in the `/tests/mock_log_publisher.py` module.
 Start the ZeroMQ Logging aggregator service:
 
 ```shell
-python3 -m sip.service_zmq_logging_aggregator
+python3 -m sip.zmq_logging_aggregator
 ```
 
 or
@@ -66,3 +75,11 @@ Start one or more mock log publishers:
 ```shell
 TODO
 ```
+
+## Possible issues
+
+1. Due to the Python GIL it may be possible for this code to fail to perform
+   the task of receiving log messages at the same time as serving the 
+   healthcheck and logging configuration server end-points. It may be possible
+   to work around this using some form of asynchronous task queue or with 
+   python multiprocessing.   
