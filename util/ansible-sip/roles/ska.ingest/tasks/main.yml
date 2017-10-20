@@ -17,9 +17,9 @@
 # Increase rmem_max
 - name: Increasing rmem_max
   become: yes
-  shell: sysctl net.core.rmem_max=16777216
+  shell: sysctl net.core.rmem_max=2147483647
 
 # Increase rmem_default
 - name: Increasing the rmem_default
   become: yes
-  shell: sysctl net.core.rmem_default=16777216
+  shell: sysctl net.core.rmem_default=2147483647
