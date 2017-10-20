@@ -1,0 +1,25 @@
+---
+# file: ska.sip/tasks/main.yml
+
+# http://docs.ansible.com/ansible/git_module.html
+- name: Get the lastest release of SIP
+  git:
+    repo: https://github.com/SKA-ScienceDataProcessor/integration-prototype.git
+    dest: "{{ ansible_user_dir }}/integration-prototype.git"
+    update: yes
+    version: "{{ sip_branch }}"
+
+# http://docs.ansible.com/ansible/docker_image_module.html
+- name: Build SIP docker image (This takes quite a long time...)
+  become: yes
+  shell: chdir={{ ansible_user_dir }}/integration-prototype.git docker build . -t sip
+
+# Increase rmem_max
+- name: Increasing rmem_max
+  become: yes
+  shell: sysctl net.core.rmem_max=16777216
+
+# Increase rmem_default
+- name: Increasing the rmem_default
+  become: yes
+  shell: sysctl net.core.rmem_default=16777216

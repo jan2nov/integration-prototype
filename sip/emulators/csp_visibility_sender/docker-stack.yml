@@ -12,7 +12,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == kr3ep47gzukzhvxpniw2f7frd
+          - node.ID == knx1y5d44hz81uorwcf8xs84v
       labels:
         com.dn.description: "Host networking"
 
@@ -26,7 +26,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ska2
+          - node.ID == l0xbcmxk5dd29ps03y5z0voo0
       labels:
         com.dn.description: "Host networking"
 
@@ -40,7 +40,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ska2
+          - node.ID == r1q9ww0isac1oroqm3fu6c8yw
       labels:
         com.dn.description: "Host networking"
 

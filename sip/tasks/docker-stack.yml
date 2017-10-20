@@ -16,7 +16,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == z83i43isgl1kdzfzjeg67nduk
+          - node.ID == o74v00x1m94tknquwgo9vnuac
       labels:
         com.dn.description: "Host networking"
 
@@ -34,7 +34,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ska1
+          - node.ID == 0coaf8cgsbutedi6zqmnbq4gc
       labels:
         com.dn.description: "Host networking"
 
@@ -52,7 +52,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.hostname == ska1
+          - node.ID == 95q8n5ier7zc5x9w546j0x76o
       labels:
         com.dn.description: "Host networking"
 
