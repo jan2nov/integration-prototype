@@ -5,7 +5,7 @@ services:
   vis_ingest1:
     image: sip
     entrypoint: python3
-    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
     volumes:
       - type: volume
         source: vis-vol1
@@ -16,7 +16,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == o74v00x1m94tknquwgo9vnuac
+          - node.ID == 81ro0lry1b3cw3n274gzzp5zo
       labels:
         com.dn.description: "Host networking"
 
@@ -34,7 +34,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == 0coaf8cgsbutedi6zqmnbq4gc
+          - node.ID == mddt8repsu32aympod38z2dw4
       labels:
         com.dn.description: "Host networking"
 
@@ -52,7 +52,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == 95q8n5ier7zc5x9w546j0x76o
+          - node.ID == i0chjmnljiucfudur6xl30vr6
       labels:
         com.dn.description: "Host networking"
 

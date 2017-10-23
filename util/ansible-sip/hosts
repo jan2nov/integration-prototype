@@ -6,12 +6,12 @@ ansible_user=fedora
 ansible_ssh_private_key_file=/ilab-home/hpcthyk1/Downloads/redis.pem
 
 [swarm_leader]
-vi-n5opxfshk-0-u2a43ft5kcre-swarm-master-lyffwzonrmff.novalocal ansible_host=10.60.253.21
+vi-dsvjrfmsj-0-lgxpgg5d5qeb-swarm-master-peddbjwnozqv.novalocal ansible_host=10.60.253.12
 
 [swarm_workers]
-vi-qzn7bu2bckc-0-psxhxunlms5f-swarm-node-ni6havkt4q3a.novalocal ansible_host=10.60.253.34
-vi-qzn7bu2bckc-1-pztfy3dnrgfm-swarm-node-47kbzniva72f.novalocal ansible_host=10.60.253.12
-vi-qzn7bu2bckc-2-wgp662vcpwdm-swarm-node-ckqz6dtf7eno.novalocal ansible_host=10.60.253.37
-vi-qzn7bu2bckc-3-eihwhxzi7eiq-swarm-node-zuzniami7b44.novalocal ansible_host=10.60.253.16
-vi-qzn7bu2bckc-4-lwb7kxffkrtt-swarm-node-ofoevvushqw6.novalocal ansible_host=10.60.253.32
-vi-qzn7bu2bckc-5-ssufafv62aid-swarm-node-w3u72pf3vktf.novalocal ansible_host=10.60.253.20
+vi-qcvrrupkatp-0-wz2lqwhqdo2h-swarm-node-w5ooakwqs77o.novalocal ansible_host=10.60.253.22
+vi-qcvrrupkatp-1-idceh7oqfrsh-swarm-node-icf7hmb34oaz.novalocal ansible_host=10.60.253.39
+vi-qcvrrupkatp-2-xccyqdok2j4c-swarm-node-24do7b6cpf2z.novalocal ansible_host=10.60.253.13
+vi-qcvrrupkatp-3-hz7ni4fjja7n-swarm-node-jqqdj5no4mhs.novalocal ansible_host=10.60.253.20
+vi-qcvrrupkatp-4-uprznzlx72qa-swarm-node-4ndcpynnmqxo.novalocal ansible_host=10.60.253.44
+vi-qcvrrupkatp-5-ehkyuu4kx3a5-swarm-node-7saof4sotl6i.novalocal ansible_host=10.60.253.37
