@@ -5,7 +5,7 @@ services:
   vis_ingest1:
     image: sip
     entrypoint: python3
-    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py
     volumes:
       - type: volume
         source: vis-vol1
@@ -23,7 +23,7 @@ services:
   vis_ingest2:
     image: sip
     entrypoint: python3
-    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config1.json
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
     volumes:
       - type: volume
         source: vis-vol2
@@ -41,7 +41,7 @@ services:
   vis_ingest3:
     image: sip
     entrypoint: python3
-    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config2.json
+    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
     volumes:
       - type: volume
         source: vis-vol3

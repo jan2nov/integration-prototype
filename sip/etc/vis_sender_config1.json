@@ -8,8 +8,8 @@
 
   "observation":
   {
-    "num_stations": 512,
-    "num_channels": 4,
+    "num_stations": 197,
+    "num_channels": 1,
     "num_times": 9
   },
 
@@ -21,7 +21,7 @@
     "start_channel": 0,
     "streams": [
       {
-        "port": 8002,
+        "port": 8001,
         "host": "10.60.253.12",
         "threads": 1
       }
