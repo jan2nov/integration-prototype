@@ -22,8 +22,7 @@ https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/
 The visibility sender config file are in the /sip/etc directory. Update vis_sender_config.json, 
 vis_sender_config1.json and vis_sender_config2.json file with the correct host address. 
 
-Commit these changes to github and update the branch name inside the p3_site.yml file. [Only need to
-do this when using using git]
+Commit these changes to github and update the branch name inside the p3_site.yml file.
 
 ------------------------------------------------
 
