@@ -19,17 +19,11 @@ https://docs.docker.com/engine/swarm/swarm-tutorial/add-nodes/
 
 ### 1. Ansible: Update docker stack and config file
 
-The docker stack file for visibility receiver is placed inside /sip/tasks directory.
-Update the file with the correct node ID
-
-The docker stack file for visibility sender is placed inside /sip/emulators/csp_visibility_sender 
-directory. Update the file with the correct node ID
-
 The visibility sender config file are in the /sip/etc directory. Update vis_sender_config.json, 
 vis_sender_config1.json and vis_sender_config2.json file with the correct host address. 
 
-Commit these changes to github and update the branch name inside the p3_site.yml file, 
-if the changes are commited to the different branch.
+Commit these changes to github and update the branch name inside the p3_site.yml file. [Only need to
+do this when using using git]
 
 ------------------------------------------------
 
@@ -94,8 +88,7 @@ sysctl net.core.rmem_default=2147483647
 
 1) Tidy up the vis_sender_config.json file
 2) Investigate into the buffer size and why the heap is being dropped when even when it is set very high. 
-   Heaps are not dropped in one node but are dropped dropped in other two. 
-3) Instead of using node.ID use label 
+   Heaps are not dropped in one node but are dropped dropped in other two.
 4) Use docker hub registry
 
 
