@@ -4,8 +4,16 @@
 
 # Download and install SIP code.
 - name: Download and install SIP
+  hosts: swarm_leader
+  become_method: sudo
+  roles:
+    - role: ska.git
+      sip_branch: vis_ingest_multi
+
+# Pull latest image and configure nodes.
+- name: Pull latest image and configure nodes
   hosts: all
   become_method: sudo
   roles:
     - role: ska.ingest
-      sip_branch: vis_ingest_multi
+
