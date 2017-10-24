@@ -16,7 +16,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == 81ro0lry1b3cw3n274gzzp5zo
+          - node.labels.worker-1 == true
       labels:
         com.dn.description: "Host networking"
 
