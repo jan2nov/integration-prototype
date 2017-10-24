@@ -17,9 +17,22 @@
 # Increase rmem_max
 - name: Increasing rmem_max
   become: yes
-  shell: sysctl net.core.rmem_max=2147483647
+  shell: sysctl net.core.rmem_max=33554432
 
 # Increase rmem_default
 - name: Increasing the rmem_default
   become: yes
-  shell: sysctl net.core.rmem_default=2147483647
+  shell: sysctl net.core.rmem_default=8388608
+
+# Assign label to the swarm nodes
+- name: Asign labels to swarm nodes | if any
+  become: yes
+  command: docker node update --label-add {{ item }}=true {{ ansible_nodename }}
+  changed_when: False
+  with_items:
+    - "{{ swarm_labels  | default([]) }}"
+  delegate_to: "{{ groups['swarm_leader'][0] }}"
+  delegate_facts: True
+  tags:
+    - skip_ansible_lint
+    - swarm_labels

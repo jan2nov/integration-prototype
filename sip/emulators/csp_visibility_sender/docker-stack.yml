@@ -12,7 +12,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == xscrawa8incn6qn2yjoj7j8kx
+          - node.labels.sip_worker4 == true
       labels:
         com.dn.description: "Host networking"
 
@@ -26,7 +26,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == 9m9i0dqt91za10mv41to6gbjn
+          - node.labels.sip_worker5 == true
       labels:
         com.dn.description: "Host networking"
 
@@ -40,7 +40,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == m20y5f7l1djo83twdq0lx2d5i
+          - node.labels.sip_worker6 == true
       labels:
         com.dn.description: "Host networking"
 

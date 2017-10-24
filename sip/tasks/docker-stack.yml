@@ -16,7 +16,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.labels.worker-1 == true
+          - node.labels.sip_worker1 == true
       labels:
         com.dn.description: "Host networking"
 
@@ -34,7 +34,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == mddt8repsu32aympod38z2dw4
+          - node.labels.sip_worker2 == true
       labels:
         com.dn.description: "Host networking"
 
@@ -52,7 +52,7 @@ services:
       mode: global
       placement:
         constraints:
-          - node.ID == i0chjmnljiucfudur6xl30vr6
+          - node.labels.sip_worker3 == true
       labels:
         com.dn.description: "Host networking"
 
