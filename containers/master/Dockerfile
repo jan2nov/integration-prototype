@@ -1,5 +1,7 @@
 FROM alpine:3.6
-MAINTAINER Arjen Tamerus
+LABEL maintainer="Arjen Tamerus"
+
+WORKDIR app
 
 COPY requirements.txt .
 RUN apk add --update --no-cache gcc g++ python3 python3-dev py3-pip \
@@ -7,8 +9,11 @@ RUN apk add --update --no-cache gcc g++ python3 python3-dev py3-pip \
 		&& python3 -m pip install --no-cache-dir -r requirements.txt 
 
 # Copy the SIP
-COPY sip/ sip/
-COPY setup.py setup.py
+ADD sip/master/ sip/master
+ADD sip/common/ sip/common
+ADD sip/etc/ sip/etc
 
 # Create an empty file that the Paas can use to detect being inside a swarm
-COPY not_docker_swarm docker_swarm
+RUN touch docker_swarm
+
+ENTRYPOINT python3 -m sip.master
