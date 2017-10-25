@@ -54,12 +54,6 @@ class VisReceiver:
         # ms = {}
         self._log.info('Waiting to receive...')
 
-        f = open('/home/sdp/myfile', 'w')
-        f.write('hi there\n')  # python will convert \n to os.linesep
-        f.close()
-
-        self._log.info('File is written...')
-
         for stream in self._streams:
             item_group = spead2.ItemGroup()
 
@@ -67,21 +61,15 @@ class VisReceiver:
             for heap in stream:
                 self._log.info("Received heap {}".format(heap.cnt))
 
-                self._log.info("Testing 1")
-
                 # Extract data from the heap into a dictionary.
                 data = {}
                 items = item_group.update(heap)
                 for item in items.values():
                     data[item.name] = item.value
 
-                self._log.info("Testing 2")
-
                 # Skip if the heap does not contain visibilities.
                 if 'complex_visibility' not in data:
                     continue
-
-                self._log.info("Testing 3")
 
                 # Get data dimensions.
                 time_index = heap.cnt - 2  # Extra -1: first heap is empty.
@@ -99,11 +87,6 @@ class VisReceiver:
                     file_start_time, file_end_time,
                     start_channel, start_channel + num_channels - 1)
                 data['time_index'] = time_index
-
-                self._log.info('/home/sdp/' + base_name + '.p', 'ab')
-                self._log.info("Testing 4")
-                print('/home/sdp/' + base_name + '.p', 'ab')
-                print("Testing 4")
 
                 # Write visibility data.
                 with open('/home/sdp/' + base_name + '.p', 'ab') as f:
