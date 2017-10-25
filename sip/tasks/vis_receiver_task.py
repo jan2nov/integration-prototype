@@ -33,6 +33,7 @@ def _init_log(level=logging.INFO):
     log.addHandler(ch)
     return log
 
+
 def main():
     """Task run method."""
     # Install handler to respond to SIGTERM
