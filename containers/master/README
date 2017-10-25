@@ -1,0 +1,8 @@
+# Running the master container
+
+To successfully run the master controller from within a container, we need to
+mount the docker socket inside the container and expose the port used to
+communicate with the outside world. E.g. if the container's tag is sip-master,
+run as follows:
+
+`docker run -v /var/run/docker.sock:/var/run/docker.sock -p 12345:12345 sip-master`

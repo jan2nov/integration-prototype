@@ -10,6 +10,7 @@ pipeline {
                 sh '''
                   /usr/local/bin/get_reg_digest.sh localhost:5000 sip ${JOB_BASE_NAME}-latest > dockerimage.digest
                   /usr/local/bin/get_reg_digest.sh localhost:5000 sip ${JOB_BASE_NAME}-stable > dockerimage-stable.digest
+                  /usr/local/bin/get_reg_digest.sh localhost:5000 sip-master${JOB_BASE_NAME}-stable > masterimage-stable.digest
                 '''
 
                 // Set up fresh Python virtual environment
@@ -70,6 +71,7 @@ pipeline {
 
                     python3 ./setup.py install
                     docker build -t sip:${JOB_BASE_NAME} .
+                    docker build -t sip:-master${JOB_BASE_NAME} -f containers/master/Dockerfile .
                 '''
             }
         }
@@ -120,6 +122,11 @@ pipeline {
                 /usr/local/bin/delete_from_reg.sh localhost:5000 sip `cat dockerimage-stable.digest`
                 docker tag sip:${JOB_BASE_NAME} localhost:5000/sip:${JOB_BASE_NAME}-stable
                 docker push localhost:5000/sip:${JOB_BASE_NAME}-stable
+            '''
+            sh '''
+                /usr/local/bin/delete_from_reg.sh localhost:5000 sip `cat masterimage-stable.digest`
+                docker tag sip-master:${JOB_BASE_NAME} localhost:5000/sip-master:${JOB_BASE_NAME}-stable
+                docker push localhost:5000/sip-master:${JOB_BASE_NAME}-stable
             '''
 
             // Push -latest
