@@ -114,6 +114,7 @@ service = paas.find_task('logging_server')
 (host, port) = service.location(logging.handlers.DEFAULT_TCP_LOGGING_PORT)
 
 # For some reason ZMQ won't except a docker swarm pseudo host name
+print(host)
 host = socket.gethostbyname(host)
 
 # Create the handler

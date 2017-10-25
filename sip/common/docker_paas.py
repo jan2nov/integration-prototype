@@ -192,8 +192,10 @@ class DockerPaas(Paas):
             log.debug('Unable to find task with name: %s', name)
             return None
 
+    # FIXME the manager parameter is a bodge to get the master controller to
+    # work within a Docker container. Need to determine a proper fix.
     @staticmethod
-    def _get_hostname(name):
+    def _get_hostname(name, manager=False):
         """ Returns the host name of the machine we are running on.
 
         The intent is to return a name that can be used to contact
@@ -202,7 +204,12 @@ class DockerPaas(Paas):
 
         # If we are in a docker container then the host name is the same as
         # the service name
-        if os.path.exists('/.dockerenv'):
+        # FIXME checking for /.dockerenv is not reliable when running master
+        # controller from within a container
+        #
+        # ... and, apparently, deprecated. There are better ways.
+        print(manager)
+        if not manager:#os.path.exists('/.dockerenv'):
             return socket.gethostbyname(name)
 
         # If not, assume we are a swarm master and return localhost
@@ -228,6 +235,8 @@ class DockerTaskDescriptor(TaskDescriptor):
         # See if we are a manager node
         paas = DockerPaas()
         self._manager = paas._manager
+        print("name: {}".format(name))
+        print(self._manager)
         if self._manager:
 
             # Search for an existing service with this name
@@ -238,7 +247,8 @@ class DockerTaskDescriptor(TaskDescriptor):
                 self.ident = self._service[0].id
 
                 # Get host and port number(if there are any)
-                self._hostname = paas._get_hostname(name)
+                self._hostname = paas._get_hostname(name, self._manager)
+                print("hostname: {}".format(self._hostname))
                 attrs = self._service[0].attrs
                 if 'Ports' in attrs['Endpoint']:
                     self._target_ports = {}
@@ -295,7 +305,7 @@ class DockerTaskDescriptor(TaskDescriptor):
         the swarm the host is the manager node that we are running on and
         the port is the published port the port was mapped to.
         """
-        if os.path.exists("docker_swarm"):
+        if os.path.exists("docker_swarm") and not self._manager:
             return self.name, port
 
         return self._hostname, self._published_ports[port]
