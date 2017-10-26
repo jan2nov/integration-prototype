@@ -89,7 +89,7 @@ class VisReceiver:
                 data['time_index'] = time_index
 
                 # Write visibility data.
-                with open('/home/sdp/' + base_name + '.p', 'ab') as f:
+                with open('/home/sdp/output/' + base_name + '.p', 'ab') as f:
                     pickle.dump(data, f, protocol=2)
 
                 # Write to Measurement Set if required.
