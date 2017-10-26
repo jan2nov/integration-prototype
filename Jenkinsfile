@@ -71,7 +71,7 @@ pipeline {
 
                     python3 ./setup.py install
                     docker build -t sip:${JOB_BASE_NAME} .
-                    docker build -t sip:-master${JOB_BASE_NAME} -f containers/master/Dockerfile .
+                    docker build -t sip-master:${JOB_BASE_NAME} -f containers/master/Dockerfile .
                 '''
             }
         }
