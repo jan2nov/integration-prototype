@@ -165,6 +165,9 @@ class HeapStreamer:
             elif 'format' in item:
                 item_bits = sum(bits for _, bits in item['format'])
                 heap_size += item_bits // 8 * num_elements
+
+
+                self._log.info(heap_size)
         return heap_size
 
     @staticmethod
@@ -206,7 +209,7 @@ class HeapStreamer:
             host = stream['host']
             port = stream['port']
             threads = stream['threads'] if 'threads' in stream else 1
-            stream_config = spead2.send.StreamConfig(rate=1)
+            stream_config = spead2.send.StreamConfig(rate=0)
             thread_pool = spead2.ThreadPool(threads=threads)
             stream = spead2.send.UdpStream(thread_pool, host, port,
                                            stream_config)
@@ -223,6 +226,8 @@ class HeapStreamer:
                                   flavour.version,
                                   flavour.bug_compat))
             self._log.debug('  Threads = {}'.format(threads))
+
+            self._get_heap_size()
 
             # Add items to the item group based on the heap_descriptor
             for j, item in enumerate(self._heap_descriptor):
