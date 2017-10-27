@@ -250,6 +250,7 @@ class DockerTaskDescriptor(TaskDescriptor):
                 self._hostname = paas._get_hostname(name, self._manager)
                 print("hostname: {}".format(self._hostname))
                 attrs = self._service[0].attrs
+                print(attrs)
                 if 'Ports' in attrs['Endpoint']:
                     self._target_ports = {}
                     self._published_ports = {}

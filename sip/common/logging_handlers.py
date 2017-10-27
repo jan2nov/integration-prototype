@@ -54,6 +54,7 @@ class ZmqLogHandler(logging.Handler):
             port (int, string): Port on which to publish messages.
             level (int): Logging level
         """
+        print(port)
         context = zmq.Context()
         publisher = context.socket(zmq.PUB)
         address = 'tcp://{}:{}'.format(host, port)

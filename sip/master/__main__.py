@@ -59,9 +59,11 @@ with open(resources_file) as f:
 
 # Start logging server
     paas = Paas()
+    # FIXME docker hack
+    log_port = os.getenv('SIP_ZMQ_PORT', logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+    log_port = int(log_port)
     config.logserver = paas.run_service('logging_server', 'sip',
-        [logging.handlers.DEFAULT_TCP_LOGGING_PORT],
-        ['python3', 'sip/common/logging_server.py'])
+        [log_port], ['python3', 'sip/common/logging_server.py'])
 
     from sip.common.logging_api import log
     from sip.master.master_states import MasterControllerSM

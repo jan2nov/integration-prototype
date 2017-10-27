@@ -72,8 +72,12 @@ pipeline {
 
                     python3 ./setup.py install
                     docker build -t sip:${JOB_BASE_NAME} .
-                    docker build -t sip-base:${JOB_BASE_NAME} -f containers/base/Dockerfile .
+                    docker build -t sip-base -f containers/base/Dockerfile .
+										docker tag sip-base:latest sip-base:${JOB_BASE_NAME}
                     docker build -t sip-master:${JOB_BASE_NAME} -f containers/master/Dockerfile .
+
+										#untag base-latest
+										docker image rm sip-base:latest
                 '''
             }
         }
