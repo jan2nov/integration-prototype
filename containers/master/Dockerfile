@@ -1,4 +1,5 @@
-FROM sip-base
+ARG tag=latest
+FROM sip-base:$tag
 #LABEL maintainer="Arjen Tamerus"
 #
 #WORKDIR app

@@ -1,0 +1,28 @@
+version: '3'
+services:
+    sip-base:
+        build:
+            context: .
+            dockerfile: containers/base/Dockerfile
+        image: sip-base:$SIP_IMAGE_LABEL
+    sip-master:
+        build:
+            context: .
+            dockerfile: containers/master/Dockerfile
+            args:
+              tag: $SIP_IMAGE_LABEL
+        image: sip-master:$SIP_IMAGE_LABEL
+    sip:
+        build:
+            context: .
+            dockerfile: containers/global/Dockerfile
+            args:
+              tag: $SIP_IMAGE_LABEL
+        image: sip-logger:$SIP_IMAGE_LABEL
+    sip-numpy-base:
+        build:
+            context: .
+            dockerfile: containers/numpy-baselayer/Dockerfile
+            args:
+              tag: $SIP_IMAGE_LABEL
+        image: sip-numpy:$SIP_IMAGE_LABEL
