@@ -15,7 +15,7 @@ import logging.handlers
 import os
 import threading
 
-import numpy as np
+#import numpy as np
 import zmq
 
 
@@ -127,6 +127,10 @@ class LogAggregator(threading.Thread):
         """Stop the thread."""
         self._stop_requested.set()
 
+    def _logspace(self, start, stop, count):
+        return [pow(10, start+y) for y in
+                (x * ((stop-start)/(count-1)) for x in range(0,count))]
+
     def run(self):
         """Run loop.
 
@@ -137,7 +141,8 @@ class LogAggregator(threading.Thread):
         fail_count = 0
         fail_count_limit = 100
         # Exponential relaxation of timeout in event loop.
-        timeout = np.logspace(-6, -2, fail_count_limit)
+        #timeout = np.logspace(-6, -2, fail_count_limit)
+        timeout = self._logspace(-6, -2, fail_count_limit)
         while not self._stop_requested.is_set():
             try:
                 topic, values = self._subscriber.recv_multipart(zmq.NOBLOCK)
