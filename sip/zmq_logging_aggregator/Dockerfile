@@ -17,18 +17,18 @@ COPY requirements.txt /app/requirements.txt
 # - libstdc++ is installed as a separate step as this is needed for
 #   pyzmq and should not be deleted when removing build dependencies.
 # - curl is needed for the healthcheck command.
-RUN apk add --no-cache --virtual build-dependencies g++ musl-dev && \
-    apk add --no-cache libstdc++ curl && \
+RUN apk add --no-cache --virtual build-dependencies g++ musl-dev libev-dev && \
+    apk add --no-cache libstdc++ curl libev && \
     pip install -r /app/requirements.txt && \
     find /usr/local/lib/python3.6/ -name 'tests' -exec rm -r '{}' + && \
     rm -r /root/.cache && \
     apk del build-dependencies
 
-# Flask server port
-EXPOSE 5555
-
 # Python logging.handlers.DEFAULT_TCP_LOGGING_PORT
 EXPOSE 9020
+
+# Flask server port
+EXPOSE 5555
 
 # Python logging configuration server
 EXPOSE 9999
