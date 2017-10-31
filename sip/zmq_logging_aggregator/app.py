@@ -29,7 +29,6 @@ def signal_handler(signum, frame):
     """
     # pylint: disable=unused-argument
     log = logging.getLogger(__name__)
-    print(__name__)
     log.info('ZMQ Logging aggregator service received SIGINT')
     sys.exit(0)
 
@@ -56,14 +55,15 @@ def verify_config(config):
     """ Function to verity that the Logging Config sent to the logging
         configuration server is valid.
     """
-    print('CONFIG: ', config)
+    log = logging.getLogger('zla')
+    log.info('CONFIG RECEIVED: ', config)
     return config
 
 
 def main():
     """ SIP ZMQ Logging aggregator service main.
     """
-    log = logging.getLogger(__name__)
+    log = logging.getLogger('zla')
     signal.signal(signal.SIGINT, signal_handler)
 
     # Start the ZMQ logging aggregator thread.

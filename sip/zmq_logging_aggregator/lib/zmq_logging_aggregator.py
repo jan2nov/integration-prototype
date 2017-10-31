@@ -23,7 +23,7 @@ class ZmqLoggingAggregator(threading.Thread):
     def __init__(self, config_file=None):
         """ Initialise"""
         threading.Thread.__init__(self)
-        log = logging.getLogger(__name__)
+        log_ = logging.getLogger('zla')
 
         # Define an event used to stop the thread.
         self._stop_requested = threading.Event()
@@ -31,16 +31,16 @@ class ZmqLoggingAggregator(threading.Thread):
         # Load the default logging configuration.
         if config_file:
             load_logging_config(config_file)
-            log.debug('Loaded config file: %s', config_file)
+            log_.debug('Loaded config file: %s', config_file)
 
         # Create the ZMQ context and subscriber socket.
-        log.debug('Creating ZMQ Context')
+        log_.debug('Creating ZMQ Context')
         self.context = zmq.Context()
-        log.debug('Creating ZMQ SUB socket')
+        log_.debug('Creating ZMQ SUB socket')
         self.subscriber = self.context.socket(zmq.SUB)
 
         # Bind the ZMQ subscriber socket.
-        log.debug('Binding to ZMQ SUB socket')
+        log_.debug('Binding to ZMQ SUB socket')
         self._connect()
 
     def stop(self):
@@ -54,13 +54,13 @@ class ZmqLoggingAggregator(threading.Thread):
         Args:
             port (int): Subscriber port.
         """
-        log = logging.getLogger(__name__)
+        log_ = logging.getLogger('zla')
         try:
             self.subscriber.bind('tcp://*:{}'.format(port))
             self.subscriber.setsockopt_string(zmq.SUBSCRIBE, '')
         except zmq.ZMQError as error:
-            log.fatal('Failed to connect to ZMQ subscriber socket: %s',
-                      error.strerror)
+            log_.fatal('Failed to connect to ZMQ subscriber socket: %s',
+                       error.strerror)
             sys.exit(error.errno)
 
     @staticmethod
@@ -79,8 +79,9 @@ class ZmqLoggingAggregator(threading.Thread):
 
         Polls for new log messages on the ZMQ sub socket.
         """
-        log = logging.getLogger(__name__)
-        log.info('Started SIP ZMQ Logging aggregator')
+        log_ = logging.getLogger('zla')
+        log_.info('Started SIP ZMQ Logging aggregator')
+        log = logging.getLogger('sip')
 
         # Exponential relaxation of the timeout in the event loop.
         fail_count = 0
@@ -103,12 +104,12 @@ class ZmqLoggingAggregator(threading.Thread):
                     fail_count = 0
                     if message_count == 0:
                         time_of_first_message = time.time()
-                        print('Message timer reset!')
+                        log_.debug('Message timer reset!')
                     message_count += 1
                     time_of_last_message = time.time()
                     log.handle(record)
                 except json.decoder.JSONDecodeError:
-                    log.error('Unable to decode JSON log record.')
+                    log_.error('Unable to decode JSON log record.')
                     raise
             except zmq.ZMQError as error:
                 if error.errno == zmq.EAGAIN:
@@ -123,11 +124,11 @@ class ZmqLoggingAggregator(threading.Thread):
                 _timeout = timeout[-1]
 
             if fail_count == fail_count_limit:
-                log.debug('Reached polling limit of {:.2f}s, '
-                          '({} messages received in {:.2f}s)'
-                          .format(_timeout, message_count,
-                                  (time_of_last_message -
-                                   time_of_first_message)))
+                log_.debug('Reached polling limit of {:.2f}s, '
+                           '({} messages received in {:.2f}s)'
+                           .format(_timeout, message_count,
+                                   (time_of_last_message -
+                                    time_of_first_message)))
                 message_count = 0
 
             self._stop_requested.wait(_timeout)

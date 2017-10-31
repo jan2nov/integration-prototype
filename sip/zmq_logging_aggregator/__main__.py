@@ -12,7 +12,7 @@ FORMAT = logging.Formatter("> [%(levelname).1s] %(message)-50s (%(name)s:L%(line
 HANDLER = logging.StreamHandler()
 HANDLER.setFormatter(FORMAT)
 
-# Set the default SIP logging handler and logging level.
+# Set the default aggregated SIP logging handler and logging level.
 SIP = logging.getLogger('sip')
 SIP.addHandler(HANDLER)
 SIP.setLevel(logging.DEBUG)
@@ -21,6 +21,15 @@ SIP.setLevel(logging.DEBUG)
 FLASK_LOG = logging.getLogger('werkzeug')
 FLASK_LOG.addHandler(HANDLER)
 FLASK_LOG.setLevel(logging.WARNING)
+
+# Set the default local ZeroMQ Logging aggregator logging handler.
+ZLA = logging.getLogger('zla')
+ZLA.propagate = False
+ZLA_HANDLER = logging.StreamHandler()
+ZLA_FORMAT = logging.Formatter("= [%(levelname).1s] %(message)s")
+ZLA_HANDLER.setFormatter(ZLA_FORMAT)
+ZLA.addHandler(ZLA_HANDLER)
+ZLA.setLevel(logging.INFO)
 
 # Start the app
 app.main()
