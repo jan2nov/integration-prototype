@@ -36,7 +36,7 @@ EXPOSE 9999
 WORKDIR /app
 
 HEALTHCHECK --interval=5s --timeout=2s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5555/health || exit 1
+    CMD curl -f http://localhost:5555/healthcheck || exit 1
 
 COPY . /app/zla/
 

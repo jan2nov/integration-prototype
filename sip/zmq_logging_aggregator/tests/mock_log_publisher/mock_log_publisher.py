@@ -10,12 +10,14 @@ import logging
 import logging.handlers
 import sys
 import time
+from random import randint
 
 import requests
 import zmq
 
 
-NAME = sys.argv[1] if len(sys.argv) == 2 else 'mock_log_publisher'
+NAME = sys.argv[1] if len(sys.argv) == 2 else \
+    'mock_log_publisher_{:04d}'.format(randint(0, 9999))
 
 
 class ZmqHandler(logging.Handler):
@@ -87,7 +89,7 @@ def write_log():
 def main():
     """ Main
     """
-    print(NAME)
+    print('Running mock publisher with name: %s' % str(NAME))
     # Attach a stream handler to the log
     log = logging.getLogger(NAME)
     formatter = logging.Formatter('= %(name).40s | %(levelname)-5s '
@@ -98,17 +100,15 @@ def main():
     log.setLevel(logging.DEBUG)
 
     # Attach a ZeroMQ handler to the log
-    try:
-        # FIXME(BM) need to get hostname of log aggregator
-        # This will be different if this publisher is run from inside the same
-        # overlay network as the subscriber or not.
-        handler = ZmqHandler(host='localhost')
-        # handler = ZmqHandler(host='www.bbc.co.uk')
-        log.addHandler(handler)
-        write_log()
-    except requests.exceptions.ConnectionError:
-        log.error('Unable to connect to logging aggregator')
-        sys.exit(1)
+    for host in ['localhost', 'zla']:
+        log.info('Trying to connect to log aggregator on host %s', host)
+        try:
+            handler = ZmqHandler(host=host)
+            log.addHandler(handler)
+            write_log()
+        except requests.exceptions.ConnectionError:
+            log.error('Unable to connect to logging aggregator on host %s',
+                      host)
 
 
 if __name__ == '__main__':

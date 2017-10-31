@@ -10,18 +10,25 @@ To run the service
 python3 -m sip.zmq_logging_aggregator
 ```
 
-To send test messages from a set of mock log publisher services
+To send test messages from a single log publisher
 
 ```bash
-python3 -m sip.zmq_logging_aggreagtor.tests.example_start_publishers
+python3 -m sip.zmq_logging_aggregator.tests.mock_log_publisher
 ```
+
+or from a set of log publisher processes
+
+```bash
+python3 -m sip.zmq_logging_aggregator.tests.example_start_publishers
+```
+
 
 ### With containers using docker engine
 
 Build docker images with:
 
 ```bash
-docker-compose build zla
+docker-compose build zla zlp
 ```
 
 Run the service container
@@ -33,15 +40,43 @@ docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9999:9999 --name zla sip/zla
 To run the mock log publisher container
  
 ```bash
-docker run --rm -t --name log_pub sip/mock_log_publisher
+docker run --rm -t --name zlp --network container:zla sip/zlp
+```
+
+To stop the service container
+
+```bash
+docker stop zla
 ```
 
 ### With containers using Docker Swarm mode
 
+To start the logging aggregator as a Swarm service: 
+
 ```bash
-docker service create ...
+docker service create -p 5555:5555 -p 9020:9020 -p 9999:9999 --network zla --name zla sip/zla
 ```
 
+To view logs from the aggregator service:
+
+```bash
+docker service logs zla
+```
+
+```bash
+docker service create --name zlp --replicas 1 --restart-condition none --network zla sip/zlp <logger name>
+```
+
+To view any error or logs from the publisher
+```bash
+docker service logs zlp
+```
+
+To remove services at the end of the test
+
+```bash
+docker service rm zla zlp
+```
 
 
 ## Description
