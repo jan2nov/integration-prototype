@@ -1,6 +1,9 @@
 # coding=utf-8
 """ LogRecord factory method
 
+This module provides a LogRecordFactory method which is used by the
+logging aggregator to generate custom LogRecord objects.
+
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
 import datetime

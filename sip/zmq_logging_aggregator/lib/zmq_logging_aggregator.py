@@ -5,23 +5,22 @@ This class implements a ZMQ SUB socket.
 
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
-import threading
+import json
 import logging
 import logging.handlers
-import json
-import time
 import sys
+import threading
+import time
 
 import zmq
 
-from .record_factory import LogRecordFactory
 from .logging_config import load_logging_config
 
 
 class ZmqLoggingAggregator(threading.Thread):
     """ ZeroMQ logging aggregator service."""
 
-    def __init__(self, config_file):
+    def __init__(self, config_file=None):
         """ Initialise"""
         threading.Thread.__init__(self)
         log = logging.getLogger(__name__)
@@ -30,19 +29,15 @@ class ZmqLoggingAggregator(threading.Thread):
         self._stop_requested = threading.Event()
 
         # Load the default logging configuration.
-        log.debug('Loading config file: %s.', config_file)
-        load_logging_config(config_file)
-        log.debug('Config file loaded.')
+        if config_file:
+            load_logging_config(config_file)
+            log.debug('Loaded config file: %s', config_file)
 
         # Create the ZMQ context and subscriber socket.
         log.debug('Creating ZMQ Context')
         self.context = zmq.Context()
         log.debug('Creating ZMQ SUB socket')
         self.subscriber = self.context.socket(zmq.SUB)
-
-        # Set the LogRecord object
-        log_factory = LogRecordFactory()
-        logging.setLogRecordFactory(log_factory.log)
 
         # Bind the ZMQ subscriber socket.
         log.debug('Binding to ZMQ SUB socket')
@@ -128,16 +123,11 @@ class ZmqLoggingAggregator(threading.Thread):
                 _timeout = timeout[-1]
 
             if fail_count == fail_count_limit:
-                print('Reached timeout limit of {:.2f}s, '
-                      '({} messages received in {:.2f}s)'
-                      .format(_timeout, message_count,
-                              (time_of_last_message - time_of_first_message)))
+                log.debug('Reached polling limit of {:.2f}s, '
+                          '({} messages received in {:.2f}s)'
+                          .format(_timeout, message_count,
+                                  (time_of_last_message -
+                                   time_of_first_message)))
                 message_count = 0
-
-            # TODO(BM) have a different log for messages from the aggregator
-            # vs those received. (eg. log vs log_local)
-            # if fail_count % 5 == 0:
-            #     log_local.debug('Polling for log messages (fails = %-5i, '
-            #                     'timeout = %.4f s)', fail_count, _timeout)
 
             self._stop_requested.wait(_timeout)

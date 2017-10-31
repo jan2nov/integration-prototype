@@ -5,6 +5,9 @@
 # started):
 #   docker run --rm -t --name zlp --network container:zla sip/zlp <name>
 #
+# Debug with:
+#   docker run --rm -it --entrypoint=/bin/sh sip/zlp
+#
 
 FROM python:3.6-alpine3.6
 LABEL maintainer="Benjamin Mort <ben.mort@gmail.com>"
@@ -24,6 +27,6 @@ RUN apk add --no-cache --virtual build-dependencies g++ musl-dev && \
 
 WORKDIR /app
 
-COPY mock_log_publisher.py /app
+COPY . /app/sip/mock_log_publisher
 
-ENTRYPOINT ["python3", "mock_log_publisher.py"]
+ENTRYPOINT ["python3", "-m", "sip.mock_log_publisher"]

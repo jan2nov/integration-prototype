@@ -3,7 +3,7 @@
   "disable_existing_loggers": false,
 
   "loggers": {
-   "": {
+   "sip": {
      "level": "DEBUG",
      "handlers": ["console"]
    }
@@ -20,7 +20,7 @@
 
   "formatters": {
     "format1": {
-     "format": "> [%(levelname)-5s] %(name).40s:L%(lineno)i : %(message)s"
+     "format": "> [%(levelname).3s] %(message)-50s (%(name)s:L%(lineno)i)"
     }
   }
 }

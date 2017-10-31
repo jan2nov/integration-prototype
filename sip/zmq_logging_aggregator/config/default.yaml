@@ -2,7 +2,7 @@ version: 1
 disable_existing_loggers: false
 
 loggers:
-  aggregator:
+  sip:
     level: DEBUG
     handlers: [console]
 
@@ -15,4 +15,4 @@ handlers:
 
 formatters:
   format1:
-    format: "> %(name)-20s | '%(origin)-38s' | %(message)s"
+    format: "> [%(levelname).3s] %(message)-50s (%(name)s:L%(lineno)i)"

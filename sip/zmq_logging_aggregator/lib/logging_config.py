@@ -1,5 +1,8 @@
 # coding=utf-8
-""" ZMQ logging aggreagtor utility functions
+""" ZMQ logging aggregator configuration functions
+
+This module provides methods used by the logging aggregator service to
+configure the logger.
 
 .. moduleauthor: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
@@ -9,8 +12,6 @@ import logging.config
 import os
 
 import yaml
-
-from .record_factory import LogRecordFactory
 
 
 def load_config_file(config_file):
@@ -70,5 +71,3 @@ def configure_logger(config_file, host=None):
         config_dict['handlers']['zmq']['host'] = host
     logging.config.dictConfig(config_dict)
     # print(json.dumps(config_dict, indent=2))
-    factory_ = LogRecordFactory()
-    logging.setLogRecordFactory(factory_.log)

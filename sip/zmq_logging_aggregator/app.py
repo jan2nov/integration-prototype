@@ -56,7 +56,7 @@ def verify_config(config):
     """ Function to verity that the Logging Config sent to the logging
         configuration server is valid.
     """
-    print(config)
+    print('CONFIG: ', config)
     return config
 
 
@@ -66,14 +66,10 @@ def main():
     log = logging.getLogger(__name__)
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Get path of config file.
-    # TODO(BM) allow config to be set on command line?
-    config_file = os.path.join(os.path.dirname(__file__),
-                               'config', 'default.json')
-    log.debug('Config file = %s', config_file)
-
-    # Start logging aggregator thread.
-    log.debug('Starting ZMQ logging aggregator')
+    # Start the ZMQ logging aggregator thread.
+    config_file = None
+    if len(sys.argv) > 1:
+        config_file = sys.argv[1]
     aggregator = ZmqLoggingAggregator(config_file)
     aggregator.daemon = True
     aggregator.start()

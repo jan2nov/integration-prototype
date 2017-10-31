@@ -17,7 +17,7 @@ import zmq
 
 
 NAME = sys.argv[1] if len(sys.argv) == 2 else \
-    'mock_log_publisher_{:04d}'.format(randint(0, 9999))
+    'mock_log_publisher-{:04d}'.format(randint(0, 9999))
 
 
 class ZmqHandler(logging.Handler):
@@ -80,35 +80,40 @@ def write_log():
     """ Write a series of log messages.
     """
     log = logging.getLogger(NAME)
-    for i in range(1000):
+    for i in range(10):
         log.info('%04i. Hello @ %s', i, time.asctime())
-        # log.debug('Hello again!')
-        # time.sleep(0.0001)
+        log.debug('Hello again!')
 
 
 def main():
     """ Main
     """
-    print('Running mock publisher with name: %s' % str(NAME))
-    # Attach a stream handler to the log
-    log = logging.getLogger(NAME)
-    formatter = logging.Formatter('= %(name).40s | %(levelname)-5s '
-                                  '| %(message)s')
+    # Create a local logging object and attach a stream handler.
+    local_log = logging.getLogger('local.' + NAME)
+    formatter = logging.Formatter('= [%(levelname).1s] %(message)s (%(name)s)')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
-    # log.addHandler(handler)
-    log.setLevel(logging.DEBUG)
+    local_log.addHandler(handler)
+    local_log.setLevel(logging.DEBUG)
 
-    # Attach a ZeroMQ handler to the log
-    for host in ['localhost', 'zla']:
-        log.info('Trying to connect to log aggregator on host %s', host)
+    # Create a 2nd logging object and attach a ZeroMQ handler.
+    log = logging.getLogger(NAME)
+    log.setLevel(logging.INFO)
+    hosts = ['localhost', 'zla']
+    for host in hosts:
+        local_log.info('Trying to connect to log aggregator on host %s', host)
         try:
             handler = ZmqHandler(host=host)
+            local_log.debug('Connected to log aggregator on host %s', host)
             log.addHandler(handler)
             write_log()
+            break
         except requests.exceptions.ConnectionError:
-            log.error('Unable to connect to logging aggregator on host %s',
-                      host)
+            local_log.warning('Unable to connect to logging aggregator on '
+                              'host %s', host)
+            if host == hosts[-1]:
+                sys.exit(1)
+    local_log.info('Running mock publisher with name: %s', str(NAME))
 
 
 if __name__ == '__main__':
