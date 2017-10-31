@@ -7,6 +7,7 @@ version: '3.3'
 
 services:
 
+  # SIP docker image.
   sip:
     image: sip
     build:
@@ -17,5 +18,5 @@ services:
   zla:
     image: sip/zla
     build:
-      context: .
-      dockerfile: ./sip/service_zmq_logging_aggregator/Dockerfile
+      context: ./sip/zmq_logging_aggregator
+      dockerfile: Dockerfile
