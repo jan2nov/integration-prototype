@@ -20,7 +20,7 @@
 
   "formatters": {
     "format1": {
-     "format": "> %(name).40s:L%(lineno)i [%(levelname)-5s] %(message)s"
+     "format": "> [%(levelname)-5s] %(name).40s:L%(lineno)i : %(message)s"
     }
   }
 }

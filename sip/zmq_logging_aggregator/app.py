@@ -34,7 +34,7 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 
-@APP.route('/health')
+@APP.route('/healthcheck')
 def health_check():
     """ Health check HTTP endpoint
     """

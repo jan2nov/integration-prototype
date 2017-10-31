@@ -38,7 +38,7 @@ class ZmqHandler(logging.Handler):
         # Check the Logging aggregator exists by querying its health check
         # endpoint. If this fails an exception will be raised which is captured
         # in the main
-        health_check_url = 'http://{}:{}/health'.format(host, 5555)
+        health_check_url = 'http://{}:{}/healthcheck'.format(host, 5555)
         response = requests.get(health_check_url, timeout=2.0)
         health_state = response.json()
         if health_state['module'] != 'zmq_logging_aggregator':

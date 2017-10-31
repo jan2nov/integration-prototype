@@ -10,6 +10,7 @@ import logging
 import logging.handlers
 import json
 import time
+import sys
 
 import zmq
 
@@ -63,9 +64,9 @@ class ZmqLoggingAggregator(threading.Thread):
             self.subscriber.bind('tcp://*:{}'.format(port))
             self.subscriber.setsockopt_string(zmq.SUBSCRIBE, '')
         except zmq.ZMQError as error:
-            log.error('Failed to connect to ZMQ subscriber socket: %s',
-                      error.msg())
-            raise
+            log.fatal('Failed to connect to ZMQ subscriber socket: %s',
+                      error.strerror)
+            sys.exit(error.errno)
 
     @staticmethod
     def _linspace(start, stop, number):
