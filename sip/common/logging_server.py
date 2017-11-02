@@ -37,7 +37,8 @@ def main():
     """Create and start the log aggregator"""
     signal.signal(signal.SIGINT, signal_handler)
     print('Starting Logging Aggregator service (pid: {}).'.format(os.getpid()))
-    log = LogAggregator(int(os.getenv('SIP_ZMQ_PORT', 1337)))
+    #log = LogAggregator(int(os.getenv('SIP_ZMQ_PORT', 1337)))
+    log = LogAggregator()
     log.daemon = True
     log.start()
     log.join()

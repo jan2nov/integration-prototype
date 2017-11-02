@@ -62,7 +62,7 @@ with open(resources_file) as f:
     # FIXME docker hack
     log_port = os.getenv('SIP_ZMQ_PORT', logging.handlers.DEFAULT_TCP_LOGGING_PORT)
     log_port = int(log_port)
-    config.logserver = paas.run_service('logging_server', 'sip',
+    config.logserver = paas.run_service('logging_server', 'sip-logger',
         [log_port], ['python3', 'sip/common/logging_server.py'])
 
     from sip.common.logging_api import log

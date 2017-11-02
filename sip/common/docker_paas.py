@@ -106,6 +106,10 @@ class DockerPaas(Paas):
             # Add the port to the endpoint spec
             endpoint_spec = docker.types.EndpointSpec(ports=endpoints)
 
+            # Set the image name: task + label from environment OR 'latest'
+            img_label = os.getenv('SIP_IMAGE_LABEL', 'latest')
+            image = "{}:{}".format(task, img_label)
+
             # Create the service
             try:
                 # FIXME(BM) need to be able to handle which version of the
@@ -116,7 +120,7 @@ class DockerPaas(Paas):
                 log.debug('  - endpoints: {}'.format(endpoints))
 
                 service = self._client.services.create(
-                    image=task,
+                    image=image,
                     command=cmd_args[0],
                     args=cmd_args[1:],
                     endpoint_spec=endpoint_spec,
