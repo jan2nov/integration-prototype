@@ -34,7 +34,7 @@ docker-compose build zla zlp
 Run the service container
 
 ```bash
-docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9999:9999 --name zla sip/zla
+docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
 ```
 
 To run the mock log publisher container
@@ -54,7 +54,7 @@ docker stop zla
 To start the logging aggregator as a Swarm service: 
 
 ```bash
-docker service create -p 5555:5555 -p 9020:9020 -p 9999:9999 --network zla --name zla sip/zla
+docker service create -p 5555:5555 -p 9020:9020 -p 9030:9030 --network zla --name zla sip/zla
 ```
 
 To view logs from the aggregator service:
@@ -92,7 +92,8 @@ The service exposes three interfaces:
 1. A ZMQ SUB socket which is bound to the default python logging TCP port, 9020
 1. A REST HTTP health-check endpoint on port 5555 which can be queried on url
    `http://<host>:5555/healthcheck`
-1. A standard Python Logging configuration server which listens on port 9999.
+1. A standard Python Logging configuration server which listens on the 
+   `logging.config.DEFAULT_LOGGING_CONFIG_PORT`, port 9030.
 
 
 ### ZMQ SUB socket
@@ -171,7 +172,7 @@ python3 -m sip.zmq_logging_aggregator
 or
 
 ```shell
-docker run --rm -t -p 5555:5555 -p 9020:9020 --name zla sip/zla
+docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
 ```
 
 Start one or more mock log publishers:
@@ -185,12 +186,3 @@ or to start multiple publishers using python multiprocessing
 ```shell
 python3 -m sip.zmq_logging_aggregator.tests.example_start_publishers
 ```
-
-
-## Possible issues
-
-1. Due to the Python GIL it may be possible for this code to fail to perform
-   the task of receiving log messages at the same time as serving the 
-   healthcheck and logging configuration server end-points. It may be possible
-   to work around this using some form of asynchronous task queue or with 
-   python multiprocessing.   

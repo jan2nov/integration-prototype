@@ -20,7 +20,8 @@ class ZmqLogHandler(logging.Handler):
 
     def __init__(self, channel='all', host='localhost',
                  port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
-                 level=logging.NOTSET):
+                 level=logging.NOTSET, health_check_port=5555,
+                 health_check_timeout=2.0):
         """
         Constructor. Creates a Python logging handler object which
         sends JSONified LogRecords to a ZMQ pub socket.
@@ -37,8 +38,9 @@ class ZmqLogHandler(logging.Handler):
         # Check the Logging aggregator exists by querying its health check
         # endpoint. If this fails an exception will be raised which is captured
         # in the main
-        health_check_url = 'http://{}:{}/healthcheck'.format(host, 5555)
-        response = requests.get(health_check_url, timeout=2.0)
+        health_check_url = ('http://{}:{}/healthcheck'.
+                            format(host, health_check_port))
+        response = requests.get(health_check_url, timeout=health_check_timeout)
         health_state = response.json()
         if health_state['module'] != 'zmq_logging_aggregator':
             raise RuntimeError('Logging aggregator does not exist')
@@ -48,7 +50,6 @@ class ZmqLogHandler(logging.Handler):
         publisher = context.socket(zmq.PUB)  # pylint: disable=no-member
         address = 'tcp://{}:{}'.format(host, port)
         publisher.connect(address)
-        time.sleep(0.1)  # FIXME(BM) remove this sleep!
         self.channel = channel
         self.zmq_publisher = publisher
 

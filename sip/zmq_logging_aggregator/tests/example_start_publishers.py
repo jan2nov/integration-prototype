@@ -6,7 +6,7 @@ from subprocess import call
 
 
 def run_publisher(name):
-    call(['python3', '-m', 'sip.zmq_logging_aggregator.tests.mock_log_publisher',
+    call(['python3', '-m', 'sip.zmq_logging_aggregator.mock_log_publisher',
           'pub_{:02d}'.format(name)])
 
 

@@ -7,9 +7,10 @@ This class implements a ZMQ SUB socket.
 """
 import json
 import logging
+import logging.config
 import logging.handlers
-import sys
 import threading
+import sys
 import time
 
 import zmq
@@ -17,16 +18,21 @@ import zmq
 from .logging_config import load_logging_config
 
 
+# FIXME(BM) convert to multiprocessing.Process
+# While this just needs 2 lines of code change if using Process for some
+# Reason the ZMQ socket blocks on the receive.
+# This needs review see: https://goo.gl/P68YEo
+
+
 class ZmqLoggingAggregator(threading.Thread):
     """ ZeroMQ logging aggregator service."""
 
     def __init__(self, config_file=None):
-        """ Initialise"""
+        """ Initialise
+        """
         threading.Thread.__init__(self)
-        log_ = logging.getLogger('zla')
 
-        # Define an event used to stop the thread.
-        self._stop_requested = threading.Event()
+        log_ = logging.getLogger('zla')
 
         # Load the default logging configuration.
         if config_file:
@@ -43,10 +49,31 @@ class ZmqLoggingAggregator(threading.Thread):
         log_.debug('Binding to ZMQ SUB socket')
         self._connect()
 
-    def stop(self):
-        """ Stop the thread
+        # Start a logging configuration server.
+        # https://docs.python.org/3.6/library/logging.config.html#logging.config.listen
+        port = logging.config.DEFAULT_LOGGING_CONFIG_PORT
+        self.config_server = logging.config.listen(port=port,
+                                                   verify=self._verify_config)
+        self.config_server.daemon = True
+        self.config_server.start()
+
+        log_.debug('ZMQ Logging aggregator initialisation complete.')
+
+    def __del__(self):
+        """ Destructor"""
+        log_ = logging.getLogger('zla')
+        log_.debug('Stopping logging configuration server')
+        # logging.config.stopListening()
+        # self.config_server.join(timeout=1.0)
+
+    @staticmethod
+    def _verify_config(config):
+        """ Function to verity that the Logging Config sent to the logging
+            configuration server is valid.
         """
-        self._stop_requested.set()
+        log = logging.getLogger('zla')
+        log.info('CONFIG RECEIVED: ', config)
+        return config
 
     def _connect(self, port=logging.handlers.DEFAULT_TCP_LOGGING_PORT):
         """Bind the subscriber socket to the specified port.
@@ -58,6 +85,7 @@ class ZmqLoggingAggregator(threading.Thread):
         try:
             self.subscriber.bind('tcp://*:{}'.format(port))
             self.subscriber.setsockopt_string(zmq.SUBSCRIBE, '')
+            log_.debug('ZMQ Socket bound to port: %i', port)
         except zmq.ZMQError as error:
             log_.fatal('Failed to connect to ZMQ subscriber socket: %s',
                        error.strerror)
@@ -80,8 +108,6 @@ class ZmqLoggingAggregator(threading.Thread):
         Polls for new log messages on the ZMQ sub socket.
         """
         log_ = logging.getLogger('zla')
-        log_.info('Started SIP ZMQ Logging aggregator')
-        log = logging.getLogger('sip')
 
         # Exponential relaxation of the timeout in the event loop.
         fail_count = 0
@@ -90,12 +116,14 @@ class ZmqLoggingAggregator(threading.Thread):
         message_count = 0
         time_of_first_message = time.time()
         time_of_last_message = time.time()
+        log = logging.getLogger('sip')
+        socket = self.subscriber
 
-        while not self._stop_requested.is_set():
-
-            # Try to receive and display the log message.
+        log_.info('Starting SIP ZMQ Logging aggregator event loop')
+        while True:
+            # Try to receive and display a log message.
             try:
-                topic, values = self.subscriber.recv_multipart(zmq.NOBLOCK)
+                topic, values = socket.recv_multipart(flags=zmq.NOBLOCK)
                 str_values = values.decode('utf-8')
                 try:
                     dict_values = json.loads(str_values)
@@ -130,5 +158,4 @@ class ZmqLoggingAggregator(threading.Thread):
                                    (time_of_last_message -
                                     time_of_first_message)))
                 message_count = 0
-
-            self._stop_requested.wait(_timeout)
+            time.sleep(_timeout)

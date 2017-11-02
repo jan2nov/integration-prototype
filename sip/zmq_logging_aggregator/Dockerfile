@@ -5,7 +5,7 @@
 #   docker run --rm -it --entrypoint=/bin/sh sip/zla
 #
 # Run and show logging:
-#   docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9999:9999 --name zla sip/zla
+#   docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
 #
 
 FROM python:3.6-alpine3.6
@@ -31,7 +31,7 @@ EXPOSE 9020
 EXPOSE 5555
 
 # Python logging configuration server
-EXPOSE 9999
+EXPOSE 9030
 
 WORKDIR /app
 

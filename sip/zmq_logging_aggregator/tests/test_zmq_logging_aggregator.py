@@ -7,7 +7,7 @@ Run with:
 .. moduleauthor:: Ben Mort <benjamin.mort@oerc.ox.ac.uk>
 """
 import unittest
-import os
+
 
 from sip.zmq_logging_aggregator.lib.zmq_logging_aggregator import \
     ZmqLoggingAggregator
@@ -19,8 +19,7 @@ class TestZmqLoggingAggregator(unittest.TestCase):
 
     def test_a(self):
         """ ."""
-        zla = ZmqLoggingAggregator(os.path.join(
-            'sip', 'zmq_logging_aggregator', 'config', 'default.json'))
+        zla = ZmqLoggingAggregator()
         # zla.start()
 
     def test_logging(self):
