@@ -12,6 +12,8 @@ services:
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip-master:$SIP_IMAGE_LABEL
+        depends_on:
+          - sip-base
     sip-logger:
         build:
             context: .
@@ -19,6 +21,8 @@ services:
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip-logger:$SIP_IMAGE_LABEL
+        depends_on:
+          - sip-base
     sip-numpy-base:
         build:
             context: .
@@ -26,6 +30,8 @@ services:
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip-numpy-base:$SIP_IMAGE_LABEL
+        depends_on:
+          - sip-base
     sip:
         build:
             context: .
@@ -33,3 +39,5 @@ services:
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip:$SIP_IMAGE_LABEL
+        depends_on:
+          - sip-numpy-base
