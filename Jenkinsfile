@@ -69,7 +69,7 @@ pipeline {
                     . _build/bin/activate
 
                     python3 ./setup.py install
-										export SIP_IMAGE_LABEL=${JOB_BASE_NAME}`
+										export SIP_IMAGE_LABEL=${JOB_BASE_NAME}
 										docker-compose build
 										docker tag sip:${JOB_BASE_NAME} sip:latest
                 '''
