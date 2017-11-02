@@ -25,5 +25,5 @@ services:
   zlp:
     image: sip/zlp
     build:
-      context: ./sip/zmq_logging_aggregator/tests/mock_log_publisher
+      context: ./sip/zmq_logging_aggregator/mock_log_publisher
       dockerfile: Dockerfile

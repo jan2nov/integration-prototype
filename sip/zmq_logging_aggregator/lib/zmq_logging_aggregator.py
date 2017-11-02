@@ -9,7 +9,7 @@ import json
 import logging
 import logging.config
 import logging.handlers
-import threading
+import multiprocessing
 import sys
 import time
 
@@ -18,53 +18,21 @@ import zmq
 from .logging_config import load_logging_config
 
 
-# FIXME(BM) convert to multiprocessing.Process
-# While this just needs 2 lines of code change if using Process for some
-# Reason the ZMQ socket blocks on the receive.
-# This needs review see: https://goo.gl/P68YEo
-
-
-class ZmqLoggingAggregator(threading.Thread):
+class ZmqLoggingAggregator(multiprocessing.Process):
     """ ZeroMQ logging aggregator service."""
 
     def __init__(self, config_file=None):
         """ Initialise
         """
-        threading.Thread.__init__(self)
-
-        log_ = logging.getLogger('zla')
-
-        # Load the default logging configuration.
-        if config_file:
-            load_logging_config(config_file)
-            log_.debug('Loaded config file: %s', config_file)
-
-        # Create the ZMQ context and subscriber socket.
-        log_.debug('Creating ZMQ Context')
-        self.context = zmq.Context()
-        log_.debug('Creating ZMQ SUB socket')
-        self.subscriber = self.context.socket(zmq.SUB)
-
-        # Bind the ZMQ subscriber socket.
-        log_.debug('Binding to ZMQ SUB socket')
-        self._connect()
-
-        # Start a logging configuration server.
-        # https://docs.python.org/3.6/library/logging.config.html#logging.config.listen
-        port = logging.config.DEFAULT_LOGGING_CONFIG_PORT
-        self.config_server = logging.config.listen(port=port,
-                                                   verify=self._verify_config)
-        self.config_server.daemon = True
-        self.config_server.start()
-
-        log_.debug('ZMQ Logging aggregator initialisation complete.')
+        multiprocessing.Process.__init__(self)
+        self.config_file = config_file
 
     def __del__(self):
         """ Destructor"""
         log_ = logging.getLogger('zla')
         log_.debug('Stopping logging configuration server')
-        # logging.config.stopListening()
-        # self.config_server.join(timeout=1.0)
+        logging.config.stopListening()
+        self.config_server.join(timeout=1.0)
 
     @staticmethod
     def _verify_config(config):
@@ -76,20 +44,39 @@ class ZmqLoggingAggregator(threading.Thread):
         return config
 
     def _connect(self, port=logging.handlers.DEFAULT_TCP_LOGGING_PORT):
-        """Bind the subscriber socket to the specified port.
+        """ Create and bind the subscriber socket to the specified port.
 
         Args:
             port (int): Subscriber port.
         """
-        log_ = logging.getLogger('zla')
+        log = logging.getLogger('zla')
+        # Create the ZMQ context and subscriber socket.
+        log.debug('Creating ZMQ Context')
+        self.context = zmq.Context()
+        log.debug('Creating ZMQ SUB socket')
+        self.subscriber = self.context.socket(zmq.SUB)
+        log.debug('Binding to ZMQ SUB socket ...')
         try:
             self.subscriber.bind('tcp://*:{}'.format(port))
             self.subscriber.setsockopt_string(zmq.SUBSCRIBE, '')
-            log_.debug('ZMQ Socket bound to port: %i', port)
+            log.debug('ZMQ Socket bound to port: %i', port)
         except zmq.ZMQError as error:
-            log_.fatal('Failed to connect to ZMQ subscriber socket: %s',
-                       error.strerror)
+            log.fatal('Failed to connect to ZMQ subscriber socket: %s',
+                      error.strerror)
             sys.exit(error.errno)
+
+    def _start_config_server(self,
+                             port=logging.config.DEFAULT_LOGGING_CONFIG_PORT):
+        """ Initialise and start logging configuration server
+        """
+        log = logging.getLogger('zla')
+        # Start a logging configuration server.
+        # https://docs.python.org/3.6/library/logging.config.html#logging.config.listen
+        self.config_server = logging.config.listen(port=port,
+                                                   verify=self._verify_config)
+        self.config_server.daemon = True
+        self.config_server.start()
+        log.debug('Started logging configuration server on port %i', port)
 
     @staticmethod
     def _linspace(start, stop, number):
@@ -108,6 +95,17 @@ class ZmqLoggingAggregator(threading.Thread):
         Polls for new log messages on the ZMQ sub socket.
         """
         log_ = logging.getLogger('zla')
+
+        # Load the default logging configuration.
+        if self.config_file:
+            load_logging_config(self.config_file)
+            log_.debug('Loaded config file: %s', self.config_file)
+
+        # Create and bind the ZMQ subscriber socket.
+        self._connect()
+
+        # Create and start logging configuration server
+        self._start_config_server()
 
         # Exponential relaxation of the timeout in the event loop.
         fail_count = 0
