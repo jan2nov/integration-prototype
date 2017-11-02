@@ -152,7 +152,7 @@ pipeline {
             sh 'docker service rm `docker service ls -q` | true'
 
 						// Cleanup images (-a? perhaps too eager...)
-						docker image prune -f
+						sh 'docker image prune -f'
         }
     }
 }
