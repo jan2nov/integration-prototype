@@ -12,10 +12,10 @@ services:
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip-master:$SIP_IMAGE_LABEL
-    sip:
+    sip-logger:
         build:
             context: .
-            dockerfile: containers/global/Dockerfile
+            dockerfile: containers/logger/Dockerfile
             args:
               tag: $SIP_IMAGE_LABEL
         image: sip-logger:$SIP_IMAGE_LABEL
@@ -25,4 +25,11 @@ services:
             dockerfile: containers/numpy-baselayer/Dockerfile
             args:
               tag: $SIP_IMAGE_LABEL
-        image: sip-numpy:$SIP_IMAGE_LABEL
+        image: sip-numpy-base:$SIP_IMAGE_LABEL
+    sip:
+        build:
+            context: .
+            dockerfile: containers/global/Dockerfile
+            args:
+              tag: $SIP_IMAGE_LABEL
+        image: sip:$SIP_IMAGE_LABEL

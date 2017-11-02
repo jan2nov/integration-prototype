@@ -1,5 +1,4 @@
 FROM alpine:3.6
-#FROM python:3.6.3-alpine3.6
 LABEL maintainer="Arjen Tamerus"
 
 WORKDIR app
@@ -14,5 +13,3 @@ ADD sip/etc/ sip/etc
 
 # Create an empty file that the Paas can use to detect being inside a swarm
 RUN touch docker_swarm
-
-#ENTRYPOINT python3 -m sip.master

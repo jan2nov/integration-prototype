@@ -1,9 +1,0 @@
-# Requirements for ska-sip
-#
-# Install with:
-#   $ pip3 install -U -r requirements.txt
-
-# Core requirements
-docker>=2.1.0
-#pyzmq>=16.0.0
-rpyc>=3.3.0
