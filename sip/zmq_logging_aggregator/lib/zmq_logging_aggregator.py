@@ -19,7 +19,8 @@ from .logging_config import load_logging_config
 
 
 class ZmqLoggingAggregator(multiprocessing.Process):
-    """ ZeroMQ logging aggregator service."""
+    """ ZeroMQ logging aggregator service.
+    """
 
     def __init__(self, config_file=None):
         """ Initialise
@@ -28,7 +29,8 @@ class ZmqLoggingAggregator(multiprocessing.Process):
         self.config_file = config_file
 
     def __del__(self):
-        """ Destructor"""
+        """ Destructor
+        """
         log_ = logging.getLogger('zla')
         log_.debug('Stopping logging configuration server')
         logging.config.stopListening()
@@ -117,6 +119,8 @@ class ZmqLoggingAggregator(multiprocessing.Process):
         log = logging.getLogger('sip')
         socket = self.subscriber
 
+        # TODO(BM) can this be replaced with a zmq poller?
+        # see: https://goo.gl/bKHM2v
         log_.info('Starting SIP ZMQ Logging aggregator event loop')
         while True:
             # Try to receive and display a log message.
