@@ -32,9 +32,9 @@ class ZmqLoggingAggregator(multiprocessing.Process):
         """ Destructor
         """
         log_ = logging.getLogger('zla')
-        log_.debug('Stopping logging configuration server')
+        log_.debug('Stopping the logging configuration server')
         logging.config.stopListening()
-        self.config_server.join(timeout=1.0)
+        # self.config_server.join(timeout=1.0)
 
     @staticmethod
     def _verify_config(config):

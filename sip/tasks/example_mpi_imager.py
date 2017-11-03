@@ -15,6 +15,9 @@ The pipeline can be configured to make a separate dirty image from each
 Measurement Set, or to combine the visibility data from all of them into
 one dirty image. In the latter case, the visibility grids from each node are
 combined into a single grid, and the image is then finalised by rank 0.
+
+
+.. moduleauthor:: Fred Dulwich
 """
 
 from __future__ import print_function, division

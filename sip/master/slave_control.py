@@ -1,31 +1,27 @@
 # coding: utf-8
-"""Functions for starting and stopping slave controllers."""
+""" Functions for starting and stopping slave controllers.
 
-__author__ = 'David Terrett'
-
+.. moduleauthor:: David Terrett
+"""
 import logging
-import os
-import socket
 import sys
 
-from sip.common.logging_api import log
-from sip.common.paas import TaskStatus
 from sip.common.docker_paas import DockerPaas as Paas
+from sip.common.paas import TaskStatus
 from sip.common.spark_paas import SparkPaaS
-from sip.master.config import create_slave_status
-from sip.master.config import slave_status
-from sip.master.config import slave_config
-from sip.master.config import slave_config_dict
-from sip.master import task_control
-from sip.master import slave_states
+from sip.master import slave_states, task_control
+from sip.master.config import create_slave_status, slave_config, \
+    slave_config_dict, slave_status
 from sip.master.slave_states import SlaveControllerSM
 
 # This is the port used by the slave for its RPC interface. It is mapped to
 # some ephemeral port on the local host by Docker.
 rpc_port_ = 6666
 
+
 def start(name, type):
     """Starts a slave controller."""
+    log = logging.getLogger(__name__)
 
     log.info('Starting slave (name={}, type={})'.format(name, type))
 
@@ -78,7 +74,8 @@ def _start_docker_slave(name, type, cfg, status):
 
     NB This only works on localhost
     """
-    # Improve logging soon!
+    log = logging.getLogger(__name__)
+
     req_log = logging.getLogger('requests')
     req_log.setLevel(logging.WARN)
     req_log.addHandler(logging.StreamHandler(sys.stdout))
@@ -113,11 +110,13 @@ def _start_docker_slave(name, type, cfg, status):
 
     log.info('"{}" (type {}) started'.format(name, type))
 
+
 def _start_spark_slave(name, type, cfg, status):
     """Starts a Spark slave.
 
     """
-    # Improve logging soon!
+    log = logging.getLogger(__name__)
+
     req_log = logging.getLogger('requests')
     req_log.setLevel(logging.WARN)
     req_log.addHandler(logging.StreamHandler(sys.stdout))
@@ -149,6 +148,8 @@ def _start_spark_slave(name, type, cfg, status):
 
 def stop(name, status):
     """Stops a slave controller."""
+    log = logging.getLogger(__name__)
+
     log.info('stopping task {}'.format(name))
     status['task_controller'].shutdown()
     if slave_config(name)['launch_policy'] == 'docker':
@@ -156,17 +157,20 @@ def stop(name, status):
     if config.slave_config[status['type']]['launch_policy'] == 'spark':
         _stop_spark_slave(name, status)
 
+
 def _stop_docker_slave(name, status):
     """Stops a docker based slave controller."""
+    log = logging.getLogger(__name__)
 
     log.info('stopping slave controller {}'.format(name))
     paas = Paas()
     paas.delete_task(name)
     #descriptor.delete()
 
+
 def _stop_spark_slave(name, status):
     """Stops a docker based slave controller."""
-
+    log = logging.getLogger(__name__)
     log.info('stopping slave controller {}'.format(name))
     paas = SparkPaaS()
     descriptor = paas.find_task(name)
@@ -174,6 +178,7 @@ def _stop_spark_slave(name, status):
         descriptor.delete()
     else:
         log.info('task {} not found'.format(name))
+
 
 def reconnect(name, descriptor):
     """ Reconnects to an existing slave service

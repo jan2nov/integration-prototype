@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.3.0] - 2017-10-xx
 ### Added
 - Standalone ZeroMQ logging service. This can be run as a binary or as a docker
-  container.
+  container. This can be found in the `zmq_logging_aggregator` folder.
 ### Changed
 - Updated modules throughout SIP to make use of standard Python Logging. 
   Removed use of a global Python logging object defined in 
@@ -31,7 +31,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Updated top level README.md file. This is still out of date and will be 
   updated as part of a future documentation update activity.
 - Various PEP8 and PyLint issues.
-
+### Deprecated
+- `sip_run.py` has been marked deprecated.  
 
 ## [0.2.2] - 2017-10-02
 ### Changed

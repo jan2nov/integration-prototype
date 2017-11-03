@@ -1,12 +1,17 @@
 # coding: utf-8
+""" Module which provides a function which tries to reconnect to running
+services
+"""
+import logging
 
-from sip.common.logging_api import log
 from sip.master.config import slave_config_dict
 from sip.master import slave_control
+
 
 def reconnect(paas):
     """ Function that tries to reconnect to running services
     """
+    log = logging.getLogger(__name__)
     # Go through all the "online" services in the slave map see if
     # the corresponding service is running
     for name, config in slave_config_dict().items():

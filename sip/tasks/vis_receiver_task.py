@@ -14,7 +14,6 @@ import simplejson as json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from sip.processor_software.vis_receiver import VisReceiver
-from sip.common.logging_api import log
 
 
 def _sig_handler(signum, frame):

@@ -7,12 +7,11 @@ doing any processing
 
 This module makes use of the PrsSender class to send the pulsar data.
 
+.. moduleauthor:: Nijin Thykkathu
 """
 import json
 
 from ftplib import FTP
-
-__author__ = 'Nijin Thykkathu'
 
 
 class PulsarSender:

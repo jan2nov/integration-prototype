@@ -3,6 +3,8 @@
 """Pulsar search receiver task module.
 
 Implements C.1.2.1.2 from the product tree.
+
+.. moduleauthor:: Nijin Thykkathu
 """
 
 import os
@@ -14,9 +16,6 @@ import simplejson as json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from sip.processor_software.pulsar_search import PulsarStart
-from sip.common.logging_api import log
-
-__author__ = 'Nijin Thykkathu'
 
 
 def _sig_handler(signum, frame):

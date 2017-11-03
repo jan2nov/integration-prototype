@@ -1,11 +1,11 @@
 # coding: utf-8
-"""This defines the SIP API for sending and receiving heartbeat messages."""
+"""This defines the SIP API for sending and receiving heartbeat messages.
+
+.. moduleauthor:: David Terrett
+"""
 import zmq
 
-__author__ = 'David Terrett'
-
 _context = zmq.Context()
-from sip.common.logging_api import log
 
 
 class Sender:

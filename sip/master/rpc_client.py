@@ -1,7 +1,8 @@
 # coding: utf-8
-"""Simple rpc client for sending commands to the SIP."""
+"""Simple rpc client for sending commands to the SIP.
 
-__author__ = 'David Terrett'
+.. moduleauthor:: David Terrett
+"""
 
 import rpyc
 

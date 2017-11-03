@@ -15,8 +15,6 @@ from rpyc.utils.server import ThreadedServer
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from sip.common.logging_api import log
-from sip.common import heartbeat
 from sip.slave import config
 
 def _sig_handler(signum, frame):

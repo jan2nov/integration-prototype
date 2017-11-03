@@ -4,6 +4,8 @@
 This currently consists of the PulsarReceiver, PulsarFileSystem and
 PulsarStart class which starts ftp sever and write to
 .data and .json file.
+
+.. moduleauthor:: Nijin Thykkathu
 """
 import io
 import json
@@ -13,8 +15,6 @@ from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.filesystems import AbstractedFS
 from pyftpdlib.handlers import FTPHandler
 from pyftpdlib.servers import FTPServer
-
-__author__ = 'Nijin Thykkathu'
 
 
 class PulsarReceiver(io.BytesIO):

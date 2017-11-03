@@ -110,7 +110,7 @@ class DockerPaas(Paas):
             try:
                 # FIXME(BM) need to be able to handle which version of the
                 # container to run. labels argument?
-                log.debug('Creating service (%s, %s).', task, name)
+                log.debug('Creating service (task=%s, name=%s).', task, name)
                 log.debug('  - command  : %s', cmd_args[0])
                 log.debug('  - args     : {}'.format(cmd_args[1:]))
                 log.debug('  - endpoints: {}'.format(endpoints))

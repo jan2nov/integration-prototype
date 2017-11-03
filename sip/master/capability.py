@@ -1,10 +1,11 @@
 # coding: utf-8
-"""A thread class that is run when a capability is started."""
+"""A thread class that is run when a capability is started.
 
-__author__ = 'David Terrett'
-
+.. moduleauthor:: David Terrett
+"""
+import logging
 import threading
-from sip.common.logging_api import log
+
 from sip.master import slave_control
 
 
@@ -20,6 +21,8 @@ class Capability(threading.Thread):
         self._args = args
 
     def run(self):
+        log = logging.getLogger(__name__)
+
         """Thread run routine."""
         log.info('starting capability {} with name {}'.format(
             self._args[1], self._args[0]))

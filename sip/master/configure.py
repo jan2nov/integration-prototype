@@ -1,13 +1,13 @@
 # coding: utf-8
-"""A thread class run when the master controller is configured."""
+"""A thread class run when the master controller is configured.
 
-__author__ = 'David Terrett'
-
+.. moduleauthor:: David Terrett
+"""
+import logging
 import threading
 
-from sip.common.logging_api import log
-from sip.master.config import slave_config_dict
 from sip.master import slave_control
+from sip.master.config import slave_config_dict
 
 
 class Configure(threading.Thread):
@@ -18,6 +18,7 @@ class Configure(threading.Thread):
 
     def run(self):
         """Thread run routine."""
+        log = logging.getLogger(__name__)
 
         log.info('Starting configuration.')
 

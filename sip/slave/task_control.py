@@ -13,7 +13,6 @@ import time
 import os
 
 from sip.common import heartbeat_task
-from sip.common.logging_api import log
 from sip.slave import config
 
 

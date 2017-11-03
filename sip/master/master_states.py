@@ -6,57 +6,56 @@ has 4 states; "standby", "configuring", "available" and "unconfiguring"
 and 5 events; "online", "offline", "shutdown, "cap", "all services",
 "some services" and "no tasks".  "cap", "online", "offline" and
 "shutdown are external and the others are generated internally.
+
+.. moduleauthor:: David Terrett
 """
+import logging
 
-__author__ = 'David Terrett'
-
-from sip.common.logging_api import log
-from sip.common.state_machine import State
-from sip.common.state_machine import TimedState
-from sip.common.state_machine import StateMachine
-from sip.common.state_machine import _End
+from sip.common.state_machine import State, StateMachine, TimedState, _End
 from sip.master.capability import Capability
 from sip.master.configure import Configure
 from sip.master.shutdown import Shutdown
 from sip.master.un_configure import UnConfigure
 
+LOG = logging.getLogger(__name__)
+
 
 class Standby(State):
     """Standby state."""
     def __init__(self, sm):
-        log.info('state->standby')
+        LOG.info('state->standby')
 
 
 class Configuring(TimedState):
     """Configuring state."""
     def __init__(self, sm):
         TimedState.__init__(self, sm, 30, ["configure_timeout"])
-        log.info('state->configuring')
+        LOG.info('state->configuring')
 
 
 class UnConfiguring(TimedState):
     """Unconfiguring state."""
     def __init__(self, sm):
         TimedState.__init__(self, sm, 30, ["unconfigure_timeout"])
-        log.info('state->unconfiguring')
+        LOG.info('state->unconfiguring')
 
 
 class Available(State):
     """Available state."""
     def __init__(self, sm):
-        log.info('state->available')
+        LOG.info('state->available')
 
 
 class Degraded(State):
     """Degraded state."""
     def __init__(self, sm):
-        log.info('state->degraded')
+        LOG.info('state->degraded')
 
 
 class Unavailable(State):
     """Unavailable state."""
     def __init__(self, sm):
-        log.info('state->unavailable')
+        LOG.info('state->unavailable')
 
 
 class MasterControllerSM(StateMachine):

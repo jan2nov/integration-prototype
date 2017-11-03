@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Module main to stream pulsar data."""
+"""Module main to stream pulsar data.
+
+.. moduleauthor:: Nijin Thykkathu
+"""
 import sys
 
 import argparse
@@ -7,8 +10,6 @@ import logging
 import simplejson as json
 
 from sip.emulators.csp_pulsar_sender.pulsar_sender import PulsarSender
-
-__author__ = 'Nijin Thykkathu'
 
 
 def parse_command_line():

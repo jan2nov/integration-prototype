@@ -1,19 +1,15 @@
 # coding: utf-8
-"""Functions executed when the master controller is shut down."""
+"""Functions executed when the master controller is shut down.
 
-__author__ = 'David Terrett'
-
+.. moduleauthor:: David Terrett
+"""
+import logging
 import os
-import signal
 import threading
 import time
 
-from sip.common.logging_api import log
-
+from sip.master import config, slave_control
 from sip.master.config import slave_status_dict
-from sip.master import config
-from sip.master import slave_control
-from sip.master.slave_states import TaskStatus
 
 
 class Shutdown(threading.Thread):
@@ -24,6 +20,7 @@ class Shutdown(threading.Thread):
 
     def run(self):
         """Thread run routine."""
+        log = logging.getLogger(__name__)
         log.info('starting shutdown')
 
         # Shut down any slaves that are still running

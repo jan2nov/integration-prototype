@@ -1,14 +1,4 @@
 #!/usr/bin/python3
-
-import sys
-import os
-import zmq
-import time
-import signal
-import time
-import datetime
-import numpy
-
 """ Skeleton process to be started by slave
 
 It has three states - standby, state1 and state2, toggling between
@@ -19,7 +9,17 @@ the current state and its name
 
 """
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__),'..', '..'))
+import sys
+import os
+import zmq
+import time
+import signal
+import time
+import datetime
+import numpy
+
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from sip.common import heartbeat_task
 from sip.ext.test_lib import TestObject
 

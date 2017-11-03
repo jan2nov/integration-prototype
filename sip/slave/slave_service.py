@@ -6,7 +6,6 @@ import time
 
 import rpyc
 
-from sip.common.logging_api import log
 from sip.slave import config
 
 

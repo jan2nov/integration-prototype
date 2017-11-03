@@ -5,18 +5,14 @@ This defines the state machines used to track the state of slave controllers.
 """
 
 import copy
+import logging
 from enum import Enum
-import time
-
-from sip.common.logging_api import log
-from sip.common.state_machine import State
-from sip.common.state_machine import StateMachine
-from sip.common.state_machine import _End
-from sip.common.paas import TaskStatus, TaskDescriptor
-from sip.master.config import slave_status
-from sip.master.config import slave_config
 
 import sip.master.task_control as tc
+from sip.common.paas import TaskDescriptor, TaskStatus
+from sip.common.state_machine import State, StateMachine
+from sip.master.config import slave_config, slave_status
+
 
 class SlaveStatus(Enum):
     noConnection = 0
@@ -30,9 +26,11 @@ class Init(State):
     def __init__(self, sm):
         pass
 
+
 class Starting(State):
     """Slave starting state."""
     def __init__(self, sm):
+        log = logging.getLogger(__name__)
         log.info('{} (type {}) state started'.format(sm._name, sm._type))
         pass
 
@@ -40,7 +38,8 @@ class Starting(State):
 class Running_noConnection(State):
     """Slave running state put no rpyc connection."""
     def __init__(self, sm):
-        log.info('{} (type {}) state running_noConnection'.format(sm._name, 
+        log = logging.getLogger(__name__)
+        log.info('{} (type {}) state running_noConnection'.format(sm._name,
                 sm._type))
         sm.Connect()
 
@@ -48,7 +47,8 @@ class Running_noConnection(State):
 class Running_idle(State):
     """Slave running in state idle state."""
     def __init__(self, sm):
-        log.info('{} (type {}) state running_idle'.format(sm._name, 
+        log = logging.getLogger(__name__)
+        log.info('{} (type {}) state running_idle'.format(sm._name,
                 sm._type))
 
         # If the restart flag is set, command the slave to restart the task.
@@ -63,32 +63,37 @@ class Running_idle(State):
 class Running_busy(State):
     """Slave running in state busy state."""
     def __init__(self, sm):
-        log.info('{} (type {}) state running_busy'.format(sm._name, 
+        log = logging.getLogger(__name__)
+        log.info('{} (type {}) state running_busy'.format(sm._name,
                 sm._type))
 
 
 class Running_error(State):
     """Slave running in state error state."""
     def __init__(self, sm):
-        log.info('{} (type {}) state running_error'.format(sm._name, 
+        log = logging.getLogger(__name__)
+        log.info('{} (type {}) state running_error'.format(sm._name,
                 sm._type))
 
 
 class Exited(State):
     """Slave exited state."""
     def __init__(self, sm):
+        log = logging.getLogger(__name__)
         log.info('{} (type {}) state exited'.format(sm._name, sm._type))
 
 
 class Unknown(State):
     """Slave missing state."""
     def __init__(self, sm):
+        log = logging.getLogger(__name__)
         log.info('{} (type {}) state unknown'.format(sm._name, sm._type))
 
 
 class Error(State):
     """Slave error state."""
     def __init__(self, sm):
+        log = logging.getLogger(__name__)
         log.info('{} (type {}) state error'.format(sm._name, sm._type))
 
 
@@ -107,6 +112,7 @@ class SlaveControllerSM(StateMachine):
         super(SlaveControllerSM, self).__init__(self.state_table, init)
 
     def Connect(self, event=None):
+        log = logging.getLogger(__name__)
         log.info('Attempting to connect to slave task. type={}, name={}'. \
                 format(self._type, self._name))
         try:
@@ -122,6 +128,7 @@ class SlaveControllerSM(StateMachine):
             pass
 
     def LoadTask(self, event=None):
+        log = logging.getLogger(__name__)
         log.info('Loading slave task. type={}, name={}'.format(self._type,
                                                                self._name))
 

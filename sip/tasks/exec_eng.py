@@ -1,4 +1,13 @@
 #!/usr/bin/python3
+""" Skeleton execution engine
+
+It has three states - starting, running and and finished. It starts in
+starting, moves to running after 10s and then to finished after some
+time specified on the command line
+
+It sends heartbeat messages to the slave containing the timestamp,
+the current state and its name
+"""
 
 import sys
 import os
@@ -8,21 +17,11 @@ import signal
 import time
 import datetime
 
-""" Skeleton execution engine
-
-It has three states - starting, running and and finished. It starts in
-starting, moves to running after 10s and then to finished after some
-time specified on the command line
-
-It sends heartbeat messages to the slave containing the timestamp,
-the current state and its name
-
-"""
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__),'..', '..'))
 
 from sip.common import heartbeat_task
-from sip.common.logging_api import log
+
 
 _context = zmq.Context()
 

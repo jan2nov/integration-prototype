@@ -12,8 +12,9 @@ requested in which case only one task will be allocated to that host.
 
 Once a task has been assigned a host, other resources (e.g. a TCP port) can
 be allocated to the task.
+
+.. moduleauthor:: David Terrett
 """
-__author__ = 'David Terrett'
 
 
 class ResourceManager:

@@ -4,16 +4,14 @@
 FIXME(FD) Rename this file to slave_task_controller.py ?
 """
 
-import os
+import logging
 import re
 
 import rpyc
 
-from sip.common.logging_api import log
+from sip.common.paas import TaskStatus
 from sip.common.resource_manager import ResourceManager
 from sip.master.config import resource
-
-from sip.common.paas import TaskStatus
 
 
 class SlaveTaskController:
@@ -84,11 +82,12 @@ class SlaveTaskControllerRPyC(SlaveTaskController):
 
     def connect(self, address=None, port=None):
         """Establishes an RPyC connection if needed."""
+        log = logging.getLogger(__name__)
         if address:
             self._address = address
         if port:
             self._port = port
-        try: 
+        try:
             self._conn.ping()
         except:
             log.debug('Connecting to {}:{}'.format(self._address, self._port))
@@ -96,6 +95,7 @@ class SlaveTaskControllerRPyC(SlaveTaskController):
 
     def shutdown(self):
         """Command the slave controller to shut down."""
+        log = logging.getLogger(__name__)
         log.debug('shutting down task')
         self.connect()
         self._conn.root.shutdown()
@@ -108,6 +108,7 @@ class SlaveTaskControllerRPyC(SlaveTaskController):
             cfg (dict): Configuration for the capability (from slave_map.json).
             status (dict): Slave status dictionary.
         """
+        log = logging.getLogger(__name__)
         # Scan the task parameter list for entries with values starting with
         # a # character, or contained in a hash followed by curly brackets
         # (ie. #{...}), and replace with an allocated resource.

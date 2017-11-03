@@ -7,18 +7,17 @@ status of all the slave controllers using the Paas service.
 The states of states of all the slaves is then checked against a list of
 those that need to be running for the system to be considered available,
 degraded or unavailable and an appropriate event posted.
+
+.. moduleauthor:: David Terrett
 """
 
-__author__ = 'David Terrett'
-
 import copy
+import logging
 import threading
 import time
 
-from sip.common.logging_api import log
 from sip.common.paas import TaskStatus
-from sip.master.config import slave_status_dict
-from sip.master.config import slave_config_dict
+from sip.master.config import slave_config_dict, slave_status_dict
 from sip.master.slave_states import SlaveStatus
 
 
@@ -30,11 +29,12 @@ class SlavePoller(threading.Thread):
         """Constructor.
         """
         self._sm = sm
-        super(SlavePoller, self).__init__(daemon = True)
+        super(SlavePoller, self).__init__(daemon=True)
 
     def run(self):
+        """ Method that is run when the thread is started.
         """
-        """
+        log = logging.getLogger(__name__)
         log.info('Starting Slave poller.')
         while True:
 
@@ -43,7 +43,7 @@ class SlavePoller(threading.Thread):
 
             for name, status in copy.copy(slave_status_dict()).items():
                 # If there is a PAAS descriptor for this task
-                if  status['descriptor']:
+                if status['descriptor']:
 
                     # Get the status from the PAAS. This could fail if
                     # the task was deleted after we copied the status
@@ -55,7 +55,7 @@ class SlavePoller(threading.Thread):
                         # If the state is "running" inquire the slave status
                         # via the slave controller RPC interface.
                         if state == TaskStatus.RUNNING:
-                    
+
                             # Test whether we can connect to the RPC service
                             controller = status['task_controller']
                             try:
@@ -78,7 +78,7 @@ class SlavePoller(threading.Thread):
                     except:
                         pass
 
-                    # Post the event to the slave state machine 
+                    # Post the event to the slave state machine
                     status['state'].post_event([state])
 
             # Evaluate the state of the system
