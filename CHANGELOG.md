@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Docker image labels are now taken into account when running through the 
    `SIP_IMAGE_LABEL` environment variable, both when building and when running.
    The default value is `latest`.
+ - Added `build_containers` option to setup.py
+ - Added `run_master.sh` as a simple way to start a containerised master
+   controller
 
 ## [0.2.2] - 2017-10-02
 ### Changed

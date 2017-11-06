@@ -12,6 +12,8 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 from setuptools.command.test import test
 
+from setuptools import Command
+
 # Define the extension modules to build.
 MODULES = [
     ('_test_lib', 'test_lib.c')
@@ -115,6 +117,27 @@ def get_sip_version():
         exec(code, globals_)
     return globals_['__version__']
 
+class BuildDocker(Command):
+    """
+    Build containers according to spec
+    """
+    description = "Build Docker containers"
+
+    user_options = [
+            ('label=', 'i', 'image label')
+        ]
+
+    def initialize_options(self):
+        self.label = 'latest'
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        args = ("docker-compose", "build")
+        os.environ['SIP_IMAGE_LABEL'] = self.label
+        os.execvp('docker-compose', args)
+        print("hi")
 
 # Call setup() with list of extensions to build.
 EXTENSIONS = []
@@ -144,5 +167,6 @@ setup(
     install_requires=['numpy'],
     setup_requires=['numpy'],
     tests_require=['unittest-xml-reporting'],
-    cmdclass={'build_ext': BuildExt, 'install': Install, 'test': Test}
+    cmdclass={'build_ext': BuildExt, 'install': Install, 'test': Test,
+        'build_containers': BuildDocker}
 )
