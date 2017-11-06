@@ -18,5 +18,5 @@ if [ "$?" -eq 0 ]; then
 else
 	echo "No suitable Docker images found. Please build SIP with docker-compose"
 	echo "using \$SIP_IMAGE_LABEL=$SIP_IMAGE_LABEL, or using setup.py:"
-	echo "python setup.py build_containers --label=$SIP_IMAGE_LABEL
+	echo "python setup.py build_containers --label=$SIP_IMAGE_LABEL"
 fi
