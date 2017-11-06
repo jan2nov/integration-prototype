@@ -29,7 +29,6 @@ class Shutdown(threading.Thread):
         # Shut down any slaves that are still running
         for slave, status in slave_status_dict().items():
             state = status['state'].current_state()
-            print(state)
             if state != 'Exited' and state != 'Unknown':
                 slave_control.stop(slave, status)
 

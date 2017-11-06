@@ -24,6 +24,7 @@ class UnConfigure(threading.Thread):
             if status['state'].current_state() == 'Running_busy':
                 log.info('stopping {}'.format(slave))
                 status['task_controller'].stop()
-            status['descriptor'].delete()
+            if status['descriptor'] is not None:
+                status['descriptor'].delete()
             status['restart'] = False
         log.info('unconfigure done')

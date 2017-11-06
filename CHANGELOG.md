@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+ - Master controller can now run containerised (as well as non-containerised).
+  - Made `sip` overlay network attachable
+	- Master controller attaches to `sip` overlay network when running
+    containerised
+  - Removed all hard references to `localhost`, all communications now happen
+    through hostnames on the `sip` overlay or the master's actual hostname
+ - Replaced global container/Dockerfile with docker-compose based set of
+   task-specific, hierarchichal containers in `sip/containers`.
+ - Docker slaves now run on the image specified in sip/etc/slave\_map.json
+   instead of defaulting to the 'sip' image.
+ - Docker image labels are now taken into account when running through the 
+   `SIP_IMAGE_LABEL` environment variable, both when building and when running.
+   The default value is `latest`.
 
 ## [0.2.2] - 2017-10-02
 ### Changed

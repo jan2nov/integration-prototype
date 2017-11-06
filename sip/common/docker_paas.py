@@ -33,10 +33,20 @@ class DockerPaas(Paas):
         # Create the SIP overlay network if it does not exist.
         if not self._client.networks.list(names=['sip']):
             log.info('Creating sip overlay network.')
-            self._client.networks.create('sip', driver='overlay')
+            self._client.networks.create('sip', driver='overlay',
+                    attachable=True)
 
         # Store a flag to show whether we are on a manager node or a worker.
         self._manager = self._client.info()['Swarm']['ControlAvailable']
+
+    def add_to_network(self, hostname):
+        try:
+            container = self._client.containers.get(hostname)
+        except:
+            container = None
+        if container and 'sip' not in \
+                container.attrs['NetworkSettings']['Networks']:
+            self._client.networks.get('sip').connect(hostname)
 
     def run_service(self, name, task, ports, cmd_args, restart=True):
         """ Run a task as a service.
@@ -212,12 +222,14 @@ class DockerPaas(Paas):
         # controller from within a container
         #
         # ... and, apparently, deprecated. There are better ways.
-        print(manager)
         if not manager:#os.path.exists('/.dockerenv'):
             return socket.gethostbyname(name)
 
+        # If not, assume we are a swarm master and return our own hostname
+        return socket.gethostname()
+        # TODO verify & remove
         # If not, assume we are a swarm master and return localhost
-        return 'localhost'
+        #return 'localhost'
 
 
 class DockerTaskDescriptor(TaskDescriptor):
@@ -239,8 +251,6 @@ class DockerTaskDescriptor(TaskDescriptor):
         # See if we are a manager node
         paas = DockerPaas()
         self._manager = paas._manager
-        print("name: {}".format(name))
-        print(self._manager)
         if self._manager:
 
             # Search for an existing service with this name
@@ -252,9 +262,7 @@ class DockerTaskDescriptor(TaskDescriptor):
 
                 # Get host and port number(if there are any)
                 self._hostname = paas._get_hostname(name, self._manager)
-                print("hostname: {}".format(self._hostname))
                 attrs = self._service[0].attrs
-                print(attrs)
                 if 'Ports' in attrs['Endpoint']:
                     self._target_ports = {}
                     self._published_ports = {}
@@ -310,7 +318,7 @@ class DockerTaskDescriptor(TaskDescriptor):
         the swarm the host is the manager node that we are running on and
         the port is the published port the port was mapped to.
         """
-        if os.path.exists("docker_swarm") and not self._manager:
+        if os.path.exists("docker_swarm"):
             return self.name, port
 
         return self._hostname, self._published_ports[port]

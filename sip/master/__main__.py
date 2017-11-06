@@ -58,19 +58,26 @@ with open(resources_file) as f:
     config.resource = ResourceManager(_resources)
 
 # Start logging server
-    paas = Paas()
-    # FIXME docker hack
-    log_port = os.getenv('SIP_ZMQ_PORT', logging.handlers.DEFAULT_TCP_LOGGING_PORT)
-    log_port = int(log_port)
-    config.logserver = paas.run_service('logging_server', 'sip-logger',
-        [log_port], ['python3', 'sip/common/logging_server.py'])
+# I think this should be non-indented
+paas = Paas()
+# FIXME hack to get master container into 'sip' overlay
+try:
+    paas.add_to_network(os.getenv('HOSTNAME'))
+except:
+    print("could not connect to sip overlay")
 
-    from sip.common.logging_api import log
-    from sip.master.master_states import MasterControllerSM
-    from sip.master.master_states import Standby
-    from sip.master.slave_poller import SlavePoller
-    from sip.master.rpc_service import RpcService
-    from sip.master.reconnect import reconnect
+# FIXME docker hack
+log_port = os.getenv('SIP_ZMQ_PORT', logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+log_port = int(log_port)
+config.logserver = paas.run_service('logging_server', 'sip-logger',
+    [log_port], ['python3', 'sip/common/logging_server.py'])
+
+from sip.common.logging_api import log
+from sip.master.master_states import MasterControllerSM
+from sip.master.master_states import Standby
+from sip.master.slave_poller import SlavePoller
+from sip.master.rpc_service import RpcService
+from sip.master.reconnect import reconnect
 
 # Wait until it initializes
 time.sleep(1.0)

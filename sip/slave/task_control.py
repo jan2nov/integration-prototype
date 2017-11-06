@@ -79,8 +79,6 @@ class TaskControlSparkPoller(TaskControl):
             task (string list): Path to the task and its command line arguments.
             settings (dict): Settings dictionary for the task control object.
         """
-        print(task)
-        print(settings)
         ## Start a task
         #self.name = os.path.normpath(task[0])
         #self.settings = settings
@@ -111,7 +109,6 @@ class TaskControlSparkPoller(TaskControl):
             threading.Thread.__init__(self)
             self._task_controller = task_controller
             self._done = threading.Event()
-            print("things")
 
         def stop_thread(self):
             self._done.set()
@@ -242,7 +239,7 @@ class TaskControlExample(TaskControl):
         # Create a heartbeat listener to listen for a task
         timeout_msec = 10000
         heartbeat_comp_listener = heartbeat_task.Listener(timeout_msec)
-        heartbeat_comp_listener.connect('localhost', port)
+        heartbeat_comp_listener.connect(os.getenv('HOSTNAME'), port)
         self._poller = self._HeartbeatPoller(self, heartbeat_comp_listener)
         self._poller.start()
 

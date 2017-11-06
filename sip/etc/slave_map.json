@@ -7,7 +7,7 @@
         "task_control_module": {
             "name": "TaskControlExample"
         },
-        "docker_image": "sip-lts",
+        "docker_image": "sip",
         "task": [
             "sip/tasks/task.py",
             "2000"

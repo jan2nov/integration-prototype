@@ -73,7 +73,7 @@ def start(name, type):
     status['restart'] = True
 
 
-def _start_docker_slave(name, type, cfg, status):
+def _start_docker_slave(name, slave_type, cfg, status):
     """Starts a slave controller that is a Docker container.
 
     NB This only works on localhost
@@ -83,13 +83,15 @@ def _start_docker_slave(name, type, cfg, status):
     req_log.setLevel(logging.WARN)
     req_log.addHandler(logging.StreamHandler(sys.stdout))
 
-    log.info('Starting Docker slave (name={}, type={})'.format(name, type))
+    log.info('Starting Docker slave (name={}, type={})'.format(name, slave_type))
 
     # Create a service. The paas takes care of the host and ports so
     # we can use any ports we like in the container and they will get
     # mapped to free ports on the host.
     image = cfg['docker_image']
     task_control_module = cfg['task_control_module']['name']
+    # TODO FIXME this mah have to become a more task-specific command...
+    # TODO FIXME should maybe depend on image entrypoint?
     _cmd = ['python3', '-m', 'sip.slave',
             name,
             str(rpc_port_),
@@ -98,7 +100,8 @@ def _start_docker_slave(name, type, cfg, status):
 
     # Start it
     paas = Paas()
-    descriptor = paas.run_service(name, 'sip', [rpc_port_], _cmd)
+    log.info('Image for slave {}: "{}"'.format(name, image))
+    descriptor = paas.run_service(name, image, [rpc_port_], _cmd)
 
     # Attempt to connect the controller
     try:
@@ -111,9 +114,9 @@ def _start_docker_slave(name, type, cfg, status):
     status['sip_root'] = '/home/sdp/integration-prototype'
     status['descriptor'] = descriptor
 
-    log.info('"{}" (type {}) started'.format(name, type))
+    log.info('"{}" (type {}) started'.format(name, slave_type))
 
-def _start_spark_slave(name, type, cfg, status):
+def _start_spark_slave(name, slave_type, cfg, status):
     """Starts a Spark slave.
 
     """
@@ -122,7 +125,7 @@ def _start_spark_slave(name, type, cfg, status):
     req_log.setLevel(logging.WARN)
     req_log.addHandler(logging.StreamHandler(sys.stdout))
 
-    log.info('Starting Spark slave (name={}, type={})'.format(name, type))
+    log.info('Starting Spark slave (name={}, type={})'.format(name, slave_type))
 
     # Start it
     #if name == 'wootwoot':
@@ -132,6 +135,7 @@ def _start_spark_slave(name, type, cfg, status):
         task = None
 
     paas = SparkPaaS()
+    # TODO FIXME get rid of 'sip' in here, change to reasonable key/w/e...
     descriptor = paas.run_service(name, 'sip', None, task)
     #try:
     status['task_controller'].connect(descriptor)
@@ -144,7 +148,7 @@ def _start_spark_slave(name, type, cfg, status):
     status['master_port'] = '8080'
     status['descriptor'] = descriptor
 
-    log.info('"{}" (type {}) started'.format(name, type))
+    log.info('"{}" (type {}) started'.format(name, slave_type))
 
 
 def stop(name, status):
