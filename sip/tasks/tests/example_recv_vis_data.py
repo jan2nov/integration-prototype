@@ -111,7 +111,7 @@ def _receive_heaps(config, streams, log):
             log.info("Received heap {}".format(heap.cnt))
 
             # Statistics about the stream
-			stats = spead2.stats
+            stats = spead2.stats
             log.info('No.of heaps put in the stream {}'.format(stats.heaps))
             log.info('Incomplete Heaps Evicted{}'.format(stats.incomplete_heaps_evicted))
             log.info('Worked Blocked'.format(stats.worker_blocked))
