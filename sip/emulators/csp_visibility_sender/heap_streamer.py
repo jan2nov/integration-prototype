@@ -165,6 +165,9 @@ class HeapStreamer:
             elif 'format' in item:
                 item_bits = sum(bits for _, bits in item['format'])
                 heap_size += item_bits // 8 * num_elements
+
+
+                self._log.info(heap_size)
         return heap_size
 
     @staticmethod
@@ -223,6 +226,8 @@ class HeapStreamer:
                                   flavour.version,
                                   flavour.bug_compat))
             self._log.debug('  Threads = {}'.format(threads))
+
+            self._get_heap_size()
 
             # Add items to the item group based on the heap_descriptor
             for j, item in enumerate(self._heap_descriptor):
