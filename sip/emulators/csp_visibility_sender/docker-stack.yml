@@ -2,47 +2,51 @@ version: "3.3"
 
 services:
 
-  vis_ingest1:
+  vs:
     image: njthykkathu/sip:latest
     entrypoint: python3 -m
     command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config.json
+    # command: spead2_bench.py master 10.60.253.22 8001
     networks:
       - outside
     deploy:
-      mode: global
+      replicas: 1
+      restart_policy: 
+        condition: none
       placement:
         constraints:
           - node.labels.sip_worker4 == true
       labels:
         com.dn.description: "Host networking"
 
-  vis_ingest2:
-    image: njthykkathu/sip:latest
-    entrypoint: python3 -m
-    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config1.json
-    networks:
-      - outside
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.labels.sip_worker5 == true
-      labels:
-        com.dn.description: "Host networking"
 
-  vis_ingest3:
-    image: njthykkathu/sip:latest
-    entrypoint: python3 -m
-    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config2.json
-    networks:
-      - outside
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.labels.sip_worker6 == true
-      labels:
-        com.dn.description: "Host networking"
+#  vis_ingest2:
+#    image: njthykkathu/sip:latest
+#    entrypoint: python3 -m
+#    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config1.json
+#    networks:
+#      - outside
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.sip_worker5 == true
+#      labels:
+#        com.dn.description: "Host networking"
+
+#  vis_ingest3:
+#    image: njthykkathu/sip:latest
+#    entrypoint: python3 -m
+#    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config2.json
+#    networks:
+#      - outside
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints:
+#          - node.labels.sip_worker6 == true
+#      labels:
+#        com.dn.description: "Host networking"
 
 networks:
   outside:

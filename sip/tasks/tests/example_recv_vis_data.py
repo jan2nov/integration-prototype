@@ -67,33 +67,33 @@ def _create_streams(config, log):
     return streams
 
 
-def _ms_create(filename, config, file_start_chan, file_num_chan):
-    if oskar:
-        channel_width_hz = config['observation']['channel_width_hz']
-        start_freq_hz = config['observation']['start_frequency_hz'] + (
-            channel_width_hz * file_start_chan)
-        return oskar.MeasurementSet.create(
-            filename, config['num_stations'], file_num_chan,
-            config['num_pols'], start_freq_hz, channel_width_hz)
-    else:
-        return None
+#def _ms_create(filename, config, file_start_chan, file_num_chan):
+#    if oskar:
+#        channel_width_hz = config['observation']['channel_width_hz']
+#        start_freq_hz = config['observation']['start_frequency_hz'] + (
+#            channel_width_hz * file_start_chan)
+#        return oskar.MeasurementSet.create(
+#            filename, config['num_stations'], file_num_chan,
+#            config['num_pols'], start_freq_hz, channel_width_hz)
+#    else:
+#        return None
 
 
-def _ms_open(filename):
-    return oskar.MeasurementSet.open(filename) if oskar else None
+#def _ms_open(filename):
+#    return oskar.MeasurementSet.open(filename) if oskar else None
 
 
-def _ms_write(ms, file_start_time, file_start_chan, data):
-    if oskar:
-        num_chan = data['complex_visibility'].shape[2]
-        num_baselines = data['complex_visibility'].shape[3]
-        start_chan = data['channel_baseline_id'][0][0] - file_start_chan
-        time_index = data['time_index'] - file_start_time
-        start_row = num_baselines * time_index
-        ms.write_vis(start_row, start_chan, num_chan,
-                     num_baselines, data['complex_visibility'][0, 0, :, :, :])
-    else:
-        pass
+#def _ms_write(ms, file_start_time, file_start_chan, data):
+#    if oskar:
+#        num_chan = data['complex_visibility'].shape[2]
+#        num_baselines = data['complex_visibility'].shape[3]
+#        start_chan = data['channel_baseline_id'][0][0] - file_start_chan
+#        time_index = data['time_index'] - file_start_time
+#        start_row = num_baselines * time_index
+#        ms.write_vis(start_row, start_chan, num_chan,
+#                     num_baselines, data['complex_visibility'][0, 0, :, :, :])
+#    else:
+#        pass
 
 
 def _pickle_write(filename, data):
@@ -109,6 +109,11 @@ def _receive_heaps(config, streams, log):
         # Loop over all heaps in the stream.
         for heap in stream:
             log.info("Received heap {}".format(heap.cnt))
+
+            # Statistics about the stream
+            log.info('No.of heaps put in the stream {}'.format(stats.heaps))
+            log.info('Incomplete Heaps Evicted{}'.format(stats.incomplete_heaps_evicted))
+            log.info('Worked Blocked'.format(stats.worker_blocked))
 
             # Extract data from the heap into a dictionary.
             data = {}
@@ -139,17 +144,17 @@ def _receive_heaps(config, streams, log):
             data['time_index'] = time_index
 
             # Write visibility data.
-            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
+#            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
 
-            # Write to Measurement Set if required.
-            ms_name = base_name + '.ms'
-            if ms_name not in ms:
-                if len(ms) > 5:
-                    ms.popitem()  # Don't open too many files at once.
-                ms[ms_name] = _ms_create(
-                    ms_name, config, start_channel, num_channels) \
-                    if not os.path.isdir(ms_name) else _ms_open(ms_name)
-            _ms_write(ms[ms_name], file_start_time, start_channel, data)
+#            # Write to Measurement Set if required.
+#            ms_name = base_name + '.ms'
+#            if ms_name not in ms:
+#                if len(ms) > 5:
+#                    ms.popitem()  # Don't open too many files at once.
+#                ms[ms_name] = _ms_create(
+#                    ms_name, config, start_channel, num_channels) \
+#                    if not os.path.isdir(ms_name) else _ms_open(ms_name)
+#            _ms_write(ms[ms_name], file_start_time, start_channel, data)
 
         # Stop the stream when there are no more heaps.
         stream.stop()
@@ -187,22 +192,22 @@ def main():
 
     # Test that heaps have been received and written correctly.
     # Get a list of all 'vis_' pickle files.
-    log.info('Checking data...')
-    file_list = glob.glob('vis_*.p')
-    for file_name in file_list:
-        # Read the heaps in the file.
-        heaps = _pickle_read(file_name)
-        for (i, heap) in enumerate(heaps):
-            vis_data = heap['complex_visibility']
-            time_index = heap['time_index']
-            start_chan = heap['channel_baseline_id'][0][0]
+#    log.info('Checking data...')
+#    file_list = glob.glob('vis_*.p')
+#    for file_name in file_list:
+#        # Read the heaps in the file.
+#        heaps = _pickle_read(file_name)
+#        for (i, heap) in enumerate(heaps):
+#            vis_data = heap['complex_visibility']
+#            time_index = heap['time_index']
+#            start_chan = heap['channel_baseline_id'][0][0]
 
-            # Check pattern.
-            for c in range(vis_data.shape[2]):
-                assert (numpy.array(vis_data[:, :, c, :, :].real ==
-                                    time_index).all())
-                assert (numpy.array(vis_data[:, :, c, :, :].imag ==
-                                    c + start_chan).all())
+#            # Check pattern.
+#            for c in range(vis_data.shape[2]):
+#                assert (numpy.array(vis_data[:, :, c, :, :].real ==
+#                                    time_index).all())
+#                assert (numpy.array(vis_data[:, :, c, :, :].imag ==
+#                                    c + start_chan).all())
     log.info('Done.')
 
 if __name__ == '__main__':

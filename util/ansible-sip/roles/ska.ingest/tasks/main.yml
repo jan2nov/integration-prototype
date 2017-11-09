@@ -21,6 +21,11 @@
   become: yes
   shell: sysctl net.core.rmem_default=8388608
 
+# Increase wmem_max
+- name: Increasing wmem_max
+  become: yes
+  shell: sysctl net.core.wmem_max=524288
+
 # Assign label to the swarm nodes
 - name: Asign labels to swarm nodes | if any
   become: yes
@@ -33,3 +38,4 @@
   tags:
     - skip_ansible_lint
     - swarm_labels
+  

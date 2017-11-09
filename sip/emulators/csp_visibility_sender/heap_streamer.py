@@ -206,7 +206,7 @@ class HeapStreamer:
             host = stream['host']
             port = stream['port']
             threads = stream['threads'] if 'threads' in stream else 1
-            stream_config = spead2.send.StreamConfig(rate=0)
+            stream_config = spead2.send.StreamConfig(rate=20e6)
             thread_pool = spead2.ThreadPool(threads=threads)
             stream = spead2.send.UdpStream(thread_pool, host, port,
                                            stream_config)

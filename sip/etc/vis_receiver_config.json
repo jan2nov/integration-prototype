@@ -13,7 +13,7 @@
   {
     "lower": 16384,
     "upper": 26214400,
-    "max_free": 12,
-    "initial": 8
+    "max_free": 20,
+    "initial": 20
   }
 }
