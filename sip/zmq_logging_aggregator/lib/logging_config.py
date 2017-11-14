@@ -53,7 +53,7 @@ def load_logging_config(config_file):
     config_dict = load_config_file(config_file)
     # log.debug(json.dumps(config_dict, indent=2))
     logging.config.dictConfig(config_dict)
-    log.debug('Logging configuration updated.')
+    log.info('Logging configuration updated.')
 
 
 def configure_logger(config_file, host=None):

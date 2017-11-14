@@ -57,23 +57,34 @@ def main():
         log.info('Terminated logging aggregator service')
 
 
-if __name__ == '__main__':
-    # Define a logging formatter and handler.
-    SIP = logging.getLogger('sip')
-    SIP_FORMAT = logging.Formatter("> [%(levelname).1s] %(message)-50s "
-                                   "(%(name)s:L%(lineno)i)")
-    SIP_HANDLER = logging.StreamHandler()
-    SIP_HANDLER.setFormatter(SIP_FORMAT)
-    SIP.addHandler(SIP_HANDLER)
-    SIP.setLevel(logging.DEBUG)
+def init_logger(name='zla', level=logging.DEBUG,
+                format_string="= [%(levelname).1s] %(message)s"):
+    """Initialise a logger.
+    """
+    log = logging.getLogger(name)
+    log.propagate = False
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(format_string)
+    handler.setFormatter(formatter)
+    handler.setLevel(level)
+    log.setLevel(level)
+    log.addHandler(handler)
 
-    # Set the default local ZeroMQ Logging aggregator logging handler.
-    ZLA = logging.getLogger('zla')
-    ZLA.propagate = False
-    ZLA_HANDLER = logging.StreamHandler()
-    ZLA_FORMAT = logging.Formatter("= [%(levelname).1s] %(message)s")
-    ZLA_HANDLER.setFormatter(ZLA_FORMAT)
-    ZLA.addHandler(ZLA_HANDLER)
-    ZLA.setLevel(logging.DEBUG)
+
+if __name__ == '__main__':
+    # Define the root logger.
+    LOG = logging.getLogger()
+    LOG.setLevel(logging.NOTSET)
+
+    # Initialise a logger for local messages.
+    init_logger(name='zla',
+                level=logging.DEBUG,
+                format_string="= [%(levelname).1s] %(message)s")
+
+    # Initialise a logger for aggregated messages.
+    FORMAT_STR = "> [%(levelname).1s] %(message)-50s (%(name)s:L%(lineno)i)"
+    init_logger(name='sip',
+                level=logging.NOTSET,
+                format_string=FORMAT_STR)
 
     main()

@@ -101,7 +101,7 @@ class ZmqLoggingAggregator(multiprocessing.Process):
         # Load the default logging configuration.
         if self.config_file:
             load_logging_config(self.config_file)
-            log_.debug('Loaded config file: %s', self.config_file)
+            log_.info('Loaded config file: %s', self.config_file)
 
         # Create and bind the ZMQ subscriber socket.
         self._connect()

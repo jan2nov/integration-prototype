@@ -9,21 +9,21 @@ services:
 
   # SIP docker image.
   sip:
-    image: sip
+    image: skasip/sip
     build:
       context: .
       dockerfile: ./sip/Dockerfile
 
   # ZeroMQ logging aggregator
   zla:
-    image: sip/zla
+    image: skasip/zla
     build:
       context: ./sip/zmq_logging_aggregator
       dockerfile: Dockerfile
 
-  # ZeroMQ logging aggregator
+  # (Mock) ZeroMQ logging publisher
   zlp:
-    image: sip/zlp
+    image: skasip/zlp
     build:
-      context: ./sip/zmq_logging_aggregator/mock_log_publisher
-      dockerfile: Dockerfile
+      context: ./sip
+      dockerfile: zmq_logging_publisher/Dockerfile

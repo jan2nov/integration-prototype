@@ -10,7 +10,7 @@ see <https://gist.github.com/iros/3426278>
 
 * **Description**
 
-  * This can be connected to useing a ZMQ PUB socket.
+  * This can be connected to using a ZMQ PUB socket.
     This is exposed on the python logging handlers DEFAULT_TCP_LOGGING_PORT,port 9020.
 
   * The SUB socket listens for data in the form of

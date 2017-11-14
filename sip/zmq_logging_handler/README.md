@@ -1,8 +1,7 @@
 # Python logging ZeroMQ handler package
 
-This package provides a ZeroMQ python logging handler which can be used with
-SIP services to add a logging handler which sends Python logging messages to a
-ZeroMQ PUB socket. This handler is intended to be used with the SIP 
+This package provides a Python logging handler which sends log messages
+to a ZeroMQ PUB socket. This handler is intended to be used with the SIP
 `zmq_logging_aggregator` service.
 
 ## Basic usage

@@ -34,7 +34,7 @@ docker-compose build zla zlp
 Run the service container
 
 ```bash
-docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
+docker run --rm -t --name zla sip/zla
 ```
 
 To run the mock log publisher container
@@ -54,7 +54,12 @@ docker stop zla
 To start the logging aggregator as a Swarm service: 
 
 ```bash
-docker service create -p 5555:5555 -p 9020:9020 -p 9030:9030 --network zla --name zla sip/zla
+docker network create zla --driver=overlay
+```
+
+
+```bash
+docker service create --network zla --name zla sip/zla
 ```
 
 To view logs from the aggregator service:
@@ -150,6 +155,17 @@ or
 docker-compose build zla
 ```
 
+## A note on docker networking
+
+Only need to publish the port if want to be able to access services in the
+container from the outside world. Two containers cant publish to the same 
+external port if publishing to the same network.
+
+Docker internally publishes to random ports and manages the mapping. 
+
+
+
+
 ## Usage
 
 This service can either be run as a Docker Container or a Python application.
@@ -158,31 +174,3 @@ the configuration of the output of the logger.
 
 ## Tests
 
-The service can be tested by the provided mock log publisher application found
-in the `/tests/mock_log_publisher.py` module.
-
-*Running the test:*
-
-Start the ZeroMQ Logging aggregator service:
-
-```shell
-python3 -m sip.zmq_logging_aggregator
-```
-
-or
-
-```shell
-docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
-```
-
-Start one or more mock log publishers:
-
-```shell
-python3 -m sip.zmq_logging_aggreagtor.tests.mock_log_publisher
-```
-
-or to start multiple publishers using python multiprocessing
-
-```shell
-python3 -m sip.zmq_logging_aggregator.tests.example_start_publishers
-```

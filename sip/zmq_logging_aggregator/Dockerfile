@@ -1,11 +1,13 @@
 #
-# docker build -t sip/zla sip/zmq_logging_aggregator
+# docker build -t skasip/zla skasip/zmq_logging_aggregator
 #
 # Test interactively with:
-#   docker run --rm -it --entrypoint=/bin/sh sip/zla
+#
+#   docker run --rm -it --entrypoint=/bin/sh skasip/zla
 #
 # Run and show logging:
-#   docker run --rm -t -p 5555:5555 -p 9020:9020 -p 9030:9030 --name zla sip/zla
+#
+#   docker run --rm -t --name zla skasip/zla
 #
 
 FROM python:3.6-alpine3.6
@@ -17,7 +19,8 @@ COPY requirements.txt /app/requirements.txt
 # - libstdc++ is installed as a separate step as this is needed for
 #   pyzmq and should not be deleted when removing build dependencies.
 # - curl is needed for the healthcheck command.
-RUN apk add --no-cache --virtual build-dependencies g++ musl-dev libev-dev && \
+RUN apk update && \
+    apk add --no-cache --virtual build-dependencies g++ musl-dev libev-dev && \
     apk add --no-cache libstdc++ curl libev && \
     pip install -r /app/requirements.txt && \
     find /usr/local/lib/python3.6/ -name 'tests' -exec rm -r '{}' + && \
@@ -35,7 +38,8 @@ EXPOSE 9030
 
 WORKDIR /app
 
-HEALTHCHECK --interval=5s --timeout=2s --start-period=5s --retries=3 \
+# Container heathcheck command
+HEALTHCHECK --interval=15s --timeout=2s --start-period=5s --retries=2 \
     CMD curl -f http://localhost:5555/healthcheck || exit 1
 
 COPY . /app/sip/zla
