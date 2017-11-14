@@ -57,14 +57,13 @@ def main():
         log.info('Terminated logging aggregator service')
 
 
-def init_logger(name='zla', level=logging.DEBUG,
-                format_string="= [%(levelname).1s] %(message)s"):
+def init_logger(name, format_string, level=logging.DEBUG):
     """Initialise a logger.
     """
     log = logging.getLogger(name)
     log.propagate = False
     handler = logging.StreamHandler()
-    formatter = logging.Formatter(format_string)
+    formatter = logging.Formatter(format_string, '%H:%M:%S')
     handler.setFormatter(formatter)
     handler.setLevel(level)
     log.setLevel(level)
@@ -78,13 +77,14 @@ if __name__ == '__main__':
 
     # Initialise a logger for local messages.
     init_logger(name='zla',
-                level=logging.DEBUG,
-                format_string="= [%(levelname).1s] %(message)s")
+                format_string="= [%(levelname).1s] %(message)s",
+                level=logging.DEBUG)
 
     # Initialise a logger for aggregated messages.
-    FORMAT_STR = "> [%(levelname).1s] %(message)-50s (%(name)s:L%(lineno)i)"
+    FORMAT_STR = "> [%(levelname).1s] %(message)-50s " \
+                 "(%(name)s:L%(lineno)i) [%(asctime)s]"
     init_logger(name='sip',
-                level=logging.NOTSET,
-                format_string=FORMAT_STR)
+                format_string=FORMAT_STR,
+                level=logging.NOTSET)
 
     main()
