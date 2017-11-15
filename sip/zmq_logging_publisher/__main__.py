@@ -4,11 +4,10 @@
 Mock service that publishes logs to over a ZMQ PUB socket.
 """
 import logging
+import logging.handlers
 import sys
 import time
 from random import randint
-
-import requests
 
 from sip.zmq_logging_handler.zmq_logging_handler import ZmqLogHandler
 
@@ -20,7 +19,7 @@ def write_log():
     """ Write a series of log messages.
     """
     log = logging.getLogger(NAME)
-    for i in range(10000):
+    for i in range(20):
         log.info('Hello #%04i @ %s', i, time.asctime())
         log.debug('Hello again!')
         time.sleep(0.0001)
@@ -40,8 +39,10 @@ def main():
 def init_local_logger(level=logging.DEBUG):
     """ Initialise a local (stdout) logger.
     """
-    log = logging.getLogger('local.' + NAME)
-    formatter = logging.Formatter('= [%(levelname).1s] %(message)s (%(name)s)')
+    log = logging.getLogger()
+    log.propagate = False
+    formatter = logging.Formatter('= [%(levelname).1s] %(message)-60s '
+                                  '(%(name)s)')
     handler = logging.StreamHandler()
     handler.setFormatter(formatter)
     log.addHandler(handler)
@@ -49,12 +50,15 @@ def init_local_logger(level=logging.DEBUG):
     return log
 
 
-def init_zmq_logger(hostname='zla', level=logging.DEBUG):
+def init_zmq_logger(hostname='zla',
+                    port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
+                    level=logging.DEBUG):
     """ Initialise a logger which sends messages over a ZeroMQ PUB socket.
     """
     log = logging.getLogger(NAME)
+    log.propagate = False
     log.setLevel(level)
-    log.addHandler(ZmqLogHandler(host=hostname))
+    log.addHandler(ZmqLogHandler(host=hostname, port=port))
 
 
 if __name__ == '__main__':
@@ -64,7 +68,7 @@ if __name__ == '__main__':
 
     # Set up a logging object with a ZMQ PUB handler.
     init_zmq_logger(hostname='zla', level=logging.INFO)
+    # init_zmq_logger(hostname='localhost', port=30000, level=logging.INFO)
 
     # Run the main function.
     main()
-
