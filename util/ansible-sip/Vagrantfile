@@ -11,7 +11,7 @@ VAGRANT_COMMAND = ARGV[0]
 # Settings
 # =============================================================================
 cpus = 2       # Number of CPUs allocated to each VM
-memory = 2048  # Memory in MiB allocated to each VM
+memory = 4096  # Memory in MiB allocated to each VM
 # A host can be in the following groups:
 #     swarm_leader, swarm_manager, or swarm_worker
 # One swarm_leader host (box) has to be defined.

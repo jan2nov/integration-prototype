@@ -55,26 +55,6 @@
       leader_ip: "{{ hostvars[groups['swarm_leader'][0]]['swarm_leader_ip'] }}"
       token: "{{ hostvars[groups['swarm_leader'][0]]['swarm_worker_token'].stdout }}"
 
-# Create SIP docker overlay network
-# ... Note the shell command is a work around for a bug in the ansible
-# docker_network module.
-- name: Create docker network for SIP
-  hosts: swarm_leader
-  become: true
-  tasks:
-    # - name: Create SIP overlay network
-    #   docker_network:
-    #     name: sip
-    #     driver: overlay
-    #     state: present
-    - name: Determine network status
-      shell: >
-        docker network inspect sip | grep 'Error' | cut -d '' -f2
-      register: docker_network_sip
-    - name: Create SIP overlay network
-      raw: docker network create --driver overlay sip
-      when: docker_network_sip.stderr != ""
-
 # Download and install SIP code.
 - name: Download and install SIP
   hosts: all
