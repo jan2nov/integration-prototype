@@ -21,7 +21,13 @@ rpc_port_ = 6666
 
 def start(name, type):
     """Starts a slave controller."""
+    # FIXME(BM) name will not return a log with the ZMQ handler added!
+    #  - this is because name is a subchannel of sip.***
+    #    and propogate true is nto set.
     log = logging.getLogger(__name__)
+    print(log.hasHandlers())
+    for ii, handler in enumerate(log.handlers):
+        print(ii, print(handler.__class__.__name__))
 
     log.info('Starting slave (name={}, type={})'.format(name, type))
 

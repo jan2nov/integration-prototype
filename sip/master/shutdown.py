@@ -31,8 +31,13 @@ class Shutdown(threading.Thread):
                 slave_control.stop(slave, status)
 
         # Shut down the log server
-        log.info('Terminating logserver {}'.format(config.logserver.ident))
-        config.logserver.delete()
+        log.info('Terminating logging server: %s', config.logserver.ident)
+        try:
+            print(config.logserver.status())
+
+            config.logserver.delete()
+        except RuntimeError:
+            log.warning('Unable to terminate logging server.')
 
         print('Shutdown complete. Goodbye!')
 

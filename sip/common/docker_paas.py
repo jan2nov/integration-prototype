@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-""" docker platform as a service
+"""Docker Swarm platform as a service interface.
 
-Makes use of the docker python API:
-    https://docker-py.readthedocs.io/en/stable
+This module makes use of the docker python API to provide an Interface
+to starting, stopping and determining the status of SIP tasks running on
+Docker Swarm.
 
 .. moduleauthor:: David Terrett <david.terrett@stfc.ac.uk>
 """
@@ -10,19 +11,24 @@ import logging
 import os
 import socket
 import time
+import json
 
 import docker
+import docker.types
+import docker.errors
+import docker.api
 
 from sip.common.paas import Paas, TaskDescriptor, TaskStatus
 
 
 class DockerPaas(Paas):
-    """ Docker Swarm Platform as a Service Interface.
+    """Docker Swarm Platform as a Service Interface.
+
+    Implementation of the PaaS interface for Docker Swarm.
     """
 
     def __init__(self):
-        """ Constructor
-        """
+        """Constructor."""
         Paas.__init__(self)
 
         log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
@@ -38,39 +44,54 @@ class DockerPaas(Paas):
         # Store a flag to show whether we are on a manager node or a worker.
         self._manager = self._client.info()['Swarm']['ControlAvailable']
 
-    def run_service(self, name, task, ports, cmd_args, restart=True):
-        """ Run a task as a service.
+    def run_service(self, name, task, ports=None, cmd_args=None, restart=True):
+        """Run a task as a service.
 
         Only manager nodes can create a service.
 
         Args:
-            name: Task name. Any string but must be unique.
-            task: Task to run (e.g. the name of an executable image).
-            ports: A list of TCP ports (int) used by the task.
-            cmd_args: A list of command line argument for the task.
-            restart: If true, restart the task if it stops.
+            name (str): Task name. Any string but must be unique.
+            task (str): Task to run (e.g. the name of an executable image).
+            ports (list, optional): List of TCP ports (int) exposed by the
+                                    task.
+            cmd_args (list, optional): A list of command line argument for
+                                       the task.
+            restart (bool): If true, restart the task if it stops.
 
         Returns:
-            DockerTaskDescriptor for the task.
+            DockerTaskDescriptor:  for the task.
+
         """
+        # Create a logger object.
+        log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
+
         # Raise an exception if we are not a manager
         if not self._manager:
             raise RuntimeError('Services can only be run on swarm manager '
                                'nodes')
 
-        # Raise exception if ports is not a list. FIXME(BM) review this.
-        if not hasattr(ports, "__iter__"):
-            raise RuntimeError('Ports must be a list.')
+        # Set default ports and convert ports to list if needed
+        if not ports:
+            ports = list()
+        elif type(ports) is not list:
+            ports = [ports]
 
-        log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
-        log.debug('Running service %s (name=%s) [restart=%s]', task, name,
-                  ('true' if restart else 'false'))
+        log.debug('Command to run service received (image=%s, name=%s, '
+                  'restart=%s)', task, name, ('true' if restart else 'false'))
 
-        # Try to get a descriptor for this service
-        descriptor = self.find_task(name)
-        if not descriptor:
-            # If the service isn't already running start the task as a service
+        # Try to get a descriptor for this service.
+        try:
+            descriptor = self.find_task(name)
+        except RuntimeError:
+            descriptor = None
 
+        # If the descriptor already exists for this service, return it.
+        if descriptor and descriptor.status() == TaskStatus.RUNNING:
+            log.debug('Service is already running! (Image=%s, name=%s, id=%s)',
+                      task, name, descriptor.ident)
+
+        # If the service isn't already running start the task as a service
+        else:
             # Define a mount so that the container can talk to the
             # docker engine.
             mount = ['/var/run/docker.sock:/var/run/docker.sock:rw']
@@ -84,7 +105,7 @@ class DockerPaas(Paas):
 
             # Create an endpoints for the ports the services run on.
             #
-            # There is (I think) a bug in docker=py which means that
+            # There is (I think) a bug in dockerpy which means that
             # we can't get docker to do the port allocation for us.
             endpoints = {}
             for target_port in ports:
@@ -106,42 +127,61 @@ class DockerPaas(Paas):
             # Add the port to the endpoint spec
             endpoint_spec = docker.types.EndpointSpec(ports=endpoints)
 
+            # Service run mode.
+            mode = docker.types.ServiceMode(mode='replicated',
+                                            replicas=1)
+
             # Create the service
             try:
-                # FIXME(BM) need to be able to handle which version of the
-                # container to run. labels argument?
-                log.debug('Creating service (task=%s, name=%s).', task, name)
-                log.debug('  - command  : %s', cmd_args[0])
-                log.debug('  - args     : {}'.format(cmd_args[1:]))
-                log.debug('  - endpoints: {}'.format(endpoints))
-
-                service = self._client.services.create(
+                kwargs = dict(
                     image=task,
-                    command=cmd_args[0],
-                    args=cmd_args[1:],
-                    endpoint_spec=endpoint_spec,
                     name=name,
+                    endpoint_spec=endpoint_spec,
                     stop_grace_period=0,
                     networks=['sip'],
                     mounts=mount,
+                    mode=mode,
                     restart_policy=restart_policy
                 )
-                log.debug('Service created id = %s', service.short_id)
+                if cmd_args:
+                    kwargs['command'] = cmd_args[0]
+                    kwargs['args'] = cmd_args[1:]
+                log.debug('Creating service (task=%s, name=%s).', task, name)
+                if cmd_args:
+                    log.debug('  - command  : %s', cmd_args[0])
+                    log.debug('  - args     : {}'.format(cmd_args[1:]))
+                log.debug('  - endpoints: {}'.format(endpoints))
+                service = self._client.services.create(**kwargs)
+                log.debug('Service created. (Docker service id = %s)',
+                          service.short_id)
             except docker.errors.APIError:
-                log.error('Error creating service (%s, %s)', task, name)
+                log.error('Error creating service (image=%s, name=%s)',
+                          task, name)
                 raise
 
-            # Create a new descriptor now that the service is running. We
-            # need to sleep to give docker time to configure the new service
-            # and show up in the list of services.
-            # FIXME(BM) This sleep is a horrible hack ...
-            time.sleep(2)
+            # Wait for the service to get into the running state
+            # Note: could probably do better a better job by using healthcheck
+            # FIXME(BM) needs to check for failures.
+            # FIXME(BM) probably a good idea to put a timeout here.
+            replicas = service.attrs['Spec']['Mode']['Replicated']['Replicas']
+            running_count = 0
+            log.debug('Waiting for service "%s" to start running ... '
+                      '(replicas = %i)', name, replicas)
+            while running_count != replicas:
+                running_count = 0
+                for task in service.tasks():
+                    if task['Status']['State'] == 'running':
+                        running_count += 1
+                    time.sleep(0.05)
+            log.debug('Service "%s" is now running.', name)
 
-            descriptor = DockerTaskDescriptor(name)
+        # Create a new descriptor now that the service is running.
+        descriptor = DockerTaskDescriptor(name)
+
         return descriptor
 
     def run_task(self, name, task, ports, cmd_args):
-        """ Run a task
+        """Run a task.
 
         A task is the same as a service except that it is not restarted
         if it exits.
@@ -156,6 +196,7 @@ class DockerPaas(Paas):
 
         Returns:
             DockerTaskDescriptor for the task.
+
         """
         log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         log.debug('Run task %s (name=%s)', task, name)
@@ -178,7 +219,7 @@ class DockerPaas(Paas):
         return task_descriptor
 
     def find_task(self, name):
-        """ Find a task or service
+        """Find a task or service.
 
         Returns a TaskDescriptor for the task or None if the task
         doesn't exist. Note that on a worker node there is no check on
@@ -190,16 +231,15 @@ class DockerPaas(Paas):
         except RuntimeError:
             log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
             log.debug('Unable to find task with name: %s', name)
-            return None
+            raise
 
     @staticmethod
     def _get_hostname(name):
-        """ Returns the host name of the machine we are running on.
+        """Return the host name of the machine we are running on.
 
         The intent is to return a name that can be used to contact
         the task or service.
         """
-
         # If we are in a docker container then the host name is the same as
         # the service name
         if os.path.exists('/.dockerenv'):
@@ -210,18 +250,22 @@ class DockerPaas(Paas):
 
 
 class DockerTaskDescriptor(TaskDescriptor):
-    """ Task descriptor (handle) for services and tasks created by the Docker
-        Swarm PaaS interface.
+    """Docker Swarm task descriptor (handle) class.
+
+    Provides a Descriptor for services and tasks created by the Docker Swarm
+    PaaS interface.
     """
 
     def __init__(self, name):
-        """
-        Initialise the Task Descriptor object.
+        """Initialise the Task Descriptor object.
 
         Args:
             name: Task name
+
         """
         TaskDescriptor.__init__(self, name)
+
+        # log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
 
         self.ident = 0  # Docker Swarm service object ID
 
@@ -252,14 +296,13 @@ class DockerTaskDescriptor(TaskDescriptor):
             else:
                 raise RuntimeError('task "{}" not found'.format(name))
         else:
-
             # If we are not a manager the best we can do is assume that the
             # service is running and the network is mapping the service
             # name to the correct host.
             self._hostname = name
 
     def delete(self):
-        """ Kill the task
+        """Kill the task.
 
         Only manager nodes can delete a service
         """
@@ -280,7 +323,16 @@ class DockerTaskDescriptor(TaskDescriptor):
         return
 
     def location(self, port):
-        """ Get the location of a task or service
+        """Get the location of a task or service.
+
+        The answer depends on whether we are running inside or outside of
+        the Docker swarm.
+
+        * If we are a container running inside the swarm the ports are the
+          target ports and the host name is the same as the name of the service
+          and the port is the same.
+        * If we are outside the swarm the host is the manager node that we are
+          running on and the port is the published port the port was mapped to.
 
         Args:
             port: The advertised port for the.
@@ -288,12 +340,6 @@ class DockerTaskDescriptor(TaskDescriptor):
         Returns:
             The host name and port for connecting to the service.
 
-        The answer depends on whether we are running inside or outside of
-        the Docker swarm. If we are a container running inside the swarm
-        the ports are the target ports and the host name is the same as
-        the name of the service and the port is the same. If we are outside
-        the swarm the host is the manager node that we are running on and
-        the port is the published port the port was mapped to.
         """
         if os.path.exists("docker_swarm"):
             return self.name, port
@@ -301,10 +347,11 @@ class DockerTaskDescriptor(TaskDescriptor):
         return self._hostname, self._published_ports[port]
 
     def status(self):
-        """ Return the task status
+        """Return the task status.
 
         Returns:
             The task status as a TaskStatus enum.
+
         """
         log = logging.getLogger(__name__ + '.' + self.__class__.__name__)
         if self._service:

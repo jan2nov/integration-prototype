@@ -7,21 +7,21 @@
         "task_control_module": {
             "name": "TaskControlExample"
         },
-        "docker_image": "sip",
+        "docker_image": "skasip/sip",
         "task": [
             "sip/tasks/task.py",
             "2000"
             ]
         },
     "QA": {
-        "online": 0,
+        "online": true,
         "timeout": 10,
         "engine_url": "unix:///var/run/docker.sock",
         "launch_policy": "docker",
         "task_control_module": {
             "name": "TaskControlExample"
         },
-        "docker_image": "sip",
+        "docker_image": "skasip/sip",
         "task": [
             "sip/tasks/task.py",
             "2000"
@@ -36,11 +36,11 @@
 						"timeout": 10.0
         },
         "task": {
-					"jarfile": "sdp-pipeline_2.10-1.0.jar",
-					"jarpath": "/usr/local/bin",
-					"spark_args": "--conf spark.eventLog.enabled=true --conf spark.eventLog.dir=file:///tmp/spark-events --executor-memory 2g --driver-memory 2g --total-executor-cores 2"
-				}
-			},
+            "jarfile": "sdp-pipeline_2.10-1.0.jar",
+            "jarpath": "/usr/local/bin",
+		    "spark_args": "--conf spark.eventLog.enabled=true --conf spark.eventLog.dir=file:///tmp/spark-events --executor-memory 2g --driver-memory 2g --total-executor-cores 2"
+        }
+    },
     "ingest": {
         "online": 0,
         "timeout": 10,
