@@ -9,7 +9,7 @@ import sys
 import time
 from random import randint
 
-from sip.zmq_logging_handler.zmq_logging_handler import ZmqLogHandler
+from sip.zmq_logging_aggregator.zmq_logging_handler import ZmqLogHandler
 
 NAME = sys.argv[1] if len(sys.argv) == 2 else \
     'mock_log_publisher-{:04d}'.format(randint(0, 9999))
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     # Set up a logging object with a ZMQ PUB handler.
     init_zmq_logger(hostname='zla', level=logging.INFO)
-    # init_zmq_logger(hostname='localhost', port=30000, level=logging.INFO)
+    # init_zmq_logger(hostname='localhost', port=60598, level=logging.INFO)
 
     # Run the main function.
     main()

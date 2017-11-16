@@ -32,7 +32,8 @@ RUN apk update && \
 WORKDIR /app
 
 # Copy source code
-COPY zmq_logging_handler /app/sip/zmq_logging_handler
+COPY zmq_logging_aggregator/zmq_logging_handler.py \
+     /app/sip/zmq_logging_aggregator/zmq_logging_handler.py
 COPY zmq_logging_publisher /app/sip/zmq_logging_publisher
 
 # Set the default command to run.

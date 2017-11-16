@@ -81,10 +81,10 @@ if __name__ == '__main__':
                 level=logging.DEBUG)
 
     # Initialise a logger for aggregated messages.
-    FORMAT_STR = "> [%(levelname).1s] %(message)-50s " \
+    FORMAT_STR = "> [%(levelname).1s] %(message)-80s " \
                  "(%(name)s:L%(lineno)i) [%(asctime)s]"
     init_logger(name='sip',
                 format_string=FORMAT_STR,
-                level=logging.NOTSET)
+                level=logging.DEBUG)
 
     main()

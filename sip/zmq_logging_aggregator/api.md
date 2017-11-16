@@ -1,6 +1,19 @@
-# ZMQ Logging aggregator
+# ZMQ Logging aggregator _<`skasip/zla`>_
+
+## API Version
+`ZLA API version 0.1.0`
+
+*The API version is useful to avoid forcing people to used a specific API 
+version. This could be tied to the SIP version however rather than per service.*
 
 see <https://gist.github.com/iros/3426278>
+
+## Changes (Changelog for the API)
+
+### `0.1.0`
+
+#### Added
+* Initial API version
 
 ## Provided interfaces
 
