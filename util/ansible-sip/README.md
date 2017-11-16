@@ -154,7 +154,7 @@ Vagrant or OpenStack scripts.
 
 ### 4.1 SSH errors when trying to connect to VMs or when running Ansible
 
-* Clear out IP addresses in `~/.ssh/known_hosts for hosts that have been
+* Clear out IP addresses in `~/.ssh/known_hosts` for hosts that have been 
   defined in the `hosts` file.
 * Clear out your ssh-agent, either one key at a time or with `ssh-add -D`. You
   can list keys stored in the agent with `ssh-add -l`
