@@ -30,8 +30,8 @@ function create_node() {
     if [ -z "$STATUS" ]; then
         info "Creating node: $1 ..."
         docker-machine create \
-        --virtualbox-cpu-count "1" \
-        --virtualbox-memory "1024" \
+        --virtualbox-cpu-count "2" \
+        --virtualbox-memory "2048" \
         "${1}"
     elif [ "$STATUS" == "Running" ]; then
         warn "> Node '$1' already running."
@@ -53,7 +53,7 @@ if [ $# -ne 1 ]; then
 fi
 
 mode="$1"
-NUM_WORKERS=2
+NUM_WORKERS=1
 
 case $mode in
     start|up|s)
