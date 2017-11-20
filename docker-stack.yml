@@ -1,24 +1,59 @@
-version: 3.3
+# References
+#
+# - https://docs.docker.com/compose/compose-file/
+# - https://docs.docker.com/engine/swarm/configs/
+#
+# Usage:
+#
+#   docker stack deploy -c docker-stack.yml <stack name>
+#
+
+version: "3"
 
 services:
 
-  zmq_logging_aggregator:
-    image: sip/zla:latest
+  zla:
+    image: skasip/zla
+#    ports:
+#      - "9020"
+#      - "9030"
+#      - "5555"
+    networks:
+      - logging
+    volumes:
+      - log-data:/var/lib/log-data
     deploy:
       replicas: 1
       restart_policy:
-        condition: none
-      placement:
-        constraints:
-          - node.role == manager
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 200M
+        reservations:
+          cpus: '0.25'
+          memory: 50M
 
-  zmq_logging_publisher:
-    image: sip/zla:latest
-    command:
+  zlp:
+    image: skasip/zlp
+    entrypoint:
+      - sh
+      - -c
+      - ./wait-for zla:9020 -- python3 -m sip.zmq_logging_publisher
+    networks:
+      - logging
+    depends_on:
+      - zla
     deploy:
       replicas: 1
       restart_policy:
         condition: none
-      placement:
-        constraints:
-          - node.role == manager
+
+networks:
+  logging:
+
+volumes:
+  log-data:

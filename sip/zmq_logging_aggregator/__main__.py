@@ -11,15 +11,22 @@ import time
 import bjoern
 from bottle import Bottle
 
-from .lib.zmq_logging_aggregator import ZmqLoggingAggregator
+from .zmq_logging_aggregator import ZmqLoggingAggregator
 
 
-def start_healthcheck_endpoint(service):
-    """ Start the healthcheck endpoint.
+def start_healthcheck_endpoint(service_process):
+    """Start a healthcheck endpoint.
 
-    This is simple Bottle web application serving a REST endpoint
+    Simple Bottle web application serving a REST endpoint
     at the URL /healthcheck on port 5555 using a bjoern WSGI server.
+
+    Parameters
+    ----------
+    service_process : sip.zmq_logging_aggregator.ZmqLoggingAggregator
+        Logging service object to monitor health of.
     """
+    logger = logging.getLogger(__name__)
+
     start_time = time.time()
     app = Bottle()
 
@@ -29,17 +36,41 @@ def start_healthcheck_endpoint(service):
         """
         elapsed = time.time() - start_time
         return dict(module='zmq_logging_aggregator',
-                    running=service.is_alive(),
+                    running=service_process.is_alive(),
                     hostname=socket.gethostname(),
                     uptime=elapsed)
+    try:
+        bjoern.run(app, host='0.0.0.0', port=5555)
+    except OSError as error:
+        logger.critical("ERROR: Unable to start healthcheck API: %s",
+                        error.strerror)
 
-    bjoern.run(app, host='0.0.0.0', port=5555)
+
+def init_logger(channel, format_string, level=logging.DEBUG):
+    """Initialise a logger.
+
+    Parameters
+    ----------
+    channel : str
+        The Python logger channel to initialise
+    format_string : str
+        Python logging format string which with to configure the logger.
+    level : int or str, optional
+        Python logging level.
+    """
+    log = logging.getLogger(channel)
+    log.propagate = False
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(format_string, '%H:%M:%S')
+    handler.setFormatter(formatter)
+    handler.setLevel(level)
+    log.setLevel(level)
+    log.addHandler(handler)
 
 
 def main():
-    """ SIP ZMQ Logging aggregator service main.
-    """
-    log = logging.getLogger('zla')
+    """SIP ZMQ Logging aggregator service main."""
+    log = logging.getLogger(__name__)
 
     try:
         # Start the ZMQ logging aggregator.
@@ -51,23 +82,9 @@ def main():
         service.start()
         start_healthcheck_endpoint(service)
         service.join()
-
     except KeyboardInterrupt:
         service.terminate()
         log.info('Terminated logging aggregator service')
-
-
-def init_logger(name, format_string, level=logging.DEBUG):
-    """Initialise a logger.
-    """
-    log = logging.getLogger(name)
-    log.propagate = False
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(format_string, '%H:%M:%S')
-    handler.setFormatter(formatter)
-    handler.setLevel(level)
-    log.setLevel(level)
-    log.addHandler(handler)
 
 
 if __name__ == '__main__':
@@ -75,15 +92,10 @@ if __name__ == '__main__':
     LOG = logging.getLogger()
     LOG.setLevel(logging.NOTSET)
 
-    # Initialise a logger for local messages.
-    init_logger(name='zla',
-                format_string="= [%(levelname).1s] %(message)s",
-                level=logging.DEBUG)
-
     # Initialise a logger for aggregated messages.
     FORMAT_STR = "> [%(levelname).1s] %(message)-80s " \
                  "(%(name)s:L%(lineno)i) [%(asctime)s]"
-    init_logger(name='sip',
+    init_logger(channel='',
                 format_string=FORMAT_STR,
                 level=logging.DEBUG)
 

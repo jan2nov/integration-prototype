@@ -23,13 +23,13 @@ from sip.common.paas import TaskStatus
 REPEAT_COUNT = 1  # Number of times to run each test
 
 
-def repeat(times):
-    """ Decorator that can be used to repeat a test.
-    """
+def repeat(num_times):
+    """Decorator that can be used to repeat a function a number of times."""
     # pylint: disable=missing-docstring
-    def repeat_helper(method):
-        def call_helper(*args):
-            for i in range(times):
+    def repeat_helper(func):
+        def call_wrapper(*args, **kwargs):
+            for i in range(num_times):
+                print('Running {.__name__} %02i'.format(func, i))
                 # If running more than once reinitialise the swarm between
                 # tests as this won't be done by setUp / tearDown.
                 if i > 0:
@@ -37,8 +37,8 @@ def repeat(times):
                     client.swarm.leave(force=True)
                     client.networks.prune()
                     client.swarm.init()
-                method(*args)
-        return call_helper
+                    func(*args, **kwargs)
+        return call_wrapper
     return repeat_helper
 
 

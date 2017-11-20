@@ -9,7 +9,7 @@ using ZMQ logging.
 import json
 import logging
 import logging.handlers
-import time
+import pickle
 
 import zmq
 
@@ -18,10 +18,10 @@ class ZmqLogHandler(logging.Handler):
     """Publishes Python LogRecord objects to a ZMQ PUB socket"""
 
     def __init__(self, zmq_channel='all', host='localhost',
-                 port=logging.handlers.DEFAULT_TCP_LOGGING_PORT,
-                 level=logging.NOTSET):
-        """
-        Constructor. Creates a Python logging handler object which
+                 port=5559, level=logging.NOTSET):
+        """Constructor.
+
+        Creates a Python logging handler object which
         sends JSONified LogRecords to a ZMQ pub socket.
 
         Note if running a service using a Docker Swarm overlay network the
@@ -29,55 +29,41 @@ class ZmqLogHandler(logging.Handler):
 
         Args:
             zmq_channel (string): Logging channel name. ZMQ topic.
-            host (string): Hostname (of the subscriber) to publish to.
+            host (string): Hostname zmq proxy / forwarder to connect to.
             port (int, string): Port on to publish messages to.
             level (int, string): Logging level.
         """
         log = logging.getLogger(__name__)
-        # # FIXME(BM) Dont try the healthcheck here as publishing messages
-        # # should NOT depend on a logging aggregator existing!!!
-        #
-        # health_check_port = 5555
-        # health_check_timeout = 2.0
-        # # Check the Logging aggregator exists by querying its health check
-        # # endpoint. If this fails an exception will be raised which is captured
-        # # in the main
-        # # FIXME(BM) this wont work if using docker assigned published ports ...
-        # health_check_url = ('http://{}:{}/healthcheck'.
-        #                     format(host, health_check_port))
-        # log.debug('Health check URL: %s', health_check_url)
-        # response = requests.get(health_check_url, timeout=health_check_timeout)
-        # health_state = response.json()
-        # print(json.dumps(health_state, indent=2))
-        # if health_state['module'] != 'zmq_logging_aggregator':
-        #     raise RuntimeError('Logging aggregator does not exist')
         logging.Handler.__init__(self, level)
-        self._host = host
         self._port = port
         self._zmq_channel = zmq_channel
-        context = zmq.Context()
+
+        context = zmq.Context(io_threads=2)
         publisher = context.socket(zmq.PUB)  # pylint: disable=no-member
+        # Socket high water mark.
+        # ~number of messages that can be pushed to the socket before
+        # messages are dropped. see: http://bit.ly/zmq_hwm
+        publisher.set_hwm(1000)  # This sets the message buffer size (default:
         address = 'tcp://{}:{}'.format(host, port)
+        log.debug('Connecting ZMQ PUB socket to: "%s"', address)
         publisher.connect(address)
-        log.debug('Connected to ZMQ PUB socket with address: "%s"',
-                  address)
-        # Sleep to address the slow joiner problem.
-        # see: http://zguide.zeromq.org/page:all#Getting-the-Message-Out
-        time.sleep(0.5)
+        log.debug('Connected.')
         self.zmq_publisher = publisher
 
     def emit(self, record):
-        """ Publish log messages over ZMQ
+        """Emit a log message on the pub socket belonging to this class.
 
-        Writes a JSONified LogRecord to the ZMQ PUB socket.
+        Writes a serialised LogRecord to the ZMQ PUB socket.
 
-        Args:
-            record: Python logging LogRecord object.
+        Parameters
+        ----------
+        record: logging.LogRecord
+            Python logging LogRecord object.
         """
         b_chan = self._to_bytes(self._zmq_channel)
         b_level = self._to_bytes(record.levelname)
         b_chan = b':'.join([b_level, b_chan])
-        b_msg = self._to_bytes(json.dumps(record.__dict__.copy()))
+        b_msg = pickle.dumps(record, protocol=4)
         self.zmq_publisher.send_multipart([b_chan, b_msg])
 
     @staticmethod

@@ -31,6 +31,9 @@ RUN apk update && \
 # Set the working directory
 WORKDIR /app
 
+ADD https://raw.githubusercontent.com/Eficode/wait-for/master/wait-for wait-for
+RUN chmod +x wait-for
+
 # Copy source code
 COPY zmq_logging_aggregator/zmq_logging_handler.py \
      /app/sip/zmq_logging_aggregator/zmq_logging_handler.py
