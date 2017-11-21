@@ -1,8 +1,10 @@
 # Service: ZeroMQ Logging subscriber
 
-![SIP ZMQ Logging simple](http://bit.ly/sip_zmq_logging_simple)
+![SIP ZMQ Logging simple](https://drive.google.com/uc?export=view&id=1yrMu6i0uGoAauS689nHkj0jPvhPk9I2v)
 
-![SIP ZMQ Logging with forwarder](http://bit.ly/sip_zmq_logging_forwarder)
+
+
+![SIP ZMQ Logging with forwarder](https://drive.google.com/uc?export=view&id=1xSle9O36xoIqQxh3lPM-2YH8X4LAovar)
 
 
 ## Quickstart
