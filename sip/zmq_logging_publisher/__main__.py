@@ -10,7 +10,7 @@ from time import sleep, asctime
 from os import getpid
 from random import choice
 
-from sip.zmq_logging_aggregator.zmq_logging_handler import ZmqLogHandler
+from sip.zmq_logging_subscriber import ZmqLogHandler
 
 NAME = sys.argv[1] if len(sys.argv) == 2 else \
     'publisher_pid-{}'.format(getpid())
@@ -29,6 +29,7 @@ def write_log(bunch_size=1000, bunch_interval=2, total_bunches=None):
         If not None, number of bunches to send before exiting
 
     """
+    local_logger = logging.getLogger()
     logger = logging.getLogger(NAME)
     levels = [
         logging.CRITICAL,
@@ -37,6 +38,10 @@ def write_log(bunch_size=1000, bunch_interval=2, total_bunches=None):
         logging.INFO,
         logging.DEBUG
     ]
+    local_logger.info('Bunch size = %i, bunch interval = %f s',
+                      bunch_size, bunch_interval)
+    if total_bunches is not None:
+        local_logger.info('Total bunches = %i', total_bunches)
     bunch_index = 0
     i = 1
     while True:
@@ -44,6 +49,7 @@ def write_log(bunch_size=1000, bunch_interval=2, total_bunches=None):
                    bunch_index, i, asctime())
         i += 1
         if i % bunch_size == 0:
+
             bunch_index += 1
             i = 0
             if total_bunches is not None and total_bunches == bunch_index:
@@ -86,7 +92,7 @@ def main():
     local_log = logging.getLogger('local.' + NAME)
     local_log.info('Running mock publisher with name: "%s"', str(NAME))
     local_log.debug('Sending messages ...')
-    write_log(bunch_size=10, bunch_interval=0)
+    write_log(bunch_size=100, bunch_interval=0.1)
     local_log.debug('Done.')
 
 

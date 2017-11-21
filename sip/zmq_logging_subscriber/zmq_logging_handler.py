@@ -6,7 +6,6 @@ using ZMQ logging.
 
 .. moduleauthor:: Benjamin Mort <benjamin.mort@oerc.ox.ac.uk>
 """
-import json
 import logging
 import logging.handlers
 import pickle
@@ -38,7 +37,7 @@ class ZmqLogHandler(logging.Handler):
         self._port = port
         self._zmq_channel = zmq_channel
 
-        context = zmq.Context(io_threads=2)
+        context = zmq.Context(io_threads=1)
         publisher = context.socket(zmq.PUB)  # pylint: disable=no-member
         # Socket high water mark.
         # ~number of messages that can be pushed to the socket before
@@ -76,6 +75,8 @@ class ZmqLogHandler(logging.Handler):
         Returns:
             Input string encoded as a utf8 byte array.
         """
+        # FIXME(BM) is this method really needed?
+        # Channel and levelname can be converted to bytes by other method?
         if isinstance(unicode, bytes):
             return unicode
         elif isinstance(unicode, str):

@@ -24,7 +24,7 @@ os.environ['SIP_HOSTNAME'] = os.uname()[1]
 from sip.common.resource_manager import ResourceManager
 from sip.common.docker_paas import DockerPaas as Paas
 from sip.master import config
-from sip.zmq_logging_aggregator.zmq_logging_handler import ZmqLogHandler
+from sip.zmq_logging_subscriber.zmq_logging_handler import ZmqLogHandler
 from sip.master.master_states import MasterControllerSM
 from sip.master.slave_poller import SlavePoller
 from sip.master.rpc_service import RpcService

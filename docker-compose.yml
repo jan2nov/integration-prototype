@@ -14,16 +14,24 @@ services:
       context: .
       dockerfile: ./sip/Dockerfile
 
-  # ZeroMQ logging aggregator
-  zla:
-    image: skasip/zla
+  # ZeroMQ logging subscriber
+  zlogs:
+    image: skasip/zlogs
     build:
-      context: ./sip/zmq_logging_aggregator
+      context: ./sip/zmq_logging_subscriber
+      dockerfile: Dockerfile
+
+  # (Mock) ZeroMQ logging forwarder (proxy)
+  zlogf:
+    image: skasip/zlogf
+    build:
+      context: ./sip/zmq_logging_forwarder
       dockerfile: Dockerfile
 
   # (Mock) ZeroMQ logging publisher
-  zlp:
-    image: skasip/zlp
+  # Note: Needs SIP as context to get the handler client.
+  zlogp:
+    image: skasip/zlogp
     build:
       context: ./sip
       dockerfile: zmq_logging_publisher/Dockerfile

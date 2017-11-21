@@ -1,15 +1,3 @@
-#
-# docker build -t skasip/zlp -f sip/zmq_logging_publisher/Dockerfile sip
-#
-# Run with (assumes ZeroMQ Logging aggreagtor container (zla) is already running):
-#
-#   docker run --rm -t --name zlp --network container:zla skasip/zlp <name>
-#
-# Debug with:
-#
-#   docker run --rm -it --entrypoint=/bin/sh skasip/zlp
-#
-
 FROM python:3.6-alpine3.6
 LABEL maintainer="Benjamin Mort <ben.mort@gmail.com>"
 
@@ -31,12 +19,9 @@ RUN apk update && \
 # Set the working directory
 WORKDIR /app
 
-ADD https://raw.githubusercontent.com/Eficode/wait-for/master/wait-for wait-for
-RUN chmod +x wait-for
-
 # Copy source code
-COPY zmq_logging_aggregator/zmq_logging_handler.py \
-     /app/sip/zmq_logging_aggregator/zmq_logging_handler.py
+COPY zmq_logging_subscriber/zmq_logging_handler.py \
+     /app/sip/zmq_logging_subscriber/zmq_logging_handler.py
 COPY zmq_logging_publisher /app/sip/zmq_logging_publisher
 
 # Set the default command to run.

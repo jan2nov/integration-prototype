@@ -1,4 +1,9 @@
-# Service: ZeroMQ Logging Aggregator
+# Service: ZeroMQ Logging subscriber
+
+![SIP ZMQ Logging simple](http://bit.ly/sip_zmq_logging_simple)
+
+![SIP ZMQ Logging with forwarder](http://bit.ly/sip_zmq_logging_forwarder)
+
 
 ## Quickstart
 

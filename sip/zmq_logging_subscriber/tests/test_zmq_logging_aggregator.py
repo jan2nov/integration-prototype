@@ -9,7 +9,7 @@ Run with:
 import unittest
 
 
-from sip.zmq_logging_aggregator.lib.zmq_logging_aggregator import \
+from sip.zmq_logging_subscriber.lib.zmq_logging_aggregator import \
     ZmqLoggingAggregator
 
 

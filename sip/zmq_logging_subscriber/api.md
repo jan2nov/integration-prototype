@@ -1,4 +1,26 @@
-# ZMQ Logging aggregator _<`skasip/zla`>_
+# SIP ZMQ Logging Subscriber
+
+* **Docker Image:** **`skasip/zlogs`**
+
+
+## Provided Interfaces
+
+### 1. Healthcheck (REST)
+
+
+
+## Required Interfaces
+
+
+
+
+
+
+
+
+
+
+
 
 ## API Version
 `ZLA API version 0.1.0`
