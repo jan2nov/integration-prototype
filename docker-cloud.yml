@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  sip-master:
+        image: sip-master:$SIP_IMAGE_LABEL
+        ports:
+          - "12345:12345"
+        volumes:
+          - "/var/run/docker.sock:/var/run/docker.sock"
