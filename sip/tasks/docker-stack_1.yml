@@ -2,13 +2,13 @@ version: "3.3"
 
 services:
 
-  vr:
+  vr1:
     image: njthykkathu/sip:latest
     entrypoint: python3
     command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
     volumes:
       - type: volume
-        source: vis-vol1
+        source: vis-vol2
         target: /home/sdp/output
     networks:
       - outside
@@ -18,9 +18,10 @@ services:
         condition: none
       placement:
         constraints:
-          - node.labels.sip_worker1 == true
+          - node.labels.sip_worker6 == true
       labels:
         com.dn.description: "Host networking"
+
 
 networks:
   outside:
@@ -28,5 +29,5 @@ networks:
       name: "host"
 
 volumes:
-    vis-vol1:
+    vis-vol2:
         external: True

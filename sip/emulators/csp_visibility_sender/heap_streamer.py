@@ -10,6 +10,8 @@ import spead2.send
 import numpy as np
 import time
 from logging import Logger
+import spead2.send.asyncio
+import asyncio
 
 
 class HeapStreamer:
@@ -87,12 +89,24 @@ class HeapStreamer:
         self._heap_counter = 0
         self._send_timer = 0
         for stream, item_group in self._streams:
-            stream.send_heap(item_group.get_start())
+
+            # Blocking send
+            # stream.send_heap(item_group.get_start())
+
+            # Async Send
+            # stream.async_send_heap(item_group.get_start())
+            asyncio.async(stream.async_send_heap(item_group.get_start()))
 
     def end(self):
         """Send the end of stream message to each stream."""
         for stream, item_group in self._streams:
-            stream.send_heap(item_group.get_end())
+
+            # Blocking send
+            # stream.send_heap(item_group.get_end())
+
+            # Async Send
+            # stream.async_send_heap(item_group.get_end())
+            asyncio.async(stream.async_send_heap(item_group.get_end()))
 
     def send_heap(self, heap_index, stream_id=0):
         """Send one heap with the data contained in self.payload to the
@@ -111,7 +125,20 @@ class HeapStreamer:
             item.value = self._payload[name]
         # Send the updated heap_descriptor
         _heap = item_group.get_heap()
-        stream.send_heap(_heap)
+        #  _heap = asyncio.async(stream.async_send_heap(item_group.get_heap()))
+
+        
+        # Blocking Send
+        # stream.send_heap(_heap)
+
+        # Async Send
+        futures = [
+            asyncio.async(stream.async_send_heap(_heap))
+        ]
+
+        # Async Send
+        asyncio.get_event_loop().run_until_complete(asyncio.wait(futures))
+
         self._heap_counter += 1
         self._send_timer += (time.time() - t0)
 
@@ -165,9 +192,6 @@ class HeapStreamer:
             elif 'format' in item:
                 item_bits = sum(bits for _, bits in item['format'])
                 heap_size += item_bits // 8 * num_elements
-
-
-                self._log.info(heap_size)
         return heap_size
 
     @staticmethod
@@ -209,12 +233,20 @@ class HeapStreamer:
             host = stream['host']
             port = stream['port']
             threads = stream['threads'] if 'threads' in stream else 1
-            stream_config = spead2.send.StreamConfig(rate=20e6)
-            thread_pool = spead2.ThreadPool(threads=threads)
-            stream = spead2.send.UdpStream(thread_pool, host, port,
-                                           stream_config)
-            item_group = spead2.send.ItemGroup(flavour=flavour)
+            stream_config = spead2.send.StreamConfig(rate=4e7)
 
+            
+            thread_pool = spead2.ThreadPool(threads=threads)
+
+            # Blocking send
+            # stream = spead2.send.UdpStream(thread_pool, host, port,
+            #                                stream_config)
+
+            # Asynchronous Send
+            stream = spead2.send.asyncio.UdpStream(thread_pool, host, port,
+                                                    stream_config)
+            item_group = spead2.send.ItemGroup(flavour=flavour)
+           
             # Append stream & item group the stream list.
             streams.append((stream, item_group))
 
@@ -226,8 +258,6 @@ class HeapStreamer:
                                   flavour.version,
                                   flavour.bug_compat))
             self._log.debug('  Threads = {}'.format(threads))
-
-            self._get_heap_size()
 
             # Add items to the item group based on the heap_descriptor
             for j, item in enumerate(self._heap_descriptor):

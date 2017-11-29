@@ -13,6 +13,9 @@ import argparse
 import simplejson as json
 import os
 import pickle
+import spead2.recv.asyncio
+import asyncio
+import signal
 
 oskar = None
 # Comment out 'try' block to not write Measurement Sets.
@@ -56,49 +59,83 @@ def _create_streams(config, log):
     upper = config['memory_pool']['upper']
     max_free = config['memory_pool']['max_free']
     initial = config['memory_pool']['initial']
-    streams = []
-    for stream in config['streams']:
-        log.debug('Creating stream on port {}'.format(stream['port']))
-        s = spead2.recv.Stream(spead2.ThreadPool(), bug_compat)
+    #streams = []
+    for stream_data in config['streams']:
+        log.debug('Creating stream on port {}'.format(stream_data['port']))
+        #s = spead2.recv.Stream(spead2.ThreadPool(), bug_compat)
+
+
+        # Async Receive
+        stream = spead2.recv.asyncio.Stream(spead2.ThreadPool(), bug_compat)
+
+
         pool = spead2.MemoryPool(lower, upper, max_free, initial)
-        s.set_memory_allocator(pool)
-        s.add_udp_reader(stream['port'])
-        streams.append(s)
-    return streams
-
-
-#def _ms_create(filename, config, file_start_chan, file_num_chan):
-#    if oskar:
-#        channel_width_hz = config['observation']['channel_width_hz']
-#        start_freq_hz = config['observation']['start_frequency_hz'] + (
-#            channel_width_hz * file_start_chan)
-#        return oskar.MeasurementSet.create(
-#            filename, config['num_stations'], file_num_chan,
-#            config['num_pols'], start_freq_hz, channel_width_hz)
-#    else:
-#        return None
-
-
-#def _ms_open(filename):
-#    return oskar.MeasurementSet.open(filename) if oskar else None
-
-
-#def _ms_write(ms, file_start_time, file_start_chan, data):
-#    if oskar:
-#        num_chan = data['complex_visibility'].shape[2]
-#        num_baselines = data['complex_visibility'].shape[3]
-#        start_chan = data['channel_baseline_id'][0][0] - file_start_chan
-#        time_index = data['time_index'] - file_start_time
-#        start_row = num_baselines * time_index
-#        ms.write_vis(start_row, start_chan, num_chan,
-#                     num_baselines, data['complex_visibility'][0, 0, :, :, :])
-#    else:
-#        pass
+        stream.set_memory_allocator(pool)
+        stream.add_udp_reader(stream_data['port'])
+        # streams.append(s)
+    return stream
 
 
 def _pickle_write(filename, data):
     with open(filename, 'ab') as f:
         pickle.dump(data, f, protocol=2)
+
+
+@asyncio.coroutine
+def run_stream(stream, log):
+    try:
+        item_group = spead2.ItemGroup()
+        num_heaps = 0
+        while True:
+            try:
+                heap = yield from(stream.get())
+                print("Received heap {} on stream".format(heap.cnt))
+
+                desp = False
+                write = True
+
+                try:
+                    if desp:
+                        for raw_descriptor in heap.get_descriptors():
+                            descriptor = spead2.Descriptor.from_raw(raw_descriptor, heap.flavour)
+                            print('''\
+    Descriptor for {0.name} ({0.id:#x})
+      description: {0.description}
+      format:      {0.format}
+      dtype:       {0.dtype}
+      shape:       {0.shape}'''.format(descriptor))
+                    changed = item_group.update(heap)
+                    data = {}
+
+                    for (key, item) in changed.items():
+                        if write:
+                            print(key, '=', item.value)
+                            data[item.name] = item.value
+
+                        # Get data dimensions.
+                        time_index = heap.cnt - 2  # Extra -1 because first heap is empty.
+
+                        # max_times_per_file = config['output']['max_times_per_file']
+
+                        # Construct filename.
+                        base_name = 'vis_T'
+                        data['time_index'] = time_index
+
+                        # Write visibility data.
+                        _pickle_write('/home/sdp/output/' + base_name + '.p', data)
+
+                except ValueError as e:
+                    print("Error raised processing heap: {}".format(e))
+
+            except (spead2.Stopped, asyncio.CancelledError):
+                print("Shutting down stream after {} heaps".format(num_heaps))
+                stats = stream.stats
+                for key in dir(stats):
+                    if not key.startswith('_'):
+                        print("{}: {}".format(key, getattr(stats, key)))
+                break
+    finally:
+        stream.stop()
 
 
 def _receive_heaps(config, streams, log):
@@ -113,8 +150,8 @@ def _receive_heaps(config, streams, log):
             # Statistics about the stream
             stats = stream.stats
             log.info('No.of heaps put in the stream {}'.format(stats.heaps))
-            log.info('Incomplete Heaps Evicted{}'.format(stats.incomplete_heaps_evicted))
-            log.info('Worked Blocked'.format(stats.worker_blocked))
+            log.info('Incomplete Heaps Evicted {}'.format(stats.incomplete_heaps_evicted))
+            log.info('Worked Blocked {}'.format(stats.worker_blocked))
 
             # Extract data from the heap into a dictionary.
             data = {}
@@ -145,30 +182,19 @@ def _receive_heaps(config, streams, log):
             data['time_index'] = time_index
 
             # Write visibility data.
-#            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
+#           _pickle_write('/home/sdp/output/' + base_name + '.p', data)
 
-#            # Write to Measurement Set if required.
-#            ms_name = base_name + '.ms'
-#            if ms_name not in ms:
-#                if len(ms) > 5:
-#                    ms.popitem()  # Don't open too many files at once.
-#                ms[ms_name] = _ms_create(
-#                    ms_name, config, start_channel, num_channels) \
-#                    if not os.path.isdir(ms_name) else _ms_open(ms_name)
-#            _ms_write(ms[ms_name], file_start_time, start_channel, data)
-
-        # Stop the stream when there are no more heaps.
         stream.stop()
 
+def make_coro(config,log):
+    stream = _create_streams(config, log)
+    log.info("Done with create streams")
+    return run_stream(stream, log), stream
 
-def _pickle_read(filename):
-    with open(filename, 'rb') as f:
-        while True:
-            try:
-                yield pickle.load(f)
-            except EOFError:
-                break
 
+def stop_streams():
+    for stream in streams:
+        stream.stop()
 
 def main():
     """Main script function"""
@@ -185,31 +211,18 @@ def main():
         log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
                                                      sort_keys=True)))
 
-    # Create streams and receive data.
-    log.info('Creating streams...')
-    streams = _create_streams(config, log)
-    log.info('Waiting to receive...')
-    _receive_heaps(config, streams, log)
+    coros_and_streams = [make_coro(config,log)]
 
-    # Test that heaps have been received and written correctly.
-    # Get a list of all 'vis_' pickle files.
-#    log.info('Checking data...')
-#    file_list = glob.glob('vis_*.p')
-#    for file_name in file_list:
-#        # Read the heaps in the file.
-#        heaps = _pickle_read(file_name)
-#        for (i, heap) in enumerate(heaps):
-#            vis_data = heap['complex_visibility']
-#            time_index = heap['time_index']
-#            start_chan = heap['channel_baseline_id'][0][0]
 
-#            # Check pattern.
-#            for c in range(vis_data.shape[2]):
-#                assert (numpy.array(vis_data[:, :, c, :, :].real ==
-#                                    time_index).all())
-#                assert (numpy.array(vis_data[:, :, c, :, :].imag ==
-#                                    c + start_chan).all())
-    log.info('Done.')
+    coros, streams = zip(*coros_and_streams)
+    main_task = asyncio.async(asyncio.gather(*coros))
+    loop = asyncio.get_event_loop()
+    loop.add_signal_handler(signal.SIGINT, stop_streams)
+    try:
+        loop.run_until_complete(main_task)
+    except asyncio.CancelledError:
+        pass
+    loop.close()
 
 if __name__ == '__main__':
     main()

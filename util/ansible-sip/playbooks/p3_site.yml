@@ -3,12 +3,12 @@
 # This Playbook deploys a docker swarm cluster.
 
 # Download and install SIP code.
-- name: Download and install SIP
-  hosts: swarm_leader
-  become_method: sudo
-  roles:
-    - role: ska.git
-      sip_branch: vis_ingest_multi
+#- name: Download and install SIP
+#  hosts: swarm_leader
+#  become_method: sudo
+#  roles:
+#    - role: ska.git
+#      sip_branch: vis_ingest_multi
 
 # Pull latest image and configure nodes.
 - name: Pull latest image and configure nodes

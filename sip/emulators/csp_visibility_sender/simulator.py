@@ -6,6 +6,8 @@ This module makes use of the HeapStreamer class to send the visibility data.
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+import spead2.send.asyncio
+import asyncio
 
 from sip.emulators.csp_visibility_sender.heap_streamer import HeapStreamer
 

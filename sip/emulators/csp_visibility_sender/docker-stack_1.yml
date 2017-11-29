@@ -2,14 +2,10 @@ version: "3.3"
 
 services:
 
-  vr:
+  vs1:
     image: njthykkathu/sip:latest
-    entrypoint: python3
-    command: /home/sdp/sip/tasks/tests/example_recv_vis_data.py /home/sdp/sip/etc/vis_receiver_config.json
-    volumes:
-      - type: volume
-        source: vis-vol1
-        target: /home/sdp/output
+    entrypoint: python3 -m
+    command: sip.emulators.csp_visibility_sender -v /home/sdp/sip/etc/vis_sender_config1.json
     networks:
       - outside
     deploy:
@@ -18,7 +14,7 @@ services:
         condition: none
       placement:
         constraints:
-          - node.labels.sip_worker1 == true
+          - node.labels.sip_worker4 == true
       labels:
         com.dn.description: "Host networking"
 
@@ -26,7 +22,3 @@ networks:
   outside:
     external:
       name: "host"
-
-volumes:
-    vis-vol1:
-        external: True
