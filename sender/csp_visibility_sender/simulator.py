@@ -9,7 +9,7 @@ import numpy as np
 import spead2.send.asyncio
 import asyncio
 
-from sip.emulators.csp_visibility_sender.heap_streamer import HeapStreamer
+from sender.csp_visibility_sender.heap_streamer import HeapStreamer
 
 
 class AbstractSimulator(metaclass=ABCMeta):

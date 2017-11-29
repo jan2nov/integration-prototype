@@ -233,7 +233,7 @@ class HeapStreamer:
             host = stream['host']
             port = stream['port']
             threads = stream['threads'] if 'threads' in stream else 1
-            stream_config = spead2.send.StreamConfig(rate=5e7)
+            stream_config = spead2.send.StreamConfig(rate=2e7)
 
             
             thread_pool = spead2.ThreadPool(threads=threads)

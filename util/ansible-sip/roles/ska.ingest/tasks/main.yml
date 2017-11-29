@@ -9,7 +9,7 @@
 # Pulling latest image from Docker Hub
 - name: Download SIP docker image
   become: yes
-  shell: docker pull njthykkathu/sip:latest
+  shell: docker pull njthykkathu/vis_test:latest
 
 # Increase rmem_max
 - name: Increasing rmem_max

@@ -23,7 +23,7 @@ RUN python3 -m pip install -r requirements.txt
 WORKDIR /home/sdp
 
 # Copy the SIP
-COPY sip/ sip/
+#COPY sip/ sip/
+COPY sender/ sender/
+COPY receiver/ receiver/
 
-# Create an empty file that the Paas can use to detect being inside a swarm
-COPY not_docker_swarm docker_swarm
