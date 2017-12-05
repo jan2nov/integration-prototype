@@ -93,7 +93,6 @@ def subscriber_thread_2(port=5559):
                 start_time = time()
 
 
-
 def start_healthcheck(service_process):
     """Start a healthcheck endpoint.
 
@@ -119,6 +118,8 @@ def start_healthcheck(service_process):
                     hostname=socket.gethostname(),
                     uptime=time() - start_time)
     try:
+        # Bind to TCP host/port pair.
+        # (0.0.0.0 = bind to all IPv4 addresses on the local machine)
         bjoern.run(app, host='0.0.0.0', port=5555)
     except OSError as error:
         logger.critical("ERROR: Unable to start healthcheck API: %s",

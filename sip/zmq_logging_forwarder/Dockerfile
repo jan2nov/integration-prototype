@@ -9,8 +9,8 @@ COPY requirements.txt /app/requirements.txt
 #   pyzmq and should not be deleted when removing build dependencies.
 # - curl is needed for the healthcheck command.
 RUN apk update && \
-    apk add --no-cache --virtual build-dependencies g++ musl-dev && \
-    apk add --no-cache libstdc++ curl && \
+    apk add --no-cache --virtual build-dependencies g++ musl-dev libev-dev && \
+    apk add --no-cache libstdc++ curl libev && \
     pip install -r /app/requirements.txt && \
     find /usr/local/lib/python3.6/ -name 'tests' -exec rm -r '{}' + && \
     rm -r /root/.cache && \
@@ -23,11 +23,8 @@ WORKDIR /app
 # Copy source code
 COPY . /app/sip/zmq_logging_forwarder
 
-# ZMQ.XSUB port (Publishers should connect to this)
+# ZMQ.SUB port (Publishers should connect to this)
 EXPOSE 5559
-
-# ZMQ.XPUB port (Subscribers should connect to this)
-EXPOSE 5560
 
 # Healthcheck port
 EXPOSE 5555
