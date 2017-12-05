@@ -111,10 +111,10 @@ def _receive_heaps(config, streams, log):
             log.info("Received heap {}".format(heap.cnt))
 
             # Statistics about the stream
-            stats = stream.stats
-            log.info('No.of heaps put in the stream {}'.format(stats.heaps))
-            log.info('Incomplete Heaps Evicted{}'.format(stats.incomplete_heaps_evicted))
-            log.info('Worked Blocked'.format(stats.worker_blocked))
+            # stats = stream.stats
+            # log.info('No.of heaps put in the stream {}'.format(stats.heaps))
+            # log.info('Incomplete Heaps Evicted{}'.format(stats.incomplete_heaps_evicted))
+            # log.info('Worked Blocked'.format(stats.worker_blocked))
 
             # Extract data from the heap into a dictionary.
             data = {}
@@ -145,7 +145,7 @@ def _receive_heaps(config, streams, log):
             data['time_index'] = time_index
 
             # Write visibility data.
-#            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
+            _pickle_write('/home/sdp/output/' + base_name + '.p', data)
 
 #            # Write to Measurement Set if required.
 #            ms_name = base_name + '.ms'

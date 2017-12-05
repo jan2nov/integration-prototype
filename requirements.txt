@@ -20,4 +20,4 @@ unittest-xml-reporting>=2.1.0
 spead2>=1.6.0
 # pyftpdlib>=1.4.0
 # astropy>=2.0
-trollius
+# trollius

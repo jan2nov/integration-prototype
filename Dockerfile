@@ -24,6 +24,6 @@ WORKDIR /home/sdp
 
 # Copy the SIP
 #COPY sip/ sip/
-COPY sender/ sender/
-COPY receiver/ receiver/
+COPY tools/csp_visibility_sender/ csp_visibility_sender/
+COPY vis_receiver/ vis_receiver/
 

@@ -6,6 +6,16 @@
 #  become: yes
 #  shell: chdir={{ ansible_user_dir }}/integration-prototype.git docker build . -t sip
 
+# Install requests
+# - name: Install requests
+#   become: yes
+#   shell: pip install requests
+
+# Install docker-py
+# - name: Install docker-py
+#   become: yes
+#  shell: pip install docker-py
+
 # Pulling latest image from Docker Hub
 - name: Download SIP docker image
   become: yes

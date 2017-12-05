@@ -5,16 +5,13 @@ ansible_user=fedora
 ansible_ssh_private_key_file=/ilab-home/hpcthyk1/Downloads/redis.pem
 
 [swarm_leader]
-in-3zr4rj6g4-0-hzhwdsp5u766-swarm-master-on2lcgw2oyx7.novalocal swarm_labels=sip_master ansible_host=10.60.253.13
+vi-wsdgvimtt-0-w4lpxnw6rppb-swarm-master-scamhnai5ktc.novalocal swarm_labels=sip_master ansible_host=10.60.253.29
 
 [swarm_workers]
-in-zsouvyyqbgv-0-mwcdzoltzmu7-swarm-node-x6bdm6xsrczd swarm_labels='["sip_worker1"]' ansible_host=10.60.253.22
-in-zsouvyyqbgv-1-yh43o5qalx3h-swarm-node-mfy6liedflx5.novalocal swarm_labels='["sip_worker2"]' ansible_host=10.60.253.44
-
-# in-zsouvyyqbgv-5-bm5o7akc45nb-swarm-node-ntef5fj4zpvm.novalocal swarm_labels='["sip_worker6"]' ansible_host=10.60.253.32
-# in-zsouvyyqbgv-3-5tsi35a5flkg-swarm-node-545ialb7xghk swarm_labels='["sip_worker4"]' ansible_host=10.60.253.17
-
-
-# in-zsouvyyqbgv-2-o3f6bmu4uvlm-swarm-node-eoeeh6coihpe.novalocal swarm_labels='["sip_worker3"]' ansible_host=10.60.253.37
-# in-zsouvyyqbgv-4-25outgjxovwa-swarm-node-y5awb2nqywnp.novalocal swarm_labels='["sip_worker5"]' ansible_host=10.60.253.50
+vi-hykdrdreoog-1-3hrzvpyobk4w-swarm-node-imniommmyfda.novalocal swarm_labels='["sip_worker1"]' ansible_host=10.60.253.17
+vi-hykdrdreoog-5-ess2fi5rn3v4-swarm-node-b7uya4xayxzw.novalocal swarm_labels='["sip_worker2"]' ansible_host=10.60.253.46
+vi-hykdrdreoog-4-yrjqo2zz554x-swarm-node-xk2tui5nwqgw.novalocal swarm_labels='["sip_worker3"]' ansible_host=10.60.253.18
+vi-hykdrdreoog-3-ltesxkqfzmqq-swarm-node-bmy3arwcnaqf.novalocal swarm_labels='["sip_worker4"]' ansible_host=10.60.253.50
+vi-hykdrdreoog-2-d4woa2udrzve-swarm-node-fb65ktgzhoi7.novalocal swarm_labels='["sip_worker5"]' ansible_host=10.60.253.37
+vi-hykdrdreoog-0-cz5sbwim2yzr-swarm-node-uzcsc3jazv2i.novalocal swarm_labels='["sip_worker6"]' ansible_host=10.60.253.22
 

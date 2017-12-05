@@ -17,3 +17,15 @@
   roles:
     - role: ska.ingest
 
+#- hosts: swarm_leader
+#  become: yes
+
+#  roles:
+#    - prometheus-server
+
+#- hosts: all
+#  become: yes
+
+#  roles:
+#    - prometheus-docker-node
+
