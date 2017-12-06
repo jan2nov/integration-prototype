@@ -1,10 +1,13 @@
+#
+# Redis Dockerfile
+#
+# https://github.com/dockerfile/redis
+#
+
 FROM ubuntu
-MAINTAINER David Terrett
+MAINTAINER Nijin Thykkathu
 USER root
 
-RUN adduser --disabled-password -gecos 'unprivileged user' sdp
-
-# Install dependencies, and clear cache
 RUN apt-get -y update \
  && apt-get -y install docker \
  python3 \
@@ -13,6 +16,8 @@ RUN apt-get -y update \
  libboost-system-dev \
  libboost-python-dev \
  python-numpy-dev \
+ wget \
+ make \
  dnsutils \
  && rm -rf /var/lib/apt/lists/*
 
@@ -30,21 +35,15 @@ RUN \
   rm -rf /tmp/redis-stable* && \
   sed -i 's/^\(bind .*\)$/# \1/' /etc/redis/redis.conf && \
   sed -i 's/^\(daemonize .*\)$/# \1/' /etc/redis/redis.conf && \
-  sed -i 's/^\(dir .*\)$/# \1\ndir \/home/sdp/' /etc/redis/redis.conf && \
+  sed -i 's/^\(dir .*\)$/# \1\ndir \/data/' /etc/redis/redis.conf && \
   sed -i 's/^\(logfile .*\)$/# \1/' /etc/redis/redis.conf
 
-COPY requirements.txt .
-RUN python3 -m pip install -r requirements.txt
-
 # Define mountable directories.
-VOLUME ["/home/sdp/data"]
+VOLUME ["/data"]
 
-# Set working directory
-WORKDIR /home/sdp
+COPY vis_receiver_config.py /data/vis_receiver_config.py
 
-# Copy the SIP
-#COPY sip/ sip/
-COPY tools/csp_visibility_sender/ csp_visibility_sender/
-COPY vis_receiver/ vis_receiver/
-COPY config_database/ config_database/
+# Define working directory.
+WORKDIR /data
+
 

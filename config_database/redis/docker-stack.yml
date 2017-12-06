@@ -1,0 +1,42 @@
+version: "3.3"
+
+services:
+
+  redis_server:
+    # image: data_model:latest
+    image: njthykkathu:latest
+    command: redis-server /etc/redis/redis.conf
+    networks:
+      - outside
+    deploy:
+      replicas: 1
+      restart_policy: 
+        condition: none
+      placement:
+        constraints:
+          - node.labels.sip_worker4 == true
+      labels:
+        com.dn.description: "Host networking"
+
+  redis_init:
+    # image: data_model:latest
+    image: njthykkathu:latest
+    entrypoint: python3
+    command: /data/vis_receiver_config.py
+    networks:
+      - outside
+    deploy:
+      replicas: 1
+      restart_policy: 
+        condition: none
+      placement:
+        constraints:
+          - node.labels.sip_worker4 == true
+      labels:
+        com.dn.description: "Host networking"
+
+networks:
+  outside:
+    external:
+      name: "host"
+
