@@ -26,4 +26,5 @@ WORKDIR /home/sdp
 #COPY sip/ sip/
 COPY tools/csp_visibility_sender/ csp_visibility_sender/
 COPY vis_receiver/ vis_receiver/
+COPY config_database/ config_database/
 
