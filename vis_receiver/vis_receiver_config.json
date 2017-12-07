@@ -9,6 +9,7 @@
       "port": 8001
     }
   ],
+  
   "memory_pool":
   {
     "lower": 16384,

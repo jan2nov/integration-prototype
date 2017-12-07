@@ -2,10 +2,10 @@ version: "3.3"
 
 services:
 
-  redis_server:
+  server:
     # image: data_model:latest
-    image: njthykkathu:latest
-    command: redis-server /etc/redis/redis.conf
+    image: njthykkathu/vis_test:latest
+    command: redis-server /etc/redis/redis.conf --protected-mode no
     networks:
       - outside
     deploy:
@@ -14,15 +14,15 @@ services:
         condition: none
       placement:
         constraints:
-          - node.labels.sip_worker4 == true
+          - node.labels.sip_worker6 == true
       labels:
         com.dn.description: "Host networking"
 
-  redis_init:
+  config:
     # image: data_model:latest
-    image: njthykkathu:latest
+    image: njthykkathu/vis_test:latest
     entrypoint: python3
-    command: /data/vis_receiver_config.py
+    command: /home/sdp/redis/config_data.py
     networks:
       - outside
     deploy:
@@ -31,7 +31,7 @@ services:
         condition: none
       placement:
         constraints:
-          - node.labels.sip_worker4 == true
+          - node.labels.sip_worker6 == true
       labels:
         com.dn.description: "Host networking"
 

@@ -13,6 +13,7 @@ import argparse
 import simplejson as json
 import os
 import pickle
+from redis_client import RedisDatabase
 
 oskar = None
 # Comment out 'try' block to not write Measurement Sets.
@@ -39,61 +40,48 @@ def _parse_command_line():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description='Receive fake visibility data using the SPEAD protocol.')
-    parser.add_argument('config_file', type=argparse.FileType('r'),
-                        help='JSON configuration file..')
+    # parser.add_argument('config_file', type=argparse.FileType('r'),
+    #                     help='JSON configuration file..')
+    parser.add_argument('-i', '--host', help='IP address of the database')
+    parser.add_argument('-p', '--port', help='port of the database')
     parser.add_argument('-v', '--verbose', help='Enable verbose messages.',
                         action='store_true')
-    parser.add_argument('-p', '--print_settings', help='Print settings file.',
+    parser.add_argument('-s', '--print_settings', help='Print settings file.',
                         action='store_true')
     return parser.parse_args()
 
 
-def _create_streams(config, log):
+def _create_streams(redis_api, log):
     """Construct streams, item group and item descriptions."""
     # bug_compat = spead2.BUG_COMPAT_PYSPEAD_0_5_2
     bug_compat = 0
-    lower = config['memory_pool']['lower']
-    upper = config['memory_pool']['upper']
-    max_free = config['memory_pool']['max_free']
-    initial = config['memory_pool']['initial']
+
+    # From JSON File
+    # lower = config['memory_pool']['lower']
+    # upper = config['memory_pool']['upper']
+    # max_free = config['memory_pool']['max_free']
+    # initial = config['memory_pool']['initial']
+
+    # Redis Api
+    lower = redis_api.get_variable("memory_pool:lower")
+    upper = redis_api.get_variable("memory_pool:upper")
+    max_free = redis_api.get_variable("memory_pool:max_free")
+    initial = redis_api.get_variable("memory_pool:initial")
+    num_streams = redis_api.hget_all("stream") 
+
     streams = []
-    for stream in config['streams']:
-        log.debug('Creating stream on port {}'.format(stream['port']))
+    #for stream in config['streams']:
+    for stream in num_streams:
+        port = redis_api.hget_variable("stream", stream.decode('utf-8'))
+        # log.debug('Creating stream on port {}'.format(stream['port']))
+        log.debug('Creating stream on port {}'.format(port))
         s = spead2.recv.Stream(spead2.ThreadPool(), bug_compat)
         pool = spead2.MemoryPool(lower, upper, max_free, initial)
         s.set_memory_allocator(pool)
-        s.add_udp_reader(stream['port'])
+        # s.add_udp_reader(stream['port'])
+        s.add_udp_reader(port)
         streams.append(s)
     return streams
-
-
-#def _ms_create(filename, config, file_start_chan, file_num_chan):
-#    if oskar:
-#        channel_width_hz = config['observation']['channel_width_hz']
-#        start_freq_hz = config['observation']['start_frequency_hz'] + (
-#            channel_width_hz * file_start_chan)
-#        return oskar.MeasurementSet.create(
-#            filename, config['num_stations'], file_num_chan,
-#            config['num_pols'], start_freq_hz, channel_width_hz)
-#    else:
-#        return None
-
-
-#def _ms_open(filename):
-#    return oskar.MeasurementSet.open(filename) if oskar else None
-
-
-#def _ms_write(ms, file_start_time, file_start_chan, data):
-#    if oskar:
-#        num_chan = data['complex_visibility'].shape[2]
-#        num_baselines = data['complex_visibility'].shape[3]
-#        start_chan = data['channel_baseline_id'][0][0] - file_start_chan
-#        time_index = data['time_index'] - file_start_time
-#        start_row = num_baselines * time_index
-#        ms.write_vis(start_row, start_chan, num_chan,
-#                     num_baselines, data['complex_visibility'][0, 0, :, :, :])
-#    else:
-#        pass
 
 
 def _pickle_write(filename, data):
@@ -101,7 +89,7 @@ def _pickle_write(filename, data):
         pickle.dump(data, f, protocol=2)
 
 
-def _receive_heaps(config, streams, log):
+def _receive_heaps(redis_api, streams, log):
     ms = {}
     for stream in streams:
         item_group = spead2.ItemGroup()
@@ -130,7 +118,8 @@ def _receive_heaps(config, streams, log):
             time_index = heap.cnt - 2  # Extra -1 because first heap is empty.
             start_channel = data['channel_baseline_id'][0][0]
             num_channels = data['channel_baseline_count'][0][0]
-            max_times_per_file = config['output']['max_times_per_file']
+            # max_times_per_file = config['output']['max_times_per_file']
+            max_times_per_file = redis_api.get_variable("output:max_times_per_file")
 
             # Find out which file this heap goes in.
             # Get the time and channel range for the file.
@@ -147,17 +136,6 @@ def _receive_heaps(config, streams, log):
             # Write visibility data.
             _pickle_write('/home/sdp/output/' + base_name + '.p', data)
 
-#            # Write to Measurement Set if required.
-#            ms_name = base_name + '.ms'
-#            if ms_name not in ms:
-#                if len(ms) > 5:
-#                    ms.popitem()  # Don't open too many files at once.
-#                ms[ms_name] = _ms_create(
-#                    ms_name, config, start_channel, num_channels) \
-#                    if not os.path.isdir(ms_name) else _ms_open(ms_name)
-#            _ms_write(ms[ms_name], file_start_time, start_channel, data)
-
-        # Stop the stream when there are no more heaps.
         stream.stop()
 
 
@@ -179,36 +157,24 @@ def main():
     log = _init_log(level=logging.DEBUG if args.verbose else logging.INFO)
 
     # Load configuration.
-    log.info('Loading config: {}'.format(args.config_file.name))
-    config = json.load(args.config_file)
+    # log.info('Loading config: {}'.format(args.config_file.name))
+    # config = json.load(args.config_file)
+    log.info('Loading config from Redis Database')
+
+    host = args.host
+    port = args.port
+    print(host)
+    print(port)
+    redis_api = RedisDatabase(host, port)
     if args.print_settings:
         log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
                                                      sort_keys=True)))
-
     # Create streams and receive data.
     log.info('Creating streams...')
-    streams = _create_streams(config, log)
+    streams = _create_streams(redis_api, log)
     log.info('Waiting to receive...')
-    _receive_heaps(config, streams, log)
+    _receive_heaps(redis_api,streams, log)
 
-    # Test that heaps have been received and written correctly.
-    # Get a list of all 'vis_' pickle files.
-#    log.info('Checking data...')
-#    file_list = glob.glob('vis_*.p')
-#    for file_name in file_list:
-#        # Read the heaps in the file.
-#        heaps = _pickle_read(file_name)
-#        for (i, heap) in enumerate(heaps):
-#            vis_data = heap['complex_visibility']
-#            time_index = heap['time_index']
-#            start_chan = heap['channel_baseline_id'][0][0]
-
-#            # Check pattern.
-#            for c in range(vis_data.shape[2]):
-#                assert (numpy.array(vis_data[:, :, c, :, :].real ==
-#                                    time_index).all())
-#                assert (numpy.array(vis_data[:, :, c, :, :].imag ==
-#                                    c + start_chan).all())
     log.info('Done.')
 
 if __name__ == '__main__':

@@ -6,22 +6,22 @@
 
 import redis
 
-
 class RedisDatabase:
 
-    def __init__(self):
+    def __init__(self, hostname, port):
         # Setting up connection with the master and a slave
-        self._redis_pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+        self._redis_pool = redis.ConnectionPool(host=hostname, port=port, db=0)
 
     def get_variable(self, variable_name):
         my_server = redis.Redis(connection_pool=self._redis_pool)
-        response = my_server.get(variable_name)
-        return response
+        resp = my_server.get(variable_name)
+        format_resp = int(resp)
+        return format_resp 
 
     def get_keys(self, variable_name):
         my_server = redis.Redis(connection_pool=self._redis_pool)
-        response = my_server.keys(variable_name)
-        return response
+        resp = my_server.keys(variable_name)
+        return resp
 
     def set_variable(self, variable_name, variable_value):
         my_server = redis.Redis(connection_pool=self._redis_pool)
@@ -30,6 +30,22 @@ class RedisDatabase:
     def delete_variable(self, key):
         my_server = redis.Redis(connection_pool=self._redis_pool)
         my_server.delete(key)
+
+    def hmset_variable(self, variable_name, value):
+        my_server = redis.Redis(connection_pool=self._redis_pool)
+        resp = my_server.hmset(variable_name, value)
+
+    def hget_all(self, var):
+        my_server = redis.Redis(connection_pool=self._redis_pool)
+        resp = my_server.hgetall(var)
+        return resp
+
+    def hget_variable(self,var, port):
+        my_server = redis.Redis(connection_pool=self._redis_pool)
+        resp = my_server.hget(var, port)
+        format_resp = int(resp)
+        return format_resp 
+
 
 #
 # def main():
