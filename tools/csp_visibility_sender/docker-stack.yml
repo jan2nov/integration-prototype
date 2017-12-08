@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
 
-  vs1:
+  vis_sender1:
     image: njthykkathu/vis_test:latest
     entrypoint: python3 -m
     command: csp_visibility_sender -v /home/sdp/csp_visibility_sender/vis_sender_config.json
@@ -18,7 +18,7 @@ services:
       labels:
         com.dn.description: "Host networking"
 
-  vs2:
+  vis_sender2:
     image: njthykkathu/vis_test:latest
     entrypoint: python3 -m
     command: csp_visibility_sender -v /home/sdp/csp_visibility_sender/vis_sender_config2.json
@@ -34,7 +34,7 @@ services:
       labels:
         com.dn.description: "Host networking"
 
-  vs3:
+  vis_sender3:
     image: njthykkathu/vis_test:latest
     entrypoint: python3 -m
     command: csp_visibility_sender -v /home/sdp/csp_visibility_sender/vis_sender_config3.json

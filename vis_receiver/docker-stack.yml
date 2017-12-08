@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
 
-  vr1:
+  vis_recv1:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
     command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379
@@ -22,7 +22,7 @@ services:
       labels:
         com.dn.description: "Host networking"
 
-  vr2:
+  vis_recv2:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
     command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379
@@ -42,7 +42,7 @@ services:
       labels:
         com.dn.description: "Host networking"
 
-  vr3:
+  vis_recv3:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
     command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379

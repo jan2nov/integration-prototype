@@ -18,7 +18,6 @@ def main():
     
     # Defaults
     port = {"port":"8001"}
-
     print("Configuration Loading Started")
 
     # Visibility Receiver Config
@@ -28,8 +27,7 @@ def main():
     redis_api.set_variable("memory_pool:max_free", "12")
     redis_api.set_variable("memory_pool:initial", "8")
     redis_api.hmset_variable("stream", port)
-
-    print("Visibility Receiver configuration Loading Done")
+    print("Visibility Receiver Configuration Loading Done")
 
     # Testing the api
     initial = redis_api.get_variable("memory_pool:initial")

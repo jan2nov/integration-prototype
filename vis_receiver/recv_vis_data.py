@@ -160,12 +160,7 @@ def main():
     # log.info('Loading config: {}'.format(args.config_file.name))
     # config = json.load(args.config_file)
     log.info('Loading config from Redis Database')
-
-    host = args.host
-    port = args.port
-    print(host)
-    print(port)
-    redis_api = RedisDatabase(host, port)
+    redis_api = RedisDatabase(args.host, args.port)
     if args.print_settings:
         log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
                                                      sort_keys=True)))
