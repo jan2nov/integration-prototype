@@ -25,6 +25,8 @@ services:
     command: /home/sdp/redis/config_data.py
     networks:
       - outside
+    depends_on:
+      - server
     deploy:
       replicas: 1
       restart_policy: 
