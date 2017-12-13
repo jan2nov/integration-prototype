@@ -280,60 +280,102 @@ class HeapStreamer:
         heap_descriptor = [
             # Per SPEAD heap_descriptor
             {
-                "id": 0x0045,
-                "name": "timestamp_utc",
+                "id": 0x8000,
+                "name": "visibility_timestamp_count",
                 "description": "SDP_REQ_INT-45.",
-                "format": [('u', 32), ('u', 32)],
+                "format": [('u', 32)],
                 "shape": (1,)
             },
             {
-                "id": 0x0046,
-                "name": "channel_baseline_id",
-                "description": "SDP_REQ_INT-46",
-                "format": [('u', 26), ('u', 22)],
+                "id": 0x8001,
+                "name": "visibility_timestamp_fraction",
+                "description": "SDP_REQ_INT-45.",
+                "format": [('u', 32)],
                 "shape": (1,)
             },
             {
-                "id": 0x0047,
-                "name": "channel_baseline_count",
+                "id": 0x8002,
+                "name": "visibility_channel_id",
+                "description": "",
+                "format": [('u', 32)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x8003,
+                "name": "visibility_channel_count",
                 "description": "SDP_REQ_INT-47",
-                "format": [('u', 26), ('u', 22)],
+                "format": [('u', 32)],
                 "shape": (1,)
             },
             {
-                "id": 0x0048,
-                "name": "schedule_block",
+                "id": 0x8004,
+                "name": "visibility_baseline_polarisation_id",
+                "description": "SDP_REQ_INT-46",
+                "format": [('u', 32)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x8005,
+                "name": "visibility_baseline_count",
+                "description": "SDP_REQ_INT-47",
+                "format": [('u', 32)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x8006,
+                "name": "phase_bin_id",
+                "description": "",
+                "format": [('u', 16)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x8007,
+                "name": "phase_bin_count",
+                "description": "",
+                "format": [('u', 16)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x8008,
+                "name": "schedule_block_id",
                 "description": "SDP_REQ_INT-48",
-                "type": "u8",
+                "format": [('u', 48)],
                 "shape": (1,)
             },
+
             {
-                "id": 0x0049,
-                "name": "hardware_source_id",
+                "id": 0x8009,
+                "name": "visibility_hardware_id",
                 "description": "SDP_REQ_INT-49",
-                "format": [('u', 24)],
+                "format": [('u', 32)],
                 "shape": (1,)
             },
-            # Per visibility data
             {
-                "id": 0x0050,
-                "name": "time_centroid_index",
+                "id": 0x800A,
+                "name": "visibility_time_centroid",
                 "description": "SDP_REQ_INT-50",
-                "format": [('u', 8)],
-                "shape": self._frame_shape
+                "format": [('i', 8)],
+                "shape": (1,)
             },
             {
-                "id": 0x0051,
+                "id": 0x800B,
+                "name": "visibility_flagging_fraction",
+                "description": "SDP_REQ_INT-52",
+                "format": [('u', 8)],
+                "shape": (1,)
+            },
+            {
+                "id": 0x800C,
                 "name": "complex_visibility",
                 "description": "SDP_REQ_INT-51",
                 "type": 'c8',
                 "shape": self._frame_shape
             },
             {
-                "id": 0x0052,
-                "name": "flagging_fraction",
-                "description": "SDP_REQ_INT-52",
-                "format": [('u', 8)],
+                "id": 0x800D,
+                "name": "correlator_output_data",
+                "description": "",
+                "format": [('i', 8), ('u', 8), ('c', 8)],
                 "shape": self._frame_shape
             }
         ]
@@ -342,13 +384,20 @@ class HeapStreamer:
     def _init_payload(self):
         """Return an empty payload"""
         payload = dict(
-            timestamp_utc=[(0, 0)],
-            channel_baseline_id=[(0, 0)],
-            channel_baseline_count=[(0, 0)],
-            schedule_block=[0],
-            hardware_source_id=[0],
-            complex_visibility=np.zeros(self._frame_shape, dtype=np.complex64),
-            time_centroid_index=np.ones(self._frame_shape, dtype=np.uint8),
-            flagging_fraction=np.ones(self._frame_shape, dtype=np.uint8)
+            visibility_timestamp_count=[0],
+            visibility_timestamp_fraction=[0],
+            visibility_channel_id=[0],
+            visibility_channel_count=[0],
+            visibility_baseline_polarisation_id=[0],
+            visibility_baseline_count=[0],
+            phase_bin_id=[0],
+            phase_bin_count=[0],
+            schedule_block_id=[0],
+            visibility_hardware_id=[0],
+            visibility_time_centroid=[0],
+            visibility_flagging_fraction=[0],
+            complex_visibility=[0],
+            correlator_output_data=np.zeros(
+                (self._frame_shape),dtype=[('TCI', 'i8'), ('FD', 'u8'), ('VIS', 'c8', 4)])
         )
         return payload

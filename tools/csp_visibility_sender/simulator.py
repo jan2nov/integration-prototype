@@ -49,6 +49,7 @@ class SimpleSimulator(AbstractSimulator):
         self.log.debug('Number of channels per heap_descriptor = {}'.
                        format(self.stream_num_channels))
         self.log.debug('Number of baselines = {}'.format(self.num_baselines))
+        self.log.debug('Frame Shape = {}'.format(self.frame_shape))
 
     def simulate_heaps(self, streamer: HeapStreamer):
         """Simulate and send a stream of heaps using the specified
@@ -79,9 +80,9 @@ class SimpleSimulator(AbstractSimulator):
             for j in range(num_streams):
                 c0 = self.sender_start_channel + j * self.stream_num_channels
                 c1 = c0 + self.stream_num_channels
-                streamer._payload['channel_baseline_count'] = \
-                    [(self.stream_num_channels, 0)]
-                streamer._payload['channel_baseline_id'] = [(c0, 0)]
+                streamer._payload['visibility_channel_count'] = \
+                    [self.stream_num_channels]
+                streamer._payload['visibility_channel_id'] = [c0]
                 vis_data = np.ones(self.frame_shape, dtype='c8')
                 self.log.debug('>> Channels = {} <<'.format(range(c0, c1)))
                 for c in range(c0, c1):
