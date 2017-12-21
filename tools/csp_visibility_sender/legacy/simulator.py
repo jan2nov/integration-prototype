@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-from csp_visibility_sender.heap_streamer import HeapStreamer
+from legacy.heap_streamer import HeapStreamer
 
 
 class AbstractSimulator(metaclass=ABCMeta):
@@ -17,7 +17,6 @@ class AbstractSimulator(metaclass=ABCMeta):
     def simulate_heaps(self, streamer: HeapStreamer):
         """Simulate and send a stream of SPEAD Heaps"""
         pass
-
 
 class SimpleSimulator(AbstractSimulator):
     """Very simple simulation class used to stream SPEAD heaps.
@@ -50,16 +49,15 @@ class SimpleSimulator(AbstractSimulator):
         self.log.debug('Frame shape = {}'.format(self.frame_shape))
         self.log.debug('Number of polarization = {}'.format(self.num_pol))
 
-    def simulate_heaps(self):
+    def simulate_heaps(self, streamer: HeapStreamer):
         """Simulate and send a stream of heaps using the specified
         HeapStreamer.
-        """
-        streamer = HeapStreamer(self.log, self.config, self.num_pol,
-                              self.num_baselines, self.frame_shape)
-        streamer.start()
 
+        Args:
+            streamer (HeapStreamer): SPEAD heap streamer class.
+        """
         num_streams = len(streamer._streams)
-        assert (num_streams == self.num_streams)
+        assert(num_streams == self.num_streams)
 
         self.log.info('Starting simulation...')
         self.log.info('  * No. times = {}'.format(self.num_times))
@@ -69,28 +67,30 @@ class SimpleSimulator(AbstractSimulator):
                       format(self.sender_start_channel))
         self.log.info('  * No. streams = {}'.format(self.num_streams))
 
+        streamer.start()
+
         for t in range(self.num_times):
             self.log.debug('== Time {:03d}/{:03d} =='.format(t + 1,
                                                              self.num_times))
+            streamer._payload['timestamp_utc'] = [(t, t + 3)]
 
-            # Loop over heap stream.
+            # Loop over heap stream. a heap stream contains 1 or more channels.
+            self.log.info("Sending visibility data")
             for j in range(num_streams):
                 c0 = self.sender_start_channel + j * self.stream_num_channels
                 c1 = c0 + self.stream_num_channels
-                stream, heap = streamer._streams[j]
+                streamer._payload['visibility_channel_count'] = \
+                    [self.stream_num_channels, ]
+                streamer._payload['visibility_channel_id'] = (c0,)
                 vis_data = np.ones(self.frame_shape, dtype= \
                     [('TCI', 'i8'), ('FD', 'u8'), ('VIS', 'c8', self.num_pol)])
                 self.log.debug('>> Channels = {} <<'.format(range(c0, c1)))
-
                 for c in range(c0, c1):
                     vis_data['TCI'] = np.ones(self.num_baselines, dtype="i8")
                     vis_data['FD'] = 5 * np.ones(self.num_baselines, dtype="i8")
                     vis_data['VIS'] = 10 * np.ones((self.num_baselines, self.num_pol), dtype="c8")
 
-                # Adding data to the heap
-                heap['visibility_channel_count'].value = (self.stream_num_channels,)
-                heap['visibility_channel_id'].value = (c0,)
-                heap['correlator_output_data'].value = vis_data
+                streamer._payload['correlator_output_data'] = vis_data
                 streamer.send_heap(heap_index=t, stream_id=j)
 
         streamer.end()

@@ -6,7 +6,8 @@ import argparse
 import logging
 import simplejson as json
 
-from csp_visibility_sender.simulator import SimpleSimulator
+from legacy.heap_streamer import HeapStreamer
+from legacy.simulator import SimpleSimulator
 
 
 def _init_log(level=logging.DEBUG):
@@ -47,8 +48,7 @@ def main(config, log):
     """Main script function"""
     # Create simulation object, and start streaming SPEAD heaps
     sim = SimpleSimulator(config, log)
-    sim.simulate_heaps()
-
+    sim.simulate_heaps(HeapStreamer(config, sim.frame_shape, sim.num_pol, log))
 
 if __name__ == '__main__':
     # Parse command line arguments

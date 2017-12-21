@@ -10,7 +10,8 @@
   {
     "num_stations": 197,
     "num_channels": 1,
-    "num_times": 9
+    "num_times": 9,
+    "num_pol": 4
   },
 
   "simulation": {
