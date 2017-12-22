@@ -14,6 +14,7 @@ import simplejson as json
 import os
 import pickle
 from redis_client import RedisDatabase
+from vis_ingest_calc import VisIngestProcessing
 
 oskar = None
 # Comment out 'try' block to not write Measurement Sets.
@@ -91,6 +92,8 @@ def _pickle_write(filename, data):
 
 def _receive_heaps(redis_api, streams, log):
     ms = {}
+
+    ingest_proc = VisIngestProcessing(log)
     for stream in streams:
         item_group = spead2.ItemGroup()
 
@@ -111,13 +114,13 @@ def _receive_heaps(redis_api, streams, log):
                 data[item.name] = item.value
 
             # Skip if the heap does not contain visibilities.
-            if 'complex_visibility' not in data:
+            if 'correlator_output_data' not in data:
                 continue
 
             # Get data dimensions.
             time_index = heap.cnt - 2  # Extra -1 because first heap is empty.
-            start_channel = data['channel_baseline_id'][0][0]
-            num_channels = data['channel_baseline_count'][0][0]
+            start_channel = data['visibility_channel_id'][0]
+            num_channels = data['visibility_channel_count'][0]
             # max_times_per_file = config['output']['max_times_per_file']
             max_times_per_file = redis_api.get_variable("output:max_times_per_file")
 
@@ -132,6 +135,19 @@ def _receive_heaps(redis_api, streams, log):
                 file_start_time, file_end_time,
                 start_channel, start_channel + num_channels - 1)
             data['time_index'] = time_index
+
+            # Placeholders for further processing the data
+            # Calculate data weights
+            ingest_proc.data_weight()
+
+            # Flag visibility data
+            ingest_proc.flag_vis_data()
+
+            # Demix visibility data
+            ingest_proc.demix_vis_data()
+
+            # Averaging visibility data
+            ingest_proc.avg_vis_data()
 
             # Write visibility data.
             _pickle_write('/home/sdp/output/' + base_name + '.p', data)
@@ -161,14 +177,15 @@ def main():
     # config = json.load(args.config_file)
     log.info('Loading config from Redis Database')
     redis_api = RedisDatabase(args.host, args.port)
-    if args.print_settings:
-        log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
-                                                     sort_keys=True)))
+    # if args.print_settings:
+    #     log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
+    #                                                 sort_keys=True)))
+
     # Create streams and receive data.
     log.info('Creating streams...')
     streams = _create_streams(redis_api, log)
     log.info('Waiting to receive...')
-    _receive_heaps(redis_api,streams, log)
+    _receive_heaps(redis_api, streams, log)
 
     log.info('Done.')
 
