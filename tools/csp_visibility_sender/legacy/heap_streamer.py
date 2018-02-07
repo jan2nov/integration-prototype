@@ -5,29 +5,31 @@ The visibility data is sent as a number of SPEAD heaps, with a have a structure
 (payload) defined in the CSP-SDP ICD documents. Heaps are sent to a stream
 which is a UDP socket.
 """
-import logging
 import spead2
 import spead2.send
 import numpy as np
 import time
+from logging import Logger
+# import spead2.send.asyncio
+# import asyncio
 
 
-class HeapStreamer():
+class HeapStreamer:
     """Class for sending SPEAD heaps to one or more SPEAD streams (UDP sockets).
 
     Streams are configured according to a python dictionary passed to the
-    constructor. The content of the data sent in each heap
+    constructor. The content of the data sent in each heap (the payload)
     is defined in the relevant CSP-SDP ICD documents.
 
     Usage example::
 
         config = dict(sender_node=[])
-        frame_shape = (self.num_baselines,)
+        frame_shape = (1, 1, 1, 435, 4)
         streamer = HeapStreamer(config, frame_shape)
         streamer.start()
         for i in range(num_heaps):
-            heap['visibility_channel_id'].value = (c0,)
-            heap['correlator_output_data'].value = vis_data
+            streamer.payload['timestamp_utc'] = [(i, 0)]
+            streamer.payload['complex_visibility'] = get_vis_data(i)
             streamer.send_heap(i)
         streamer.end()
 
@@ -55,52 +57,57 @@ class HeapStreamer():
       in sending the heap.
     """
 
-    def __init__(self, log, config, num_pol, num_baseline, frame_shape):
+    # FIXME(BM) do not pass logger object to this method!
+    def __init__(self, config, frame_shape, num_pol, log=Logger(__name__)):
         """Creates and sets up SPEAD streams.
 
-        The configuration of streams is passed in via the ``config`` argument.
+        The configuration of streams is passed in via the ``config`` arguent.
 
         The dimensions of the visibility data must be specified in order
         to initialise the payload. This is a tuple of dimensions defined in the
         ICD as:
 
+
         Args:
-            log (logging.Logger): Python logging object.
             config (dict): Dictionary of settings (see above).
-            num_pol: number of polarization
-            num_baseline: number of baseline
             frame_shape (tuple): Dimensions of the payload visibility data.
+            log (logging.Logger): Python logging object.
         """
-        self._log = log
         self._config = config
+        self._frame_shape = frame_shape
+        self._num_pol = num_pol
+        self._log = log
+        self._heap_descriptor = self._init_heap_descriptor()
         self._streams = list()
         self._heap_counter = 0
         self._send_timer = 0
-        self._num_pol = num_pol
-        self._num_baseline = num_baseline
-        self._frame_shape = frame_shape
-        self._heap_descriptor = self._init_heap_descriptor()
-        self._heap_counter = 0
-        self._send_timer = 0
         self._heap_size = self._get_heap_size()
-
+        self._create_streams()
+        self._payload = self._init_payload()
 
     def start(self):
         """Send the start of stream message to each stream."""
-        self._create_streams()
         self._heap_counter = 0
         self._send_timer = 0
         for stream, item_group in self._streams:
             # Blocking send
             stream.send_heap(item_group.get_start())
+            
+            # Async Send
+            # stream.async_send_heap(item_group.get_start())
+            # asyncio.async(stream.async_send_heap(item_group.get_start()))
 
     def end(self):
         """Send the end of stream message to each stream."""
         for stream, item_group in self._streams:
             # Blocking send
             stream.send_heap(item_group.get_end())
+            
+            # Async Send
+            # stream.async_send_heap(item_group.get_end())
+            # asyncio.async(stream.async_send_heap(item_group.get_end()))
 
-    def send_heap(self, heap_index, stream_id):
+    def send_heap(self, heap_index, stream_id=0):
         """Send one heap with the data contained in self.payload to the
         specified stream ID.
 
@@ -115,26 +122,58 @@ class HeapStreamer():
         for name, item in item_group.items():
             self._log.debug('    item: 0x{:04X} {}'.format(item.id, name))
 
-        stream.send_heap(item_group.get_heap())
+            item.value = self._payload[name]
+
+        # Send the updated heap_descriptor
+        _heap = item_group.get_heap()
+        # Blocking Send
+        stream.send_heap(_heap)
+        
+        # Async Send
+        # futures = [
+        #     asyncio.async(stream.async_send_heap(_heap))
+        # ]
+        # Async Send
+        # asyncio.get_event_loop().run_until_complete(asyncio.wait(futures))
 
         self._heap_counter += 1
         self._send_timer += (time.time() - t0)
 
-    def log_stats(self):
-        """Print (to the log) the stats for sending heaps"""
-        # Print some performance statistics.
-        total_bytes = self._heap_size * self._heap_counter
-        total_time = self._send_timer
-        self._log.info('Sending complete in {} s'.format(total_time))
-        self._log.info('Total bytes = {} ({:.3f} MiB)'.
-                       format(total_bytes, total_bytes / 1024 ** 2))
-        self._log.info('Rate = {:.3f} MiB/s'
-                       .format(total_bytes / (1024 ** 2 * total_time)))
+    @property
+    def payload(self):
+        """Payload attribute.
+
+        This is a dictionary containing the payload for the HEAP.
+        This dictionary should be modified before calling send_heap() to
+        update the data sent.
+
+        Payload has the following keys
+
+        * timestamp_utc
+        * channel_baseline_id
+        * channel_baseline_count
+        * schedule_block
+        * hardware_source_id
+        * complex_visibility
+        * time_centroid_index
+        * flagging_fraction
+        """
+        return self._payload
+
+    @payload.setter
+    def payload(self, **kwargs):
+        print(kwargs)
+
+    @payload.deleter
+    def payload(self):
+        del self._payload
+
+
 
     def _get_heap_size(self):
         """Return the total size of items in the SPEAD heap in bytes."""
         heap_size = 0
-        for key, item in self._heap_descriptor.items():
+        for item in self._heap_descriptor:
             num_elements = np.prod(item['shape'])
             if 'type' in item:
                 heap_size += np.dtype(item['type']).itemsize * num_elements
@@ -160,11 +199,9 @@ class HeapStreamer():
                                                   default)
         return value
 
-
     def _get_config(self, key, default=None):
         """Read a configuration value"""
         return self._get_config_r(self._config, key, default)
-
 
     def _create_streams(self):
         """Construct streams, item group and item descriptions."""
@@ -189,6 +226,11 @@ class HeapStreamer():
             # Blocking send
             stream = spead2.send.UdpStream(thread_pool, host, port,
                                            stream_config)
+
+            # Asynchronous Send
+            # stream = spead2.send.asyncio.UdpStream(thread_pool, host, port,
+            #                                         stream_config)
+
             item_group = spead2.send.ItemGroup(flavour=flavour)
             # Append stream & item group the stream list.
             streams.append((stream, item_group))
@@ -197,102 +239,136 @@ class HeapStreamer():
             self._log.debug('  Address = {}:{}'.format(host, port))
             self._log.debug('  Flavour = SPEAD-{}-{} v{} compat:{}'.
                             format(flavour.item_pointer_bits,
-                                   flavour.heap_address_bits,
-                                   flavour.version,
-                                   flavour.bug_compat))
+                                  flavour.heap_address_bits,
+                                  flavour.version,
+                                  flavour.bug_compat))
             self._log.debug('  Threads = {}'.format(threads))
 
-            # Add items to the item group based on the heap descriptor.
-            for key, item in self._heap_descriptor.items():
+
+            # Add items to the item group based on the heap_descriptor
+            for j, item in enumerate(self._heap_descriptor):
                 item_id = item['id']
                 if isinstance(item_id, str):
                     item_id = int(item_id, 0)
-                name = key
+                name = item['name']
                 desc = item['description']
-                item_shape = item['shape'] if 'shape' in item else tuple()
                 item_type = item['type'] if 'type' in item else None
                 item_format = item['format'] if 'format' in item else None
-                item_group.add_item(item_id, name, desc, shape=item_shape,
+                # if 'shape' not in item:
+                #     raise RuntimeError('shape not defined for {}'.format(name))
+                shape = item['shape']
+                item_group.add_item(item_id, name, desc, shape=shape,
                                     dtype=item_type, format=item_format)
-                self._log.debug('Adding item: {} {}'.format(item_id,
+                self._log.debug('Adding item {} : {} {}'.format(j, item_id,
                                                                 name))
                 self._log.debug('  description = {}'.format(desc))
                 if item_type is not None:
                     self._log.debug('  type = {}'.format(item_type))
                 if item_format is not None:
                     self._log.debug('  format = {}'.format(item_format))
-                    self._log.debug('  shape = {}'.format(item_shape))
+                    self._log.debug('  shape = {}'.format(shape))
 
         self._streams = streams
 
+
     def _init_heap_descriptor(self):
-        """ Return the heap descriptor. """
-        heap_descriptor = {
-            'visibility_timestamp_count': {
-                'id': '0x8000',
-                'description': 'SDP_REQ_INT-45.',
-                'format': [('u', 32)],
-                'shape': (1,)
+        """Return the heap descriptor dictionary."""
+        heap_descriptor = [
+            # Per SPEAD heap_descriptor
+            {
+                "id": 0x8000,
+                "name": "visibility_timestamp_count",
+                "description": "SDP_REQ_INT-45.",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'visibility_timestamp_fraction': {
-                'id': '0x8001',
-                'description': 'SDP_REQ_INT-45.',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8001,
+                "name": "visibility_timestamp_fraction",
+                "description": "SDP_REQ_INT-45.",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'visibility_channel_id': {
-                'id': '0x8002',
-                'description': '',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8002,
+                "name": "visibility_channel_id",
+                "description": "",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'visibility_channel_count': {
-                'id': '0x8003',
-                'description': 'SDP_REQ_INT-47.',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8003,
+                "name": "visibility_channel_count",
+                "description": "SDP_REQ_INT-47",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'visibility_baseline_polarisation_id': {
-                'id': '0x8004',
-                'description': 'SDP_REQ_INT-46.',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8004,
+                "name": "visibility_baseline_polarisation_id",
+                "description": "SDP_REQ_INT-46",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'visibility_baseline_count': {
-                'id': '0x8005',
-                'description': 'SDP_REQ_INT-47.',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8005,
+                "name": "visibility_baseline_count",
+                "description": "SDP_REQ_INT-47",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'phase_bin_id': {
-                'id': '0x8006',
-                'description': '',
-                'format': [('u', 16)],
-                'shape': (1,)
+            {
+                "id": 0x8006,
+                "name": "phase_bin_id",
+                "description": "",
+                "format": [('u', 16)],
+                "shape": (1,)
             },
-            'phase_bin_count': {
-                'id': '0x8007',
-                'description': '',
-                'format': [('u', 16)],
-                'shape': (1,)
+            {
+                "id": 0x8007,
+                "name": "phase_bin_count",
+                "description": "",
+                "format": [('u', 16)],
+                "shape": (1,)
             },
-            'schedule_block_id': {
-                'id': '0x8008',
-                'description': 'SDP_REQ_INT-48',
-                'format': [('u', 48)],
-                'shape': (1,)
+            {
+                "id": 0x8008,
+                "name": "schedule_block_id",
+                "description": "SDP_REQ_INT-48",
+                "format": [('u', 48)],
+                "shape": (1,)
             },
-            'visibility_hardware_id': {
-                'id': '0x8009',
-                'description': 'SDP_REQ_INT-49',
-                'format': [('u', 32)],
-                'shape': (1,)
+            {
+                "id": 0x8009,
+                "name": "visibility_hardware_id",
+                "description": "SDP_REQ_INT-49",
+                "format": [('u', 32)],
+                "shape": (1,)
             },
-            'correlator_output_data': {
-                'id': '0x800D',
-                'description': '',
-                'type': [('TCI', 'i8'), ('FD', 'u8'), ('VIS', 'c8', self._num_pol)],
-                'shape': self._frame_shape
-            },
-        }
+            {
+                "id": 0x800D,
+                "name": "correlator_output_data",
+                "description": "",
+                "type": [('TCI', 'i8'), ('FD', 'u8'), ('VIS', 'c8', self._num_pol)],
+                "shape": self._frame_shape
+            }
+        ]
         return heap_descriptor
+
+    def _init_payload(self):
+        """Return an empty payload"""
+        payload = dict(
+            visibility_timestamp_count=[0],
+            visibility_timestamp_fraction=[0],
+            visibility_channel_id=[0],
+            visibility_channel_count=[0],
+            visibility_baseline_polarisation_id=[0],
+            visibility_baseline_count=[0],
+            phase_bin_id=[0],
+            phase_bin_count=[0],
+            schedule_block_id=[0],
+            visibility_hardware_id=[0],
+            correlator_output_data=np.zeros(
+                (self._frame_shape),dtype=[('TCI', 'i8'), ('FD', 'u8'), ('VIS', 'c8', self._num_pol)])
+        )
+        return payload

@@ -14,6 +14,5 @@ def test_config_database():
     data = redis_api.hget_all("ingest:visibility_receiver")
     print(data)
 
-
 if __name__ == '__main__':
     test_config_database()
