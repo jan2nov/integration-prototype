@@ -23,11 +23,7 @@
     "streams": [
       {
         "port": 8001,
-<<<<<<< HEAD
         "host": "10.0.0.13",
-=======
-        "host": "localhost",
->>>>>>> dea567e9f0b8ab198247ea0a579a71e7622b7fc0
         "threads": 1
       }
     ]

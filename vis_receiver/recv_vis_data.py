@@ -135,7 +135,7 @@ def _receive_heaps(config, streams, log):
             start_channel = data['visibility_channel_id'][0]
             num_channels = data['visibility_channel_count'][0]
             # max_times_per_file = config['output']['max_times_per_file']
-            max_times_per_file = int(config[b'max_times_per_file'])
+            max_times_per_file = int(config[b'output:max_times_per_file'])
             # max_times_per_file = redis_api.get_variable("output:max_times_per_file")
 
             # Find out which file this heap goes in.
