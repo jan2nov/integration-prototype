@@ -14,6 +14,8 @@ import simplejson as json
 import os
 import pickle
 from redis_client import RedisDatabase
+from vis_ingest_calc import VisIngestProcessing
+import ast
 
 oskar = None
 # Comment out 'try' block to not write Measurement Sets.
@@ -50,8 +52,16 @@ def _parse_command_line():
                         action='store_true')
     return parser.parse_args()
 
+def _get_config(redis_api, log):
+    """
+    Getting a snapshot of configuration data 
+    from redis database using redis api
+    """
+    config = redis_api.hget_all("ingest:visibility_receiver")
+    return config
 
-def _create_streams(redis_api, log):
+
+def _create_streams(config, log):
     """Construct streams, item group and item descriptions."""
     # bug_compat = spead2.BUG_COMPAT_PYSPEAD_0_5_2
     bug_compat = 0
@@ -62,18 +72,22 @@ def _create_streams(redis_api, log):
     # max_free = config['memory_pool']['max_free']
     # initial = config['memory_pool']['initial']
 
-    # Redis Api
-    lower = redis_api.get_variable("memory_pool:lower")
-    upper = redis_api.get_variable("memory_pool:upper")
-    max_free = redis_api.get_variable("memory_pool:max_free")
-    initial = redis_api.get_variable("memory_pool:initial")
-    num_streams = redis_api.hget_all("stream") 
+    # This is not a JSON, therefore no need for parsing.
+    # It is a dictionary, which just happens to have keys which are
+    # byte strings. So simply use byte string to access the values
+    upper = int(config[b'memory_pool:upper'])
+    lower = int(config[b'memory_pool:lower'])
+    max_free = int(config[b'memory_pool:max_free'])
+    initial = int(config[b'memory_pool:initial'])
+    stream = config[b'stream']
+    stream_decode = stream.decode('utf-8')
+    num_streams = ast.literal_eval(stream_decode)
 
     streams = []
     #for stream in config['streams']:
     for stream in num_streams:
-        port = redis_api.hget_variable("stream", stream.decode('utf-8'))
-        # log.debug('Creating stream on port {}'.format(stream['port']))
+        port = int(num_streams.get("port"))
+        # port = redis_api.hget_variable("stream", stream.decode('utf-8'))
         log.debug('Creating stream on port {}'.format(port))
         s = spead2.recv.Stream(spead2.ThreadPool(), bug_compat)
         pool = spead2.MemoryPool(lower, upper, max_free, initial)
@@ -89,8 +103,10 @@ def _pickle_write(filename, data):
         pickle.dump(data, f, protocol=2)
 
 
-def _receive_heaps(redis_api, streams, log):
+def _receive_heaps(config, streams, log):
     ms = {}
+
+    ingest_proc = VisIngestProcessing(log)
     for stream in streams:
         item_group = spead2.ItemGroup()
 
@@ -111,15 +127,16 @@ def _receive_heaps(redis_api, streams, log):
                 data[item.name] = item.value
 
             # Skip if the heap does not contain visibilities.
-            if 'complex_visibility' not in data:
+            if 'correlator_output_data' not in data:
                 continue
 
             # Get data dimensions.
             time_index = heap.cnt - 2  # Extra -1 because first heap is empty.
-            start_channel = data['channel_baseline_id'][0][0]
-            num_channels = data['channel_baseline_count'][0][0]
+            start_channel = data['visibility_channel_id'][0]
+            num_channels = data['visibility_channel_count'][0]
             # max_times_per_file = config['output']['max_times_per_file']
-            max_times_per_file = redis_api.get_variable("output:max_times_per_file")
+            max_times_per_file = int(config[b'max_times_per_file'])
+            # max_times_per_file = redis_api.get_variable("output:max_times_per_file")
 
             # Find out which file this heap goes in.
             # Get the time and channel range for the file.
@@ -132,6 +149,19 @@ def _receive_heaps(redis_api, streams, log):
                 file_start_time, file_end_time,
                 start_channel, start_channel + num_channels - 1)
             data['time_index'] = time_index
+
+            # Placeholders for further processing the data
+            # Calculate data weights
+            ingest_proc.data_weight()
+
+            # Flag visibility data
+            ingest_proc.flag_vis_data()
+
+            # Demix visibility data
+            ingest_proc.demix_vis_data()
+
+            # Averaging visibility data
+            ingest_proc.avg_vis_data()
 
             # Write visibility data.
             _pickle_write('/home/sdp/output/' + base_name + '.p', data)
@@ -161,14 +191,16 @@ def main():
     # config = json.load(args.config_file)
     log.info('Loading config from Redis Database')
     redis_api = RedisDatabase(args.host, args.port)
-    if args.print_settings:
-        log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
-                                                     sort_keys=True)))
+    # if args.print_settings:
+    #     log.debug('Settings:\n {}'.format(json.dumps(config, indent=4,
+    #                                                 sort_keys=True)))
+
     # Create streams and receive data.
     log.info('Creating streams...')
-    streams = _create_streams(redis_api, log)
+    config = _get_config(redis_api, log)
+    streams = _create_streams(config, log)
     log.info('Waiting to receive...')
-    _receive_heaps(redis_api,streams, log)
+    _receive_heaps(config, streams, log)
 
     log.info('Done.')
 

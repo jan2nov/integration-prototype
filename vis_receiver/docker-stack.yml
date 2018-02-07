@@ -5,7 +5,7 @@ services:
   vis_recv1:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
-    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379
+    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.34 -p 6379
     volumes:
       - type: volume
         source: vis-vol1
@@ -25,7 +25,7 @@ services:
   vis_recv2:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
-    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379
+    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.34 -p 6379
     volumes:
       - type: volume
         source: vis-vol2
@@ -45,7 +45,7 @@ services:
   vis_recv3:
     image: njthykkathu/vis_test:latest
     entrypoint: python3
-    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.22 -p 6379
+    command: /home/sdp/vis_receiver/recv_vis_data.py -i 10.60.253.34 -p 6379
     volumes:
       - type: volume
         source: vis-vol3
