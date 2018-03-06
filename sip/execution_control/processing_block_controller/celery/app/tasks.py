@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
 """Processing Block Controller (Celery worker)"""
 import os
+
 from celery import Celery
+from .workflow import Workflow
+
+APP = Celery('tasks',
+             broker=os.getenv('CELERY_BROKER'),
+             backend=os.getenv('CELERY_BACKEND'))
 
 
-APP = Celery('tasks', broker=os.getenv('CELERY_BROKER'))
-
-
-@APP.task
-def execute_processing_block(workflow):
+@APP.task(bind=True)
+def execute_processing_block(self, config):
     """Execute a processing block.
 
     Args:
-        workflow (dict): Workflow description.
+        config (dict): Processing Block Configuration.
     """
-    pass
+    print('Executing Processing Block, id = ', config['id'])
+
+    workflow = Workflow()
+    workflow.run(config['workflow'])

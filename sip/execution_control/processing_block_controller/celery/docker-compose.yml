@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+
+  pbc:
+    image: skasip/processing_block_controller_celery
+    environment:
+      CELERY_BROKER: "redis://test_broker:6379/0"
+      CELERY_BACKEND: "redis://test_broker:6379/0"
+    build: .
+
+  celery_broker:
+    image: redis:4.0.6-alpine
+    ports:
+      - 6379:6379
