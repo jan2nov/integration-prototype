@@ -1,0 +1,77 @@
+
+<form id="new_sbi">
+
+  <!-- SELECT TEMPLATE -->
+  <div class="form-group">
+    <label>Template:</label>
+    <select class="form-control form-control-sm"
+            id="template" value="">
+      <option selected="selected" value="">Select template...
+      </option>
+      <option>example-1</option>
+      <option>example-2</option>
+    </select>
+  </div>
+
+  <!-- NO. PROCESSING BLOCKS -->
+  <div class="form-group">
+    <label>No processing blocks:</label>
+    <input class="form-control form-control-sm"
+           id="num_blocks" type="number" min="0" max="10" value="1">
+  </div>
+
+  <!-- PROJECT NAME -->
+  <div class="form-group">
+    <label for="project">Project:</label>
+    <input class="form-control form-control-sm"
+           id="project" type="text" value="sip">
+  </div>
+
+  <!-- UPDATE & SUBMIT BUTTONS-->
+  <div class="form-group">
+    <button type="button" onclick="update_editor();" class="btn btn-primary"
+            id="update">Update Editor</button>
+    <button type="submit" class="btn btn-primary" id="submit">Submit</button>
+    <button type="button" onclick="editor_undo();" class="btn btn-primary"
+            id="undo">Undo</button>
+    <button type="button" onclick="editor_redo();" class="btn btn-primary"
+            id="redo">Redo</button>
+  </div>
+
+</form>
+
+<!-- NOTIFICATION POPUP -->
+<div id="sbi_notification"></div>
+
+<!--<textarea id="sbi-editor"></textarea>-->
+
+<div id="sbi-editor" class="editor"></div>
+
+<!-- PREVENT FORM SUBMISSION ON ENTER -->
+<script>
+  $("#new_sbi").on("keyup keypress keydown", function(event) {
+    if (event.which == 13) {
+      event.preventDefault();
+      return false;
+    }
+  });
+</script>
+
+<!-- LEAVE INPUT BOX FOCUS ON PRESSING ENTER -->
+<script>
+  $("#num_blocks").on("keydown", function(event) {
+    if (event.which == 13) {
+      $(this).blur();
+    }
+  });
+
+  $("#project").on("keydown", function(event) {
+    if (event.which == 13) {
+      $(this).blur();
+    }
+  });
+</script>
+
+
+
+

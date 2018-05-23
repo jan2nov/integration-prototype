@@ -1,0 +1,8 @@
+.editor {
+  border: 1px solid;
+}
+
+#sbi-editor {
+  height: 40rem;
+  fontSize: '14px';
+}

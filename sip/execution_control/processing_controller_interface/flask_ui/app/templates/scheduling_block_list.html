@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block container %}
+
+<!-- TABLE -->
+<div class="container-fluid">
+  <h3>Scheduling Block Instances:</h3>
+  <br/>
+  {% include 'scheduling_blocks/table.html' %}
+</div>
+
+<br/>
+<br/>
+
+<a href="/scheduling-blocks/new" class="btn btn-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">New</a>
+
+{% endblock %}
