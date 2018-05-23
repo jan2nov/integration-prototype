@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+
+    tango_host:
+      image: skasip/tango_db
+      ports:
+        - 10000:10000
+
+    config_db:
+      image: redis:4.0.6-alpine
+      ports:
+        - 6379:6379
+      volumes:
+        - sip_config_db:/data/db
+
+    redis-commander-db0:
+      image: rediscommander/redis-commander:latest
+      environment:
+      - REDIS_HOSTS=config_db:config_db:6379:0
+      ports:
+      - 8081:8081
+
+    test_device:
+      image: skasip/test_pci_device
+      build: .
+      environment:
+        - TANGO_HOST=tango_host:10000
+      volumes:
+        - ./device:/device
+
+
+volumes:
+  sip_config_db:
