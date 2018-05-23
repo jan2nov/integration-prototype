@@ -33,7 +33,8 @@ eg:
 """
 import time
 from tango import AttrWriteType
-from tango.server import Device, DeviceMeta, attribute, command
+from tango.server import run, Device, DeviceMeta, attribute, command
+from tango import Database, DbDevInfo
 from .db.client import ConfigDbClient
 
 DB = ConfigDbClient()
@@ -71,4 +72,18 @@ class Test(Device, metaclass=DeviceMeta):
 
 
 if __name__ == '__main__':
-    Test.run_server()
+
+    # Register the device with the TANGO database.
+    # FIXME(BM) work out way to only do this if the device is not already \
+    # registered
+    TANGO_DB = Database()
+    DEV_INFO = DbDevInfo()
+    DEV_INFO.name = 'sip_SDP/test/1'
+    DEV_INFO._class = 'Test'
+    DEV_INFO.server = 'Test/test'
+    print('Adding device: %s' % DEV_INFO.name)
+    TANGO_DB.add_device(DEV_INFO)
+
+    # Start the device server
+    Test.run_server(['test'])
+

@@ -33,8 +33,8 @@ services:
         - TANGO_HOST=tango_host:10000
         - REDIS_HOST=config_db
         - REDIS_DB_ID=0
-      volumes:
-        - ./device:/pci/device
+#      volumes:
+#        - ./device:/pci/device
       build: .
       depends_on:
         - tango_host
@@ -53,6 +53,14 @@ services:
       ports:
       - 8081:8081
 
+    tm_client:
+      image: skasip/mock_tm_client
+      environment:
+        - TANGO_HOST=tango_host:10000
+      depends_on:
+        - test_device
+      build:
+        context: mock_tm_client
 
 volumes:
   sip_config_db:

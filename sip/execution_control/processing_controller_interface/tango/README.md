@@ -8,70 +8,52 @@ Device Server or split into a pair of Device Servers, one for sub-array devices 
 ## Quickstart
 
 
-To start the tango_db and redis db use the command:
-
-```bash
-docker-compose up -d
-```
-
-This starts 3 containers:
-
-- skasip/tango_db
-- redis
-- redis commander
-
-
-To populate the db:
-
-```bash
-python3 -m device.db.init
-```
-
-
-To build test device:
+To build the device container and mock TM client container:
 
 ```bash
 docker-compose build
 ```
 
-To run the test device:
+To start the tango database, redis configuration database, Processing Controller
+Tango device and mock TM client: 
+
+```bash
+docker-compose up -d
+```
+
+This starts the following containers:
+
+- **skasip/tango_mysql**: MySQL Db containing the Tango Db 
+- **skasip/tango_host**: The Tango Databaseds device server
+- **skasip/test_pci_device**: The Tango Processing Controller Interface device
+- **redis**: A Redis instance mocking the SDP configuration database
+- **rediscommander**: A web GUI for debugging the Redis configuration database
+- **skasip/mock_tm_client**: A Mock TM client. 
+
+
+Once these containers have started, to populate the Redis Configuration 
+database run the following command (Note this will require a number of 
+dependencies are installed - TODO requirements.txt file!):
+
+```bash
+python3 -m device.db.init [number of scheduling blocks]
+```
+
+To view the output of the mock TM client:
 
 
 ```bash
-docker exec --it tango_test_device_1 /bin/bash
-python3 -m device.register
-python3 -m device.run test
+docker logs tango_tm_client_1
 ```
 
-Optionally, before running the device use:
+*NOTE: If the TM client has started before the PCI device it is connecting to 
+is ready it is possible that the device will fail to connect. If is happens,
+restart the container with the command `docker-compose up -d` and try
+the `docker logs tango_tm_client_1` command again.* 
+
+
+When finished all the containers can be stopped and removed with the command
 
 ```bash
-python3 -m device.db.init 5
+docker-compose rm -s -f
 ```
-
-to add 5 scheduling block instances into the configuration 
-database.
-
-
-To connect to the test device:
-
-```bash
-docker exec --it tango_test_device_1 /bin/bash
-python3
-```
-
-Then in the python3 prompt:
-
-```python
-import tango
-dev = tango.DeviceProxy('sip_SDP/test/1')
-dev.time
-dev.test
-dev.test = [4, 5, 6]
-dev.test
-dev.echo('hello')
-dev.num_scheduling_blocks
-dev.get_sbi_id(0)
-```
-
-
