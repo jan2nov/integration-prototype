@@ -2,10 +2,42 @@ version: '3.6'
 
 services:
 
+#    tango_host:
+#      image: skasip/tango_db
+#      ports:
+#        - 10000:10000
+
+    tango_mysql:
+      image: skasip/tango_mysql
+      environment:
+        - MYSQL_ROOT_PASSWORD=sip1
+      volumes:
+        - tango_db:/var/lib/mysql
+
     tango_host:
-      image: skasip/tango_db
+      image: skasip/tango_host
       ports:
         - 10000:10000
+      environment:
+        - TANGO_HOST=localhost:10000
+        - MYSQL_HOST=tango_mysql:3306
+        - MYSQL_USER=tango
+        - MYSQL_PASSWORD=tango
+        - MYSQL_DATABASE=tango_db
+      depends_on:
+        - tango_mysql
+
+    test_device:
+      image: skasip/test_pci_device
+      environment:
+        - TANGO_HOST=tango_host:10000
+        - REDIS_HOST=config_db
+        - REDIS_DB_ID=0
+      volumes:
+        - ./device:/pci/device
+      build: .
+      depends_on:
+        - tango_host
 
     config_db:
       image: redis:4.0.6-alpine
@@ -21,14 +53,7 @@ services:
       ports:
       - 8081:8081
 
-    test_device:
-      image: skasip/test_pci_device
-      build: .
-      environment:
-        - TANGO_HOST=tango_host:10000
-      volumes:
-        - ./device:/device
-
 
 volumes:
   sip_config_db:
+  tango_db:

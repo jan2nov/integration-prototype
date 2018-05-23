@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """Test Tango device server
 
-Run with
+Run (from the "processing_controller_interface/tango" folder) with:
 
-./device.py test
+    python3 -m device.run
 
 The first argument has to match the device server in the form <class>/arg
 
@@ -30,10 +30,10 @@ eg:
     print(dev.echo('hello world'))
     print(dev.info())
     print(dev.attribute_query('time')
-
 """
 import time
-from tango.server import Device, DeviceMeta, attribute, command, pipe
+from tango import AttrWriteType
+from tango.server import Device, DeviceMeta, attribute, command
 from .db.client import ConfigDbClient
 
 DB = ConfigDbClient()
@@ -41,6 +41,8 @@ DB = ConfigDbClient()
 
 class Test(Device, metaclass=DeviceMeta):
     """Test Tango device class."""
+
+    _value = [1, 2, 3]
 
     @attribute
     def time(self):
@@ -50,10 +52,22 @@ class Test(Device, metaclass=DeviceMeta):
     def echo(self, value):
         return value
 
-    @pipe
-    def info(self):
+    @attribute(dtype=int, access=AttrWriteType.READ)
+    def num_scheduling_blocks(self):
+        return len(DB.get_scheduling_block_ids())
+
+    @command(dtype_in=int, dtype_out=str)
+    def get_sbi_id(self, value):
         sbi_ids = DB.get_scheduling_block_ids()
-        return 'Information', dict(foo=2, bar='hello', sbi_ids=sbi_ids)
+        return sbi_ids[value]
+
+    @attribute(dtype=(int, ), max_dim_x=10, access=AttrWriteType.READ_WRITE)
+    def test(self):
+        return self._value
+
+    @test.write
+    def test(self, value):
+        self._value = value
 
 
 if __name__ == '__main__':

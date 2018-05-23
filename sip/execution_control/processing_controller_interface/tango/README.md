@@ -36,7 +36,42 @@ docker-compose build
 
 To run the test device:
 
+
 ```bash
-docker exec --it 
+docker exec --it tango_test_device_1 /bin/bash
+python3 -m device.register
+python3 -m device.run test
 ```
+
+Optionally, before running the device use:
+
+```bash
+python3 -m device.db.init 5
+```
+
+to add 5 scheduling block instances into the configuration 
+database.
+
+
+To connect to the test device:
+
+```bash
+docker exec --it tango_test_device_1 /bin/bash
+python3
+```
+
+Then in the python3 prompt:
+
+```python
+import tango
+dev = tango.DeviceProxy('sip_SDP/test/1')
+dev.time
+dev.test
+dev.test = [4, 5, 6]
+dev.test
+dev.echo('hello')
+dev.num_scheduling_blocks
+dev.get_sbi_id(0)
+```
+
 
